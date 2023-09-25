@@ -15,6 +15,15 @@ declare(strict_types=1);
  * -virtual-pixel transparent -filter point -distort SRT 0 +repage \
  * $OUTPUT
  *
+ * inkscape --version
+ * Inkscape 1.3 (1:1.3+202307231459+0e150ed6c4)
+ *
+ * convert --version
+ * Version: ImageMagick 6.9.11-60 Q16 x86_64 2021-01-25 https://imagemagick.org
+ * Copyright: (C) 1999-2021 ImageMagick Studio LLC
+ * License: https://imagemagick.org/script/license.php
+ * Features: Cipher DPC Modules OpenMP(4.5)
+ * Delegates (built-in): bzlib djvu fftw fontconfig freetype heic jbig jng jp2 jpeg lcms lqr ltdl lzma openexr pangocairo png tiff webp wmf x xml zlib
  */
 
 
