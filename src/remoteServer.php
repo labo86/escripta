@@ -44,7 +44,7 @@ function executeComplexCommandInRemoteServer(string $hostIp, string $hostUser, i
 /**
  * @throws Exception
  */
-function uploadFilesToRemoteServer(string $hostIp, string $hostUser, int $hostPort, array $files) {
+function uploadFilesToRemoteServer(string $hostIp, string $hostUser, int $hostPort, array $files) : string {
 
     $escapedFiles = [];
 
@@ -68,5 +68,41 @@ EOF;
     printf("Uploading files to remote server with command\n$sshCommand\n");
 
     $strValue = executeCommandAndGetStdOut($sshCommand);
+    return $strValue;
+}
+
+/**
+ * @throws Exception
+ */
+function rsyncToRemoteServer(string $host, string $hostUser, int $hostPort, string $sshKeyFile, string $sourceDir, string $targetDir) : string {
+
+    $sshKeyFile = realpath($sshKeyFile);
+    $sshCommand = <<<EOF
+ssh -i {$sshKeyFile} -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -p {$hostPort}
+EOF;
+    $sshCommand = escapeshellarg($sshCommand);
+    $sourceDir = realpath($sourceDir) . "/";
+
+
+    $command = <<<EOF
+rsync \
+    --recursive \
+    --links \
+    --perms \
+    --times \
+    --devices \
+    --specials \
+    --verbose \
+    --compress \
+    --delete \
+    --exclude='.git' \
+    -e {$sshCommand} \
+    {$sourceDir} \
+    {$hostUser}@{$host}:{$targetDir}
+EOF;
+
+    printf("Uploading files to remote server with command\n$command\n");
+
+    $strValue = executeCommandAndGetStdOut($command);
     return $strValue;
 }
