@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 require_once(__DIR__ . '/common.php');
 
-function executeCommandInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $command ): string
+function executeCommandInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $command , bool $captureStdout = true): string
 {
     $escapedCommandArg = escapeshellarg($command);
 
@@ -19,14 +19,14 @@ EOF;
     printf("Executing command in remote server\n$sshCommand\n");
 
     /** @noinspection PhpUnnecessaryLocalVariableInspection */
-    $strValue = executeCommandAndGetStdOut($sshCommand);
+    $strValue = executeCommandAndGetStdOut($sshCommand, $captureStdout);
     return $strValue;
 }
 
 /**
  * @throws Exception
  */
-function executeComplexCommandInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $command ): string {
+function executeComplexCommandInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $command, bool $captureStdout = true): string {
     //generate temp file with command as a content
     $tempFile = tempnam(sys_get_temp_dir(), 'tmp_cmd_');
     file_put_contents($tempFile, $command);
@@ -36,7 +36,7 @@ function executeComplexCommandInRemoteServer(string $hostIp, string $hostUser, i
 
     $executionCommand = sprintf("bash %s", escapeshellarg(basename($tempFile)));
 
-    $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, $executionCommand);
+    $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, $executionCommand, $captureStdout);
     return $strValue;
 
 }
@@ -106,3 +106,33 @@ EOF;
     $strValue = executeCommandAndGetStdOut($command);
     return $strValue;
 }
+
+function createUserWithNoPasswordInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $userName) : string {
+    $command = <<<EOF
+sudo useradd --create-home --shell /bin/bash --user-group {$userName}
+sudo passwd --delete {$userName}
+EOF;
+
+    $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, $command, false);
+    return $strValue;
+
+}
+
+function addAuthorizedKeyToUserInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $userName, string $publicKey) : string {
+    $command = <<<EOF
+mkdir -p /home/{$userName}/.ssh
+chown -R {$userName}:{$userName} /home/{$userName}/.ssh
+echo "{$publicKey}" >> /home/{$userName}/.ssh/authorized_keys
+chmod 700 /home/{$userName}/.ssh
+EOF;
+    $command = escapeshellarg($command);
+    $command = escapeshellarg("bash -c {$command}");
+    $sucommand = <<<EOF
+sudo su -c {$command} - {$userName}
+EOF;
+
+
+    $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, $sucommand, false);
+    return $strValue;
+}
+
