@@ -23,6 +23,26 @@ EOF;
     return $strValue;
 }
 
+function executeCommandWithKeyInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $identityFile, string $command , bool $captureStdout = true): string
+{
+    $escapedCommandArg = escapeshellarg($command);
+
+    $sshCommand = <<<EOF
+ssh \
+-i $identityFile \
+-p $hostPort \
+-t \
+$hostUser@$hostIp \
+$escapedCommandArg
+EOF;
+
+    printf("Executing command in remote server\n$sshCommand\n");
+
+    /** @noinspection PhpUnnecessaryLocalVariableInspection */
+    $strValue = executeCommandAndGetStdOut($sshCommand, $captureStdout);
+    return $strValue;
+}
+
 /**
  * @throws Exception
  */
@@ -136,3 +156,58 @@ EOF;
     return $strValue;
 }
 
+function createFileOnRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $filePath, string $fileContent) : string {
+    $escapedFilePath = escapeshellarg($filePath);
+    $escapedFileContent = escapeshellarg($fileContent);
+
+    $command = <<<EOF
+echo {$escapedFileContent} | sudo tee {$escapedFilePath}
+EOF;
+
+    $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, $command, false);
+    return $strValue;
+}
+
+function createSudoersServiceFileInRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $serviceUser, string $serviceName) : string
+{
+    $command = <<<EOF
+{$serviceUser} ALL=(ALL) NOPASSWD:/usr/bin/systemctl start {$serviceName}.service, /usr/bin/systemctl stop {$serviceName}.service, /usr/bin/systemctl restart {$serviceName}.service, /usr/bin/systemctl status {$serviceName}.service
+EOF;
+
+    $filePath = "/etc/sudoers.d/{$serviceName}_sudoers";
+
+    createFileOnRemoteServer($hostIp, $hostUser, $hostPort, $filePath , $command);
+
+    $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, "sudo chmod 440 {$filePath}", false);
+    return $strValue;
+}
+
+/**
+ * Create a service files on /etc/systemd/system/
+ * @param string $hostIp
+ * @param string $hostUser
+ * @param int $hostPort
+ * @param string $serviceName
+ * @param string $user
+ * @param string $execStart
+ * @return string
+ */
+function createSystemdServiceOnRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $serviceName, string $user, string $execStart) : string
+{
+    $content = createSystemdServiceFileContent($serviceName, $user, $user, $serviceName, $execStart);
+    $strValue = createFileOnRemoteServer($hostIp, $hostUser, $hostPort, "/etc/systemd/system/{$serviceName}.service", $content);
+    return $strValue;
+
+}
+
+function systemCtlOnRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $sshKeyFile, string $serviceName, string $serviceCommand) {
+    $sshKeyFile = realpath($sshKeyFile);
+    $command = <<<EOF
+sudo systemctl {$serviceCommand} {$serviceName}.service; systemctl status {$serviceName}.service
+EOF;
+
+    $strValue = executeCommandWithKeyInRemoteServer($hostIp, $hostUser, $hostPort, $sshKeyFile, $command, true);
+    return $strValue;
+
+
+}
