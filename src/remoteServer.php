@@ -156,12 +156,17 @@ EOF;
     return $strValue;
 }
 
-function createFileOnRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $filePath, string $fileContent) : string {
+function createFileOnRemoteServer(string $hostIp, string $hostUser, int $hostPort, string $filePath, string $fileContent, bool $sudo = true) : string {
     $escapedFilePath = escapeshellarg($filePath);
     $escapedFileContent = escapeshellarg($fileContent);
 
+    if ($sudo) {
+        $escapedFilePath = "sudo tee {$escapedFilePath}";
+    } else {
+        $escapedFilePath = "tee {$escapedFilePath}";
+    }
     $command = <<<EOF
-echo {$escapedFileContent} | sudo tee {$escapedFilePath}
+echo {$escapedFileContent} | {$escapedFilePath}
 EOF;
 
     $strValue = executeCommandInRemoteServer($hostIp, $hostUser, $hostPort, $command, false);
