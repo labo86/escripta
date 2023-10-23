@@ -99,6 +99,7 @@ function get1PasswordConfigEnvironmentByCommandLine(string $targetProjectName, s
             $privateKeyRef = $itemInfo['private_key'];
             $privateKey = get1PasswordValue($privateKeyRef);
             file_put_contents("$targetFolder/$targetConfigName.key", $privateKey);
+            chmod("$targetFolder/$targetConfigName.key", 0600);
         }
 
     }
