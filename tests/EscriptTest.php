@@ -16,23 +16,23 @@ class EscriptTest extends TestCase
     public static function dataProviderIsLineCodeStart() : array {
 
         $LANG = Escript::LANG;
-        $PARAM = Escript::PARAM;
+        $PARAMS = Escript::PARAMS;
         return [
-            ['```bash escript', [$LANG => 'bash', $PARAM => []]],
-            ['```bash escript ', [$LANG => 'bash', $PARAM => []]],
-            ['```php escript ', [$LANG => 'php', $PARAM => []]],
+            ['```bash escript', [$LANG => 'bash', $PARAMS => []]],
+            ['```bash escript ', [$LANG => 'bash', $PARAMS => []]],
+            ['```php escript ', [$LANG => 'php', $PARAMS => []]],
             ['```php escriptaas', false],
-            ['```php escript name=hola', [$LANG => 'php', $PARAM => ['name' => 'hola']]],
-            ['```php escript name=hola ', [$LANG => 'php', $PARAM => ['name' => 'hola']]],
-            ['```php escript name=hola name2=chau', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau']]],
-            ['```php escript name=hola name2=chau ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau']]],
-            ['```php escript name=hola name2=chau name3', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => true]]],
-            ['```php escript name=hola name2=chau name3 ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => true]]],
-            ['```php escript name=hola name2=chau name3= ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
-            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
-            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
-            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
-            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAM => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]]
+            ['```php escript name=hola', [$LANG => 'php', $PARAMS => ['name' => 'hola']]],
+            ['```php escript name=hola ', [$LANG => 'php', $PARAMS => ['name' => 'hola']]],
+            ['```php escript name=hola name2=chau', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau']]],
+            ['```php escript name=hola name2=chau ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau']]],
+            ['```php escript name=hola name2=chau name3', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => true]]],
+            ['```php escript name=hola name2=chau name3 ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => true]]],
+            ['```php escript name=hola name2=chau name3= ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
+            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
+            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
+            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]],
+            ['```php escript name=hola name2=chau name3=  ', [$LANG => 'php', $PARAMS => ['name' => 'hola', 'name2' => 'chau', 'name3' => '']]]
         ];
     }
 
@@ -78,4 +78,73 @@ class EscriptTest extends TestCase
         $actual = Escript::isLineCodeEnd($line);
         $this->assertEquals($expected, $actual);
     }
+
+
+    public function testGetCodeBlockList1() {
+        $text = <<<EOF
+# Hola
+    
+```bash escript
+echo "hola"
+```
+
+```php escript
+echo "hola"
+```
+
+```php escript name=hola
+EOF;
+
+        $expected = [
+            [
+                Escript::LANG => 'bash',
+                Escript::PARAMS => [],
+                Escript::CONTENT => 'echo "hola"' . "\n"
+            ],
+            [
+                Escript::LANG => 'php',
+                Escript::PARAMS => [],
+                Escript::CONTENT => 'echo "hola"' . "\n"
+            ]
+        ];
+
+        $actual = Escript::getCodeBlockList($text);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+    public function testGetCodeBlockList2() {
+        $text = <<<EOF
+# Hola
+    
+```bash escript name=hola
+echo "hola"
+```
+
+```php escript p1=v1 p2=v2 p3=v3
+echo "hola2"
+```
+
+```php escript name=hola
+EOF;
+
+        $expected = [
+            [
+                Escript::LANG => 'bash',
+                Escript::PARAMS => [ 'name' => 'hola'],
+                Escript::CONTENT => 'echo "hola"' . "\n"
+            ],
+            [
+                Escript::LANG => 'php',
+                Escript::PARAMS => [ 'p1' => 'v1', 'p2' => 'v2', 'p3' => 'v3' ],
+                Escript::CONTENT => 'echo "hola2"' . "\n"
+            ]
+        ];
+
+        $actual = Escript::getCodeBlockList($text);
+
+        $this->assertEquals($expected, $actual);
+    }
+
+
 }

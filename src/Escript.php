@@ -7,7 +7,8 @@ namespace labo86\action_scripts;
 class Escript {
 
   const LANG = 'lang';
-  const PARAM = 'param';
+  const PARAMS = 'params';
+  const CONTENT = 'content';
 
 /**
  * si la linea hace match con una linea que empieza con tres backtics y despues solo espacios
@@ -23,7 +24,7 @@ class Escript {
     /**
      * si la linea coincides con tres backticks seguida por una palabra despues la palabra escripts y despues parametros de la forma name=value separador por espacios
      * @param string $line
-     * @return array|bool
+     * @return array{lang: string, params : array }|bool
      */
     static function isLineCodeStart(string $line): array|bool
     {
@@ -51,10 +52,36 @@ class Escript {
 
             return [
                 self::LANG => $matches[1],
-                self::PARAM => $parameters
+                self::PARAMS => $parameters
             ];
         } else {
             return false;
         }
+    }
+
+    /**
+     * @param string $text
+     * @return array{array{lang: string, params : array, content: string}}
+     */
+    static function getCodeBlockList(string $text) : array {
+        $lines = explode("\n", $text);
+        $codeBlockList = [];
+        $currentCodeBlock = null;
+        foreach ( $lines as $line ) {
+            if ( is_null($currentCodeBlock) ) {
+                if ( ($newCodeBlock = self::isLineCodeStart($line)) !== false ) {
+                    $newCodeBlock[self::CONTENT] = '';
+                    $currentCodeBlock = $newCodeBlock;
+                }
+            } else {
+                if ( self::isLineCodeEnd($line) ) {
+                    $codeBlockList[] = $currentCodeBlock;
+                    $currentCodeBlock = null;
+                } else {
+                    $currentCodeBlock[self::CONTENT] .= $line . "\n";
+                }
+            }
+        }
+        return $codeBlockList;
     }
 }
