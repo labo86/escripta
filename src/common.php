@@ -2,13 +2,15 @@
 declare(strict_types=1);
 # version 1.1.0
 
+
+
 function executeCommandAndGetStdOut(string $command, bool $captureStdout = true) : string
 {
     if ($captureStdout) {
         ob_start();
     }
     passthru($command, $return);
-    /** @noinspection PhpUnnecessaryLocalVariableInspection */
+
     if ($captureStdout) {
         $strValue = ob_get_clean();
         return $strValue;
