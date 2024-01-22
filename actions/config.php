@@ -2,14 +2,14 @@
 <?php
 declare(strict_types=1);
 
-require_once(__DIR__ . '/../vendor/autoload.php');
+require_once(__DIR__ . '/include.php');
 
 use labo86\action_scripts\OnePassword;
 
 OnePassword::getConfigEnvironmentByCommandLine(
     'action_scripts',
-    ['lib'],
-    __DIR__ . '/config'
+    CONFIG_LIST,
+    CONFIG_DIR
 );
 
 

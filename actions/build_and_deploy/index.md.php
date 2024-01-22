@@ -1,7 +1,15 @@
 <?php
 declare(strict_types=1);
 
+require_once(__DIR__ . '/../include.php');
+
+use labo86\action_scripts\Common;
+
 $DEPLOY_APP_DIR =__DIR__ .  '/var/app';
+
+[$config, $keys] = Common::loadConfigsAndKeys(CONFIG_DIR, CONFIG_LIST);
+
+
 
 ?>
 ## Limpiar directorio de despliegue
@@ -73,9 +81,10 @@ sudo chown -R $(whoami) $SOURCE_DIR
 
 <?php
 
-$targetRepo = 'git@github.com:labo86/action_scripts.git';
-$targetBranch = 'latest_release';
+$targetRepo = $config['git_repo_url'];
+$targetBranch = $config['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
+$sshKeyFlename = $keys[CONFIG_DEPLOY_GITHUB];
 
 ?>
 
@@ -84,10 +93,11 @@ $targetDir =  __DIR__ . '/var/repo';
 TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
 TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
+SSH_KEY_FILENAME=<?=$sshKeyFlename?> # PARAM
 
 rm $TARGET_DIR -rf;
 
-GIT_SSH_COMMAND="ssh -i {$sshKeyFile}" \
+GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME" \
 git clone \
 $TARGET_REPO \
 --branch $TARGET_BRANCH \

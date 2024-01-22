@@ -56,4 +56,27 @@ class Common
             proc_close($process);
         }
     }
+
+    static function loadConfigsAndKeys(string $baseDir, array $configFiles): array
+    {
+        $config = [];
+        $keys = [];
+        foreach ($configFiles as $file) {
+            $filePath = $baseDir . '/' . $file . '.ini';
+            if ( file_exists($filePath) ) {
+
+                $data = parse_ini_file($filePath, true, INI_SCANNER_RAW);
+                if ($data) {
+                    $config = array_merge($config, $data);
+                }
+            }
+
+            $filePath = $baseDir . '/' . $file . '.key';
+            if ( file_exists($filePath) ) {
+                $keys[$file] = $filePath;
+            }
+        }
+
+        return [$config, $keys];
+    }
 }
