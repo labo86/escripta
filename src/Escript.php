@@ -128,9 +128,33 @@ EOF;
 
         }
         return $content;
+    }
 
+    /**
+     * @param array $blockParams
+     * @return string
+     */
+    static function generateFileName(array $block) : string {
 
+        $blockParams = $block['params'];
+        $name = $blockParams['name'] ?? $blockParams['original'] ?? 'script';
+        $name = preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
 
+        if ( $block['lang'] === 'php' ) {
+            $name .= '.php';
+        } else if ( $block['lang'] === 'bash' ) {
+            $name .= '.sh';
+        } else {
+            $name .= '.txt';
+        }
+        return $name;
+
+    }
+
+    static function generateFile(string $path, array $block) {
+        $content = self::processBlock($block);
+        file_put_contents($path, $content);
+        chmod($path, 0755);
     }
 
 
