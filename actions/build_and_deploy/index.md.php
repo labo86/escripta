@@ -68,3 +68,28 @@ composer install --no-dev --no-interaction --no-progress --no-suggest --optimize
 
 sudo chown -R $(whoami) $SOURCE_DIR
 ```
+
+## Clonar repositorio de despliegue
+
+<?php
+
+$targetRepo = 'git@github.com:labo86/action_scripts.git';
+$targetBranch = 'latest_release';
+$targetDir =  __DIR__ . '/var/repo';
+
+?>
+
+```bash escript name=clone_deploy_repo
+
+TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
+TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
+TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
+
+rm $TARGET_DIR -rf;
+
+GIT_SSH_COMMAND="ssh -i {$sshKeyFile}" \
+git clone \
+$TARGET_REPO \
+--branch $TARGET_BRANCH \
+$TARGET_DIR
+```
