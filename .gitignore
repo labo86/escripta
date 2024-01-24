@@ -8,7 +8,6 @@ vendor
 !/.idea/dictionaries
 /.idea/dictionaries/*
 !/.idea/dictionaries/common.xml
-!/.idea/run
 !/.idea/fileTemplates
 !/.idea/file.template.settings.xml
 
