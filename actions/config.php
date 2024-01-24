@@ -7,7 +7,7 @@ require_once(__DIR__ . '/include.php');
 use labo86\action_scripts\OnePassword;
 
 OnePassword::getConfigEnvironmentByCommandLine(
-    'action_scripts',
+    PROJECT_NAME,
     CONFIG_LIST,
     CONFIG_DIR
 );
