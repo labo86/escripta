@@ -1,0 +1,31 @@
+{
+  "name" : "labo86/action_scripts",
+  "autoload" : {
+    "psr-4" : {
+      "labo86\\action_scripts\\" : "src/"
+    },
+    "files" : [
+        "src/common.php",
+        "src/docker.php",
+        "src/git.php",
+        "src/image.php",
+        "src/mySql.php",
+        "src/remoteServer.php",
+        "src/systemD.php",
+        "src/yarn.php"
+    ]
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "labo86\\action_scripts\\tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+  },
+  "require" : {
+    "php" : ">=8.2.0",
+    "ext-curl" : "*",
+    "ext-json" : "*"
+  }
+}

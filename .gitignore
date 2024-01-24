@@ -1,1 +1,13 @@
-.idea
+composer.lock
+composer.phar
+phpunit.phar
+.phpunit.cache
+vendor
+
+/.idea
+!/.idea/dictionaries
+/.idea/dictionaries/*
+!/.idea/dictionaries/common.xml
+!/.idea/fileTemplates
+!/.idea/file.template.settings.xml
+
