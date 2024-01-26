@@ -13,3 +13,4 @@ phpunit.xml
 phpspec.xml
 php.xml
 codeception.xml
+php-test-framework.xml

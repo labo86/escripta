@@ -1,13 +1,15 @@
 <?php
 declare(strict_types=1);
 
-require_once(__DIR__ . '/../include.php');
+require_once(__DIR__ . '/include.php');
 
 use labo86\action_scripts\Common;
 
 $DEPLOY_APP_DIR =__DIR__ .  '/var/app';
+$CONFIG_DEPLOY_GITHUB = LOCAL_CONFIG_DEPLOY_GITHUB;
 
-[$config, $keys] = Common::loadConfigsAndKeys(CONFIG_DIR, CONFIG_LIST);
+[$config, $keys] = Common::loadConfigsAndKeys(LOCAL_CONFIG_DIR, LOCAL_CONFIG_LIST);
+
 
 ?>
 
@@ -18,7 +20,7 @@ $DEPLOY_APP_DIR =__DIR__ .  '/var/app';
 $targetRepo = $config['git_repo_url'];
 $targetBranch = $config['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
-$sshKeyFlename = $keys[CONFIG_DEPLOY_GITHUB];
+$sshKeyFlename = $keys[$CONFIG_DEPLOY_GITHUB];
 
 ?>
 
@@ -64,7 +66,7 @@ cp -rf \
 <?php
 
 $targetDir = __DIR__ . '/var/repo';
-$sshKeyFlename = $keys[CONFIG_DEPLOY_GITHUB];
+$sshKeyFlename = $keys[$CONFIG_DEPLOY_GITHUB];
 
 ?>
 
