@@ -113,10 +113,16 @@ class OnePassword
             exit(1);
         }
 
+        self::getConfig($argv[2], $targetProjectName, $targetConfigName, $targetFolder);
+
+
+    }
+
+    static function getConfig(string $environment, string $targetProjectName, string $targetConfigName, string $targetFolder) {
         {
-            echo "Retrieving Information:\n\n";
-            $environment = $argv[2];
-            $itemInfo = self::getItemInfo("{$targetProjectName}_config_{$targetConfigName}_{$environment}");
+            $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
+            echo "Retrieving Information [$configName]:\n\n";
+            $itemInfo = self::getItemInfo($configName);
             $iniFormatString = Common::arrayToIniFormat($itemInfo);
             echo $iniFormatString . "\n\n";
             mkdir($targetFolder, 0755, true);
@@ -130,7 +136,5 @@ class OnePassword
             }
 
         }
-
-
     }
 }
