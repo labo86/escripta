@@ -6,8 +6,5 @@ require_once(__DIR__ . '/action_scripts.phar');
 const PROJECT_NAME = 'action_scripts';
 const CONFIG_DIR = __DIR__ . '/config';
 
-const CONFIG_DEPLOY_GITHUB =  'deploy_github';
-
 const CONFIG_LIST = [
-    CONFIG_DEPLOY_GITHUB
 ];
