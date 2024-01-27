@@ -139,6 +139,7 @@ EOF;
         $blockParams = $block['params'];
         $name = $blockParams['name'] ?? $blockParams['original'] ?? 'script';
         $name = preg_replace('/[^a-zA-Z0-9_]/', '_', $name);
+        $name .= '.escript';
 
         if ( $block['lang'] === 'php' ) {
             $name .= '.php';
@@ -192,9 +193,8 @@ EOF;
         echo "Removing old scripts\n";
 
         //delete all files that match the pattern
-        foreach ( glob("$folder/*.*") as $file ) {
-            if ( preg_match('/^[0-9]{2}\.[a-zA-Z0-9_]*\.(php|sh|txt)$/', basename($file)) === 1 )
-                unlink($file);
+        foreach ( glob("$folder/*.escript.*") as $file ) {
+            unlink($file);
         }
 
 
