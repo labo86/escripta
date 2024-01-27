@@ -188,6 +188,18 @@ EOF;
         $markdown = file_get_contents("$folder/index.md");
 
         $codeBlockList = Escript::getCodeBlockList($markdown);
+
+        echo "Removing old scripts\n";
+
+        //delete all files that match the pattern
+        foreach ( glob("$folder/*.*") as $file ) {
+            if ( preg_match('/^[0-9]{2}\.[a-zA-Z0-9_]*\.(php|sh|txt)$/', basename($file)) === 1 )
+                unlink($file);
+        }
+
+
+
+
         $i = 1;
         foreach ( $codeBlockList as $block ) {
             $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
