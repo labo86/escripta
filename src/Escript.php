@@ -177,6 +177,12 @@ EOF;
             exit(1);
         }
 
+        if ( file_exists("$folder/config.php") ) {
+            echo "Executing $folder/config.php\n";
+            passthru("php $folder/config.php");
+        }
+
+        echo "Translating $folder/index.md.php\n";
         passthru("php $folder/index.md.php > $folder/index.md");
 
         $markdown = file_get_contents("$folder/index.md");
