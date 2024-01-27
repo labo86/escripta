@@ -206,7 +206,10 @@ EOF;
 
             $scriptName = Escript::generateFileName($block);
             $scriptContent = Escript::processBlock($block);
-            $filePath = "$folder/$numberPrefix.$scriptName";
+
+            echo "Generating $numberPrefix.$scriptName\n";
+            $fileName = "$numberPrefix.$scriptName";
+            $filePath = "$folder/$fileName";
             file_put_contents($filePath, $scriptContent);
             chmod($filePath, 0755);
             $i++;
