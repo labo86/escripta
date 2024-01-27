@@ -125,7 +125,9 @@ class OnePassword
             $itemInfo = self::getItemInfo($configName);
             $iniFormatString = Common::arrayToIniFormat($itemInfo);
             echo $iniFormatString . "\n\n";
-            mkdir($targetFolder, 0755, true);
+            if (!is_dir($targetFolder)) {
+                mkdir($targetFolder, 0755, true);
+            }
             file_put_contents("$targetFolder/$targetConfigName.ini", $iniFormatString);
 
             if (isset($itemInfo['private_key'])) {
