@@ -178,7 +178,8 @@ EOF;
             exit(1);
         }
 
-        if ( file_exists("$folder/config.php") ) {
+        //check if $folder/config dir exists
+        if ( !is_dir("$folder/config") && file_exists("$folder/config.php") ) {
             echo "Executing $folder/config.php\n";
             passthru("php $folder/config.php");
         }
