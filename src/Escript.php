@@ -192,22 +192,45 @@ EOF;
             unlink($file);
         }
 
-
-
+        passthru("rm $folder/*.escript -rf");
+        passthru("rm $folder/files -rf");
 
         $i = 1;
         foreach ( $codeBlockList as $block ) {
-            $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
 
-            $scriptName = Escript::generateFileName($block);
-            $scriptContent = Escript::processBlock($block);
+            $targetFolder = $folder;
+            if ( isset($block['params']['dir']) ) {
+                $dir = $block['params']['dir'] . ".escript";
+                $targetFolder = "$folder/$dir";
+                if ( !is_dir($targetFolder) ) {
+                    mkdir($targetFolder);
+                }
+            }
 
-            echo "Generating $numberPrefix.$scriptName\n";
-            $fileName = "$numberPrefix.$scriptName";
-            $filePath = "$folder/$fileName";
-            file_put_contents($filePath, $scriptContent);
-            chmod($filePath, 0755);
-            $i++;
+            if ( $block['params']['file'] ?? false ) {
+                $targetFolder = "$targetFolder/files";
+                if ( !is_dir($targetFolder) ) {
+                    mkdir($targetFolder);
+                }
+                $fileName = $block['params']['name'];
+                $filePath = "$targetFolder/$fileName";
+                file_put_contents($filePath, $block['content']);
+                echo "Copying file $fileName\n";
+
+            } else {
+
+                $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
+                $scriptName = Escript::generateFileName($block);
+                $scriptContent = Escript::processBlock($block);
+
+                echo "Generating $numberPrefix.$scriptName\n";
+                $fileName = "$numberPrefix.$scriptName";
+                $filePath = "$targetFolder/$fileName";
+
+                file_put_contents($filePath, $scriptContent);
+                chmod($filePath, 0755);
+                $i++;
+            }
         }
     }
 
