@@ -152,12 +152,6 @@ EOF;
 
     }
 
-    static function generateFile(string $path, array $block) {
-        $content = self::processBlock($block);
-        file_put_contents($path, $content);
-        chmod($path, 0755);
-    }
-
     static function processFolderByCommandLine() {
 
         global $argv;
