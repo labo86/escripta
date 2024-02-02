@@ -20,7 +20,7 @@ $CONFIG_DEPLOY_GITHUB = LOCAL_CONFIG_DEPLOY_GITHUB;
 $targetRepo = $config['git_repo_url'];
 $targetBranch = $config['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
-$sshKeyFlename = $keys[$CONFIG_DEPLOY_GITHUB];
+$sshKeyFilename = $keys[$CONFIG_DEPLOY_GITHUB];
 
 ?>
 
@@ -29,7 +29,7 @@ $sshKeyFlename = $keys[$CONFIG_DEPLOY_GITHUB];
 TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
 TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
-SSH_KEY_FILENAME=<?=$sshKeyFlename?> # PARAM
+SSH_KEY_FILENAME=<?=$sshKeyFilename?> # PARAM
 
 rm $TARGET_DIR -rf;
 
@@ -66,14 +66,14 @@ cp -rf \
 <?php
 
 $targetDir = __DIR__ . '/var/repo';
-$sshKeyFlename = $keys[$CONFIG_DEPLOY_GITHUB];
+$sshKeyFilename = $keys[$CONFIG_DEPLOY_GITHUB];
 
 ?>
 
 ```bash escript name=commit_and_push
 
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
-SSH_KEY_FILENAME=<?=$sshKeyFlename?> # PARAM
+SSH_KEY_FILENAME=<?=$sshKeyFilename?> # PARAM
 
 cd $TARGET_DIR;
 GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME";
