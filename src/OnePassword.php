@@ -133,7 +133,7 @@ class OnePassword
             if (isset($itemInfo['private_key'])) {
                 $privateKeyRef = $itemInfo['private_key'];
                 $privateKey = self::getValue($privateKeyRef);
-                file_put_contents("$targetFolder/$targetConfigName.key", $privateKey);
+                file_put_contents("$targetFolder/$targetConfigName.key", str_ireplace("\r", "", $privateKey));
                 chmod("$targetFolder/$targetConfigName.key", 0600);
             }
 
