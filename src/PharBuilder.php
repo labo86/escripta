@@ -19,6 +19,7 @@ class PharBuilder {
         $addFile('Common.php');
         $addFile('OnePassword.php');
         $addFile('Escript.php');
+        $addFile('Config.php');
         $phar->setStub(<<<'EOF'
 <?php
 
@@ -29,6 +30,7 @@ Phar::mapPhar($PHAR_NAME);
 require_once("phar://${PHAR_NAME}/src/Common.php");
 require_once("phar://${PHAR_NAME}/src/OnePassword.php");
 require_once("phar://${PHAR_NAME}/src/Escript.php");
+require_once("phar://${PHAR_NAME}/src/Config.php");
 
 __HALT_COMPILER();
 EOF);

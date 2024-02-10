@@ -10,7 +10,7 @@ OnePassword::getConfig(
     "prod",
     PROJECT_NAME,
     LOCAL_CONFIG_DEPLOY_GITHUB,
-    LOCAL_CONFIG_DIR
+    __DIR__ . '/config'
 );
 
 
