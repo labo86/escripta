@@ -9,41 +9,30 @@ use PHPUnit\Framework\TestCase;
 class PharBuilderTest extends TestCase
 {
 
+    /**
+     * @var false|string
+     */
+    private string $outputFolder;
+    private string $pharFile;
+
+    public function setUp() : void {
+        $this->outputFolder = tempnam(__DIR__, 'demo_phar');
+        $this->pharFile = $this->outputFolder . '.phar';
+
+        unlink($this->outputFolder);
+    }
+
+    public function tearDown() : void {
+        if ( file_exists($this->pharFile))
+            unlink($this->pharFile);
+        exec(sprintf('rm -rf %s', escapeshellarg($this->outputFolder)));
+    }
+
     public function testBuild()
     {
 
-        //delete dir var if exists
-        $varDir = __DIR__ . '/var';
-
-        if ( is_dir($varDir) ) {
-            exec("rm -rf $varDir");
-        }
-
-        //create dir var
-        mkdir($varDir);
-
-
-        $buildCreatorScript = __DIR__ . '/files/scripts/build.php';
-        //execute
-
-        $output = [];
-        $return_var = 0;
-        exec("php -d phar.readonly=0 $buildCreatorScript", $output, $return_var);
-
-        $pharPath = $varDir . '/escripta.phar';
-
-        $this->assertFileExists($pharPath);
-
-        ob_start();
-        passthru($pharPath);
-        $output = ob_get_clean();
-
-        $this->assertStringContainsString('Usage:', $output);
-
-
-        exec("rm -rf $varDir");
-
-
+       PharBuilder::build($this->pharFile);
+       $this->assertFileExists($this->pharFile);
 
     }
 

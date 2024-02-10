@@ -26,9 +26,9 @@ class Config implements ArrayAccess
         $dir = self::getCallerDirectory();
         $dir .= '/config';
         if ( !is_dir($dir) ) {
-            trigger_error("Config directory not found: [$dir]", E_USER_ERROR);
+            trigger_error("Carpeta de configuraciones no encontrada: [$dir]", E_USER_ERROR);
         }
-        fwrite(STDERR, "Loading configs from directory: [$dir]\n");
+        fwrite(STDERR, "Cargando configuraciones de la carpeta [$dir]\n");
 
         return new Config(self::loadConfigsAndKeys($dir));
     }
@@ -66,7 +66,7 @@ class Config implements ArrayAccess
         }
 
         trigger_error(
-            "Config [$offset] not found. Putting a placeholder",
+            "Configuración [$offset] no encontrada.",
             E_USER_NOTICE);
         return "[[$offset]]";
     }

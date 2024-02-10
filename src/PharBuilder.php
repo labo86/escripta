@@ -7,6 +7,11 @@ use Phar;
 
 class PharBuilder {
 
+    /**
+     * El script que contenga esta llamada debe tener configurada la variable {@see https://www.php.net/manual/es/phar.configuration.php#ini.phar.readonly phar.readonly} en <strong>On</strong>
+     * Eso se puede hacer modificando el archivo {@see https://www.php.net/manual/en/configuration.file.php php.ini} o llamando el script con <code>php -d phar.readonly=Off</code>.
+     * El primer argumento que captura es el nombre de phar de salida.
+     */
     static public function build(string $filePath) {
         $phar = new Phar($filePath);
 
