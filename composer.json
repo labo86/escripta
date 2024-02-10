@@ -5,14 +5,10 @@
       "labo86\\action_scripts\\" : "src/"
     },
     "files" : [
-        "src/common.php",
         "src/docker.php",
         "src/git.php",
         "src/image.php",
-        "src/mySql.php",
-        "src/remoteServer.php",
-        "src/systemD.php",
-        "src/yarn.php"
+        "src/mySql.php"
     ]
   },
   "autoload-dev": {
