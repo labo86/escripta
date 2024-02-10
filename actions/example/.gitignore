@@ -1,5 +1,5 @@
 *
 !.gitignore
-!index.md.php
+!*.md.php
 !config.php
 !include.php

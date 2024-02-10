@@ -152,6 +152,12 @@ EOF;
 
     }
 
+    static function mergeBlock(array $block, array $refBlock) : array {
+        $mergedBlock = array_merge($block, $refBlock);
+        $mergedBlock['content'] = $block['content'];
+        return $mergedBlock;
+    }
+
     static function processFolderByCommandLine() {
 
         global $argv;
@@ -167,74 +173,91 @@ EOF;
             exit(1);
         }
 
-        if ( !file_exists("$folder/index.md.php") ) {
-            echo "File $folder/index.md.php does not exist\n";
-            exit(1);
-        }
+        {
+            echo "Removing old scripts\n";
 
-        //check if $folder/config dir exists
-        if ( !is_dir("$folder/config") && file_exists("$folder/config.php") ) {
-            echo "Executing $folder/config.php\n";
-            passthru("php $folder/config.php");
-        }
-
-        echo "Translating $folder/index.md.php\n";
-        passthru("php $folder/index.md.php > $folder/index.md");
-
-        $markdown = file_get_contents("$folder/index.md");
-
-        $codeBlockList = Escript::getCodeBlockList($markdown);
-
-        echo "Removing old scripts\n";
-
-        //delete all files that match the pattern
-        foreach ( glob("$folder/*.escript.*") as $file ) {
-            unlink($file);
-        }
-
-        passthru("rm $folder/*.escript -rf");
-        passthru("rm $folder/files -rf");
-
-        $i = 1;
-        foreach ( $codeBlockList as $block ) {
-
-            $targetFolder = $folder;
-            if ( isset($block['params']['dir']) ) {
-                $dir = $block['params']['dir'] . ".escript";
-                $targetFolder = "$folder/$dir";
-                if ( !is_dir($targetFolder) ) {
-                    mkdir($targetFolder);
-                }
+            //delete all files that match the pattern
+            foreach (glob("$folder/*.escript.*") as $file) {
+                unlink($file);
             }
 
-            if ( $block['params']['file'] ?? false ) {
-                $targetFolder = "$targetFolder/files";
-                if ( !is_dir($targetFolder) ) {
-                    mkdir($targetFolder);
+            passthru("rm $folder/*.escript -rf");
+            passthru("rm $folder/files -rf");
+            passthru("rm $folder/*.md -rf");
+        }
+
+        $codeBlockList = [];
+        {
+            echo "Translating md.php files\n";
+
+            foreach (glob("$folder/*.md.php") as $file) {
+
+                $outputFile = "$folder/" . basename($file, '.php');
+                echo "Translating $outputFile\n";
+                passthru("php $file > $outputFile");
+
+                $markdown = file_get_contents($outputFile);
+
+
+                array_push($codeBlockList, ...Escript::getCodeBlockList($markdown));
+            }
+        }
+
+        {
+            $storedBlockList = [];
+
+
+            $i = 1;
+            foreach ($codeBlockList as $block) {
+
+                if ( $block['params']['id'] ?? false ) {
+                    $id = $block['params']['id'];
+                    $storedBlockList[$id] = $block;
                 }
-                $fileName = $block['params']['name'];
-                $filePath = "$targetFolder/$fileName";
-                file_put_contents($filePath, $block['content']);
-                echo "Copying file $fileName\n";
 
-            } else {
+                $targetFolder = $folder;
+                if (isset($block['params']['dir'])) {
+                    $dir = $block['params']['dir'] . ".escript";
+                    $targetFolder = "$folder/$dir";
+                    if (!is_dir($targetFolder)) {
+                        mkdir($targetFolder);
+                    }
+                }
 
-                $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
-                $scriptName = Escript::generateFileName($block);
-                $scriptContent = Escript::processBlock($block);
+                if ($block['params']['file'] ?? false) {
+                    $targetFolder = "$targetFolder/files";
+                    if (!is_dir($targetFolder)) {
+                        mkdir($targetFolder);
+                    }
+                    $fileName = $block['params']['name'];
+                    $filePath = "$targetFolder/$fileName";
+                    file_put_contents($filePath, $block['content']);
+                    echo "Copying file $fileName\n";
 
-                echo "Generating $numberPrefix.$scriptName\n";
-                $fileName = "$numberPrefix.$scriptName";
-                $filePath = "$targetFolder/$fileName";
+                } else {
 
-                file_put_contents($filePath, $scriptContent);
-                chmod($filePath, 0755);
-                $i++;
+                    if ( isset($block['params']['ref']) ) {
+                        $ref = $block['params']['ref'];
+                        if ( !isset($storedBlockList[$ref]) ) {
+                            echo "Reference $ref not found\n";
+                        }
+                        $refBlock = $storedBlockList[$ref];
+                        $block = Escript::mergeBlock($block, $refBlock);
+                    }
+
+                    $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
+                    $scriptName = Escript::generateFileName($block);
+                    $scriptContent = Escript::processBlock($block);
+
+                    echo "Generating $numberPrefix.$scriptName\n";
+                    $fileName = "$numberPrefix.$scriptName";
+                    $filePath = "$targetFolder/$fileName";
+
+                    file_put_contents($filePath, $scriptContent);
+                    chmod($filePath, 0755);
+                    $i++;
+                }
             }
         }
     }
-
-
-
-
 }
