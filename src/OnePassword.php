@@ -2,7 +2,7 @@
 declare(strict_types=1);
 # version 1.1.0
 
-namespace labo86\action_scripts;
+namespace labo86\escripta;
 
 class OnePassword
 {

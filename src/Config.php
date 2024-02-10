@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace labo86\action_scripts;
+namespace labo86\escripta;
 
 use ArrayAccess;
 
