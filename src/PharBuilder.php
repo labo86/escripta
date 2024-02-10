@@ -37,7 +37,7 @@ if (isset($argv[0])) {
     $scriptName = realpath($argv[0]);
     $currentPhar = __FILE__;
     if ( $scriptName === $currentPhar ) {
-        \labo86\action_scripts\Escripta::processFolderByCommandLine();
+        \labo86\escripta\Escripta::processFolderByCommandLine();
     }
 }
 
@@ -45,6 +45,8 @@ __HALT_COMPILER();
 EOF);
 
         $phar->stopBuffering();
+
+        chmod($filePath, 0755);
 
 
     }
