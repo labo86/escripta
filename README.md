@@ -1,14 +1,20 @@
-# Escripta
+Escripta
+===
+
 
 <img src="docs/images/escripta_01.webp" alt="Escripta" style="width:50%; max-width:400px"/>
+ 
+ <table>
+ <tr><td>Nombre completo</td><td>Esmeralda Inés de la Fuente Carrasco</td></tr>
+ <tr><td>Sobrenombre</td><td>Escripta, la deployadora</td></tr>
+ <tr><td>Edad</td><td>34 años</td></tr>
+ <tr><td>Lugar de nacimiento</td><td>La Concepción de María Purísima del Nuevo Extremo, Reyno de Chile</td></tr>
+ </table>
 
- - Nombre completo: Esmeralda Inés de la Fuente Carrasco
- - Edad: 34 años
- - Lugar de nacimiento: La Concepción de María Purísima del Nuevo Extremo, Reino de Chile
 
 
-
-## Biografía
+Biografía
+---
 
 Esmeralda Inés de la Fuente Carrasco vio la primera luz en Concepción, conocida también como "La Concepción de María Purísima del Nuevo Extremo", una ciudad de gran importancia estratégica y cultural en el Reino de Chile. Hija de un distinguido arquitecto y una maestra dedicada a la educación, Esmeralda se crió en un ambiente donde el conocimiento y la pasión por el descubrimiento eran valores fundamentales.
 
