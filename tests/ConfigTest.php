@@ -4,24 +4,22 @@ declare(strict_types=1);
 namespace labo86\escripta\tests;
 
 use labo86\escripta\Config;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
 class ConfigTest extends TestCase
 {
 
-    public function setUp() : void {
-        $this->outputFolder = tempnam(__DIR__, 'demo_config');
-
-        unlink($this->outputFolder);
-    }
-
-    public function tearDown() : void {
-        exec(sprintf('rm -rf %s', escapeshellarg($this->outputFolder)));
+    protected vfsStreamDirectory $root;
+    public function setUp(): void
+    {
+        $this->root = vfsStream::setup();
     }
 
     public function testLoadNormal()
     {
-        $path = $this->outputFolder . '/config';
+        $path = $this->root->url();
 
         mkdir($path, 0777, true);
 
@@ -41,7 +39,7 @@ class ConfigTest extends TestCase
 
     public function testLoadOverwriteVariable()
     {
-        $path = $this->outputFolder . '/config';
+        $path = $this->root->url();
 
         mkdir($path, 0777, true);
 

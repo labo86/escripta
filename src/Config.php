@@ -30,7 +30,7 @@ class Config implements ArrayAccess
     {
         $config = [];
 
-        foreach ( glob($baseDir . '/*.ini') as $file ) {
+        foreach ( Util::iterateFilesThatEndsWith($baseDir,  '.ini') as $file ) {
             fwrite(STDERR, " - $file\n");
             $data = parse_ini_file($file, true, INI_SCANNER_RAW);
             if ($data) {
@@ -38,7 +38,7 @@ class Config implements ArrayAccess
             }
         }
 
-        foreach ( glob($baseDir . '/*.key') as $file ) {
+        foreach ( Util::iterateFilesThatEndsWith($baseDir,  '.key') as $file )  {
             fwrite(STDERR," - $file\n");
             $key = basename($file, '.key') . "_private_key";
             $config[$key] = $file;

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace labo86\escripta;
 
 
+use DirectoryIterator;
 use Throwable;
 
 class Util
@@ -25,6 +26,13 @@ class Util
         } catch (Throwable $exception) {
             while (ob_get_level() > $level) ob_get_clean();
             throw $exception;
+        }
+    }
+
+    public static function iterateFilesThatEndsWith(string $folder, string $extension) : \Generator {
+        foreach (new DirectoryIterator($folder) as $file) {
+            if ( $file->isFile() && str_ends_with($file->getFilename(), $extension))
+                yield $file->getPathname();
         }
     }
 }

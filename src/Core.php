@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace labo86\escripta;
 
 
+use DirectoryIterator;
 use Exception;
 
 class Core {
@@ -164,11 +165,15 @@ EOF;
     /**
      * @throws \Throwable
      */
-    static function translateMdPhpFiles(string $folder) {
+    static function translateMdPhpFolder(string $folder) {
         $codeBlockList = [];
         {
-            foreach (glob("$folder/*.md.php") as $file) {
+            //but not using glob
 
+
+            foreach ( Util::iterateFilesThatEndsWith($folder, ".md.php") as $file) {
+
+                //if filename ends with .md.php
                 echo "Traduciendo $file...\n";
                 $newCodeBlockList = self::translateMdPhpFile($file);
 
@@ -238,7 +243,7 @@ EOF;
         }
 
         echo "Traduciendo archivos md.php...\n";
-        $codeBlockList = self::translateMdPhpFiles($folder);
+        $codeBlockList = self::translateMdPhpFolder($folder);
 
         {
             $storedBlockList = [];

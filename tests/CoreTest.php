@@ -291,4 +291,46 @@ EOF;
         ], $result);
 
     }
+
+    public function testTranslateMdPhpFiles()
+    {
+        $path = $this->root->url();
+        file_put_contents($path . "/1.md.php", <<<EOF
+```bash escripta name=hola
+```
+EOF
+        );
+        file_put_contents($path . "/2.md.php", <<<EOF
+```bash escripta name=chao
+```
+EOF
+        );
+
+        file_put_contents($path . "/3.md", <<<EOF
+```bash escripta name=ignored_1
+```
+EOF
+        );
+
+        file_put_contents($path . "/4.php", <<<EOF
+```bash escripta name=ignored_2
+```
+EOF
+        );
+
+        $result = Core::translateMdPhpFolder($path);
+
+        $this->assertEquals([
+            [
+                Core::LANG => 'bash',
+                Core::PARAMS => ['name' => 'hola'],
+                Core::CONTENT => ''
+            ],
+            [
+                Core::LANG => 'bash',
+                Core::PARAMS => ['name' => 'chao'],
+                Core::CONTENT => ''
+            ]
+        ], $result);
+    }
 }
