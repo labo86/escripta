@@ -39,4 +39,19 @@ class BlockProcessorTest extends TestCase
 
     }
 
+    public function testGenerateBlockData() {
+        $block = [
+            'params' => [
+                'name' => 'script_1',
+                'dir' => 'a'
+            ],
+            'content' => 'hello'
+        ];
+        $actual = BlockProcessor::generateBlockData(1, $block);
+        $this->assertEquals([
+            'fileName' => '01.script_1.escripta.txt',
+            'content' => 'hello'
+        ], $actual);
+    }
+
 }

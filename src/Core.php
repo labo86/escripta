@@ -123,11 +123,7 @@ EOF;
 
             $content .= "\n\n?>" . $block['content'];
         } else {
-            $content = <<<EOF
-#!/usr/bin/cat
-EOF;
-
-            $content .= $block['content'];
+            $content = $block['content'];
 
 
         }
@@ -157,8 +153,12 @@ EOF;
     }
 
     static function mergeBlock(array $block, array $refBlock) : array {
-        $mergedBlock = array_merge($block, $refBlock);
-        $mergedBlock['content'] = $block['content'];
+        $mergedBlock = array_merge($refBlock, $block);
+        $mergedBlock['content'] = $refBlock['content'];
+        $mergedBlock['lang'] = $refBlock['lang'];
+        unset($mergedBlock['params']['id']);
+        unset($mergedBlock['params']['ref']);
+        unset($mergedBlock['params']['hidden']);
         return $mergedBlock;
     }
 
@@ -258,61 +258,11 @@ EOF;
         echo "Traduciendo archivos md.php...\n";
         $codeBlockList = self::translateMdPhpFolder($folder);
 
-        {
-            $storedBlockList = [];
+        echo "Procesando bloques...\n";
+        $blockListProcessor = new BlockListProcessor();
+        $blockListProcessor->process($codeBlockList);
 
-
-            $i = 1;
-            foreach ($codeBlockList as $block) {
-
-                if ( $block['params']['id'] ?? false ) {
-                    $id = $block['params']['id'];
-                    $storedBlockList[$id] = $block;
-                }
-
-                $targetFolder = $folder;
-                if (isset($block['params']['dir'])) {
-                    $dir = $block['params']['dir'] . ".escripta";
-                    $targetFolder = "$folder/$dir";
-                    if (!is_dir($targetFolder)) {
-                        mkdir($targetFolder);
-                    }
-                }
-
-                if ($block['params']['file'] ?? false) {
-                    $targetFolder = "$targetFolder/files";
-                    if (!is_dir($targetFolder)) {
-                        mkdir($targetFolder);
-                    }
-                    $fileName = $block['params']['name'];
-                    $filePath = "$targetFolder/$fileName";
-                    file_put_contents($filePath, $block['content']);
-                    echo "Copiando archivo $fileName\n";
-
-                } else {
-
-                    if ( isset($block['params']['ref']) ) {
-                        $ref = $block['params']['ref'];
-                        if ( !isset($storedBlockList[$ref]) ) {
-                            echo "Referencia $ref no encontrada\n";
-                        }
-                        $refBlock = $storedBlockList[$ref];
-                        $block = Core::mergeBlock($block, $refBlock);
-                    }
-
-                    $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
-                    $scriptName = Core::generateFileName($block);
-                    $scriptContent = Core::processBlock($block);
-
-                    echo "Generando archivo $numberPrefix.$scriptName...\n";
-                    $fileName = "$numberPrefix.$scriptName";
-                    $filePath = "$targetFolder/$fileName";
-
-                    file_put_contents($filePath, $scriptContent);
-                    chmod($filePath, 0755);
-                    $i++;
-                }
-            }
-        }
+        echo "Guardando archivos...\n";
+        $blockListProcessor->save($folder);
     }
 }
