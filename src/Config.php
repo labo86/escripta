@@ -30,18 +30,20 @@ class Config implements ArrayAccess
     {
         $config = [];
 
-        foreach ( Util::iterateFilesThatEndsWith($baseDir,  '.ini') as $file ) {
-            fwrite(STDERR, " - $file\n");
-            $data = parse_ini_file($file, true, INI_SCANNER_RAW);
+        foreach ( Util::glob($baseDir,  '*.ini') as $file ) {
+            $pathName = $file;
+            fwrite(STDERR, " - $pathName\n");
+            $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
             if ($data) {
                 $config = array_merge($config, $data);
             }
         }
 
-        foreach ( Util::iterateFilesThatEndsWith($baseDir,  '.key') as $file )  {
-            fwrite(STDERR," - $file\n");
-            $key = basename($file, '.key') . "_private_key";
-            $config[$key] = $file;
+        foreach ( Util::glob($baseDir,  '*.key') as $file )  {
+            $pathName = $file;
+            fwrite(STDERR," - $pathName\n");
+            $key = basename($pathName, '.key') . "_private_key";
+            $config[$key] = $pathName;
         }
 
         return $config;

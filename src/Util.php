@@ -29,10 +29,35 @@ class Util
         }
     }
 
-    public static function iterateFilesThatEndsWith(string $folder, string $extension) : \Generator {
-        foreach (new DirectoryIterator($folder) as $file) {
-            if ( $file->isFile() && str_ends_with($file->getFilename(), $extension))
-                yield $file->getPathname();
+    public static function removeFileRecursive(string $fileOrFolder) : void {
+        if ( !is_dir($fileOrFolder) ) {
+            unlink($fileOrFolder);
+            return;
+        }
+
+        $folder = $fileOrFolder;
+
+
+        $iterator = new \RecursiveDirectoryIterator($folder, \FilesystemIterator::SKIP_DOTS);
+        $files = new \RecursiveIteratorIterator($iterator, \RecursiveIteratorIterator::CHILD_FIRST);
+        foreach ($files as $file) {
+            if ($file->isDir()) {
+                rmdir($file->getPathname());
+            } else {
+                unlink($file->getPathname());
+            }
+        }
+        rmdir($folder);
+
+    }
+
+    public static function glob(string $folder, string $pattern) : \Generator {
+        $files = scandir($folder);
+
+        foreach ($files as $filename) {
+            if (fnmatch($pattern, $filename)) {
+                yield $folder . '/' . $filename;
+            }
         }
     }
 }

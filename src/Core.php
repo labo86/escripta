@@ -6,6 +6,7 @@ namespace labo86\escripta;
 
 use DirectoryIterator;
 use Exception;
+use Throwable;
 
 class Core {
 
@@ -163,19 +164,21 @@ EOF;
     }
 
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
-    static function translateMdPhpFolder(string $folder) {
+    static function translateMdPhpFolder(string $folder): array
+    {
         $codeBlockList = [];
         {
             //but not using glob
 
 
-            foreach ( Util::iterateFilesThatEndsWith($folder, ".md.php") as $file) {
+            foreach ( Util::glob($folder, "*.md.php") as $file) {
+                $pathName = $file;
 
                 //if filename ends with .md.php
-                echo "Traduciendo $file...\n";
-                $newCodeBlockList = self::translateMdPhpFile($file);
+                echo "Traduciendo $pathName...\n";
+                $newCodeBlockList = self::translateMdPhpFile($pathName);
 
                 array_push($codeBlockList, ...$newCodeBlockList);
             }
@@ -183,8 +186,24 @@ EOF;
         return $codeBlockList;
     }
 
+    static function cleanGeneratedFiles(string $folder) {
+        foreach (Util::glob("$folder", "*.escripta.*") as $file) {
+            Util::removeFileRecursive($file);
+        }
+
+        foreach (Util::glob("$folder", "*.escripta") as $file) {
+            Util::removeFileRecursive($file);
+        }
+
+        foreach (Util::glob("$folder", "*.md") as $file) {
+            Util::removeFileRecursive($file);
+        }
+
+        Util::removeFileRecursive("$folder/files");
+    }
+
     /**
-     * @throws \Throwable
+     * @throws Throwable
      */
     static function translateMdPhpFile(string $file): array
     {
@@ -195,6 +214,9 @@ EOF;
         return Core::getCodeBlockList($markdown);
     }
 
+    /**
+     * @throws Throwable
+     */
     static function processFolderByCommandLine() {
 
         global $argv;
@@ -229,18 +251,10 @@ EOF;
             throw new Exception( "La carpeta [$folder] no existe");
         }
 
-        {
-            echo "Removiendo archivos viejos...\n";
 
-            //delete all files that match the pattern
-            foreach (glob("$folder/*.escripta.*") as $file) {
-                unlink($file);
-            }
+        echo "Removiendo archivos viejos...\n";
+        self::cleanGeneratedFiles($folder);
 
-            passthru("rm $folder/*.escripta -rf");
-            passthru("rm $folder/files -rf");
-            passthru("rm $folder/*.md -rf");
-        }
 
         echo "Traduciendo archivos md.php...\n";
         $codeBlockList = self::translateMdPhpFolder($folder);
