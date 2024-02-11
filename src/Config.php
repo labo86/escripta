@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace labo86\escripta;
 
 use ArrayAccess;
+use Exception;
 
 class Config implements ArrayAccess
 {
@@ -15,22 +16,14 @@ class Config implements ArrayAccess
         $this->data = $data;
     }
 
-    static function getCallerDirectory() : string
-    {
-        $backtrace = debug_backtrace();
 
-        return dirname($backtrace[1]['file']);
-    }
-
-    static function load() : Config {
-        $dir = self::getCallerDirectory();
-        $dir .= '/config';
-        if ( !is_dir($dir) ) {
-            trigger_error("Carpeta de configuraciones no encontrada: [$dir]", E_USER_ERROR);
+    static function load($configDir) : Config {
+        if ( !is_dir($configDir) ) {
+            throw new Exception("Carpeta de configuraciones no encontrada: [$configDir]");
         }
-        fwrite(STDERR, "Cargando configuraciones de la carpeta [$dir]\n");
+        fwrite(STDERR, "Cargando configuraciones de la carpeta [$configDir]\n");
 
-        return new Config(self::loadConfigsAndKeys($dir));
+        return new Config(self::loadConfigsAndKeys($configDir));
     }
 
     static function loadConfigsAndKeys(string $baseDir): array

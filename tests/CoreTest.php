@@ -3,20 +3,28 @@ declare(strict_types=1);
 
 namespace labo86\escripta\tests;
 
-use labo86\escripta\Escripta;
+
+use labo86\escripta\Core;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 
-class EscriptaTest extends TestCase
+class CoreTest extends TestCase
 {
 
+    protected vfsStreamDirectory $root;
+    public function setUp(): void
+    {
+        $this->root = vfsStream::setup();
+    }
 
     /**
      * @return array[]
      */
     public static function dataProviderIsLineCodeStart() : array {
 
-        $LANG = Escripta::LANG;
-        $PARAMS = Escripta::PARAMS;
+        $LANG = Core::LANG;
+        $PARAMS = Core::PARAMS;
         return [
             ['```bash escripta', [$LANG => 'bash', $PARAMS => []]],
             ['```bash escripta ', [$LANG => 'bash', $PARAMS => []]],
@@ -42,7 +50,7 @@ class EscriptaTest extends TestCase
     public function testIsLineCodeStart($line, $expected)
     {
 
-        $actual = Escripta::isLineCodeStart($line);
+        $actual = Core::isLineCodeStart($line);
 
 
         $this->assertEquals($expected, $actual);
@@ -75,7 +83,7 @@ class EscriptaTest extends TestCase
      * @dataProvider dataProviderIsLineCodeEnd
      */
     public function testIsLineCodeEnd($line, $expected) {
-        $actual = Escripta::isLineCodeEnd($line);
+        $actual = Core::isLineCodeEnd($line);
         $this->assertEquals($expected, $actual);
     }
 
@@ -97,18 +105,18 @@ EOF;
 
         $expected = [
             [
-                Escripta::LANG => 'bash',
-                Escripta::PARAMS => [],
-                Escripta::CONTENT => 'echo "hola"' . "\n"
+                Core::LANG => 'bash',
+                Core::PARAMS => [],
+                Core::CONTENT => 'echo "hola"' . "\n"
             ],
             [
-                Escripta::LANG => 'php',
-                Escripta::PARAMS => [],
-                Escripta::CONTENT => 'echo "hola"' . "\n"
+                Core::LANG => 'php',
+                Core::PARAMS => [],
+                Core::CONTENT => 'echo "hola"' . "\n"
             ]
         ];
 
-        $actual = Escripta::getCodeBlockList($text);
+        $actual = Core::getCodeBlockList($text);
 
         $this->assertEquals($expected, $actual);
     }
@@ -130,27 +138,27 @@ EOF;
 
         $expected = [
             [
-                Escripta::LANG => 'bash',
-                Escripta::PARAMS => [ 'name' => 'hola'],
-                Escripta::CONTENT => 'echo "hola"' . "\n"
+                Core::LANG => 'bash',
+                Core::PARAMS => [ 'name' => 'hola'],
+                Core::CONTENT => 'echo "hola"' . "\n"
             ],
             [
-                Escripta::LANG => 'php',
-                Escripta::PARAMS => [ 'p1' => 'v1', 'p2' => 'v2', 'p3' => 'v3' ],
-                Escripta::CONTENT => 'echo "hola2"' . "\n"
+                Core::LANG => 'php',
+                Core::PARAMS => [ 'p1' => 'v1', 'p2' => 'v2', 'p3' => 'v3' ],
+                Core::CONTENT => 'echo "hola2"' . "\n"
             ]
         ];
 
-        $actual = Escripta::getCodeBlockList($text);
+        $actual = Core::getCodeBlockList($text);
 
         $this->assertEquals($expected, $actual);
     }
 
     public function testProcessBlock() {
         $block = [
-            Escripta::LANG => 'bash',
-            Escripta::PARAMS => [ 'name' => 'hola'],
-            Escripta::CONTENT => 'echo "hola"'
+            Core::LANG => 'bash',
+            Core::PARAMS => [ 'name' => 'hola'],
+            Core::CONTENT => 'echo "hola"'
         ];
 
         $expected = <<<EOF
@@ -162,15 +170,15 @@ EOF;
 echo "hola"
 EOF;
 
-        $actual = Escripta::processBlock($block);
+        $actual = Core::processBlock($block);
         $this->assertEquals($expected, $actual);
     }
 
     public function testProcessBlock2() {
         $block = [
-            Escripta::LANG => 'php',
-            Escripta::PARAMS => [ 'name' => 'hola'],
-            Escripta::CONTENT => 'echo "hola"'
+            Core::LANG => 'php',
+            Core::PARAMS => [ 'name' => 'hola'],
+            Core::CONTENT => 'echo "hola"'
         ];
 
         $expected = <<<EOF
@@ -184,11 +192,103 @@ declare(strict_types=1);
 ?>echo "hola"
 EOF;
 
-        $actual = Escripta::processBlock($block);
+        $actual = Core::processBlock($block);
         $this->assertEquals($expected, $actual);
     }
 
 
+    public function testTranslateMdPhpFile() {
+        $path = $this->root->url();
 
+        $md = <<<EOF
+# Hola
+        
+```bash escripta name=hola
+```
 
+```bash escripta name=chao
+```
+    
+EOF;
+
+        file_put_contents($path . '/file.md.php', $md);
+
+        $codeBlockList = Core::translateMdPhpFile($path . '/file.md.php');
+
+        $this->assertEquals([
+            [
+                Core::LANG => 'bash',
+                Core::PARAMS => [ 'name' => 'hola'],
+                Core::CONTENT => ''
+            ],
+            [
+                Core::LANG => 'bash',
+                Core::PARAMS => [ 'name' => 'chao'],
+                Core::CONTENT => ''
+            ]
+        ], $codeBlockList);
+
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    public function testTranslateMdPhpFileException() {
+        $this->expectException(\Exception::class);
+        $this->expectExceptionMessage("excep");
+
+        $path = $this->root->url();
+
+        $md = <<<EOF
+# Hola
+        
+```bash escripta name=hola
+
+```
+
+<?php
+
+throw new Exception("excep");
+?>
+```
+
+```bash escripta name=chao
+```
+    
+EOF;
+
+        file_put_contents($path . '/file.md.php', $md);
+
+        Core::translateMdPhpFile($path . '/file.md.php');
+
+    }
+
+    public function testTranslateMdPhpFileTriggerError()
+    {
+        $path = $this->root->url();
+        $md = <<<EOF
+# Hola
+
+<?php
+
+fwrite(STDERR, "hola");
+?>
+```
+
+```bash escripta name=chao
+```
+
+EOF;
+        file_put_contents($path . '/file.md.php', $md);
+
+        $result = Core::translateMdPhpFile($path . '/file.md.php');
+        $this->assertEquals([
+            [
+                Core::LANG => 'bash',
+                Core::PARAMS => [ 'name' => 'chao'],
+                Core::CONTENT => ''
+            ]
+        ], $result);
+
+    }
 }

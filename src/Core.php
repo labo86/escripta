@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace labo86\escripta;
 
 
-class Escripta {
+use Exception;
+
+class Core {
 
   const LANG = 'lang';
   const PARAMS = 'params';
@@ -159,6 +161,35 @@ EOF;
         return $mergedBlock;
     }
 
+    /**
+     * @throws \Throwable
+     */
+    static function translateMdPhpFiles(string $folder) {
+        $codeBlockList = [];
+        {
+            foreach (glob("$folder/*.md.php") as $file) {
+
+                echo "Traduciendo $file...\n";
+                $newCodeBlockList = self::translateMdPhpFile($file);
+
+                array_push($codeBlockList, ...$newCodeBlockList);
+            }
+        }
+        return $codeBlockList;
+    }
+
+    /**
+     * @throws \Throwable
+     */
+    static function translateMdPhpFile(string $file): array
+    {
+        $markdown = Util::outputBufferSafe(function() use($file) {
+            include  $file;
+        });
+
+        return Core::getCodeBlockList($markdown);
+    }
+
     static function processFolderByCommandLine() {
 
         global $argv;
@@ -175,8 +206,7 @@ EOF;
                 $contents = file_get_contents($configFile);
                 $config = json_decode($contents, true);
                 if ( $config === null ) {
-                    echo "Error parsing $configFile\n";
-                    exit(1);
+                    throw new Exception("Error de formato de $configFile");
                 } else {
                     echo "Using config file $configFile\n";
                     echo "$contents\n";
@@ -186,15 +216,12 @@ EOF;
                 echo "Archivo de configuración [$configFile] no encontrado\n";
             }
 
-
-            exit(1);
         }
 
         $folder = $argv[1];
 
         if ( !is_dir($folder) ) {
-            echo "La carpeta [$folder] no existe\n";
-            exit(1);
+            throw new Exception( "La carpeta [$folder] no existe");
         }
 
         {
@@ -210,22 +237,8 @@ EOF;
             passthru("rm $folder/*.md -rf");
         }
 
-        $codeBlockList = [];
-        {
-            echo "Traduciendo archivos md.php...\n";
-
-            foreach (glob("$folder/*.md.php") as $file) {
-
-                $outputFile = "$folder/" . basename($file, '.php');
-                echo "Traduciendo $outputFile...\n";
-                passthru("php $file > $outputFile");
-
-                $markdown = file_get_contents($outputFile);
-
-
-                array_push($codeBlockList, ...Escripta::getCodeBlockList($markdown));
-            }
-        }
+        echo "Traduciendo archivos md.php...\n";
+        $codeBlockList = self::translateMdPhpFiles($folder);
 
         {
             $storedBlockList = [];
@@ -266,12 +279,12 @@ EOF;
                             echo "Referencia $ref no encontrada\n";
                         }
                         $refBlock = $storedBlockList[$ref];
-                        $block = Escripta::mergeBlock($block, $refBlock);
+                        $block = Core::mergeBlock($block, $refBlock);
                     }
 
                     $numberPrefix = str_pad((string)$i, 2, '0', STR_PAD_LEFT);
-                    $scriptName = Escripta::generateFileName($block);
-                    $scriptContent = Escripta::processBlock($block);
+                    $scriptName = Core::generateFileName($block);
+                    $scriptContent = Core::processBlock($block);
 
                     echo "Generando archivo $numberPrefix.$scriptName...\n";
                     $fileName = "$numberPrefix.$scriptName";

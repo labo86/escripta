@@ -23,26 +23,26 @@ class PharBuilder {
 
         $addFile('Common.php');
         $addFile('OnePassword.php');
-        $addFile('Escripta.php');
+        $addFile('Core.php');
         $addFile('Config.php');
         $phar->setStub(<<<'EOF'
 #!/usr/bin/php
 <?php
 
-$PHAR_NAME = 'escript.phar';
+$PHAR_NAME = 'escripta.phar';
 
 Phar::mapPhar($PHAR_NAME);
 
 require_once("phar://${PHAR_NAME}/src/Common.php");
 require_once("phar://${PHAR_NAME}/src/OnePassword.php");
-require_once("phar://${PHAR_NAME}/src/Escripta.php");
+require_once("phar://${PHAR_NAME}/src/Core.php");
 require_once("phar://${PHAR_NAME}/src/Config.php");
 
 if (isset($argv[0])) {
     $scriptName = realpath($argv[0]);
     $currentPhar = __FILE__;
     if ( $scriptName === $currentPhar ) {
-        \labo86\escripta\Escripta::processFolderByCommandLine();
+        \labo86\escripta\Core::processFolderByCommandLine();
     }
 }
 
