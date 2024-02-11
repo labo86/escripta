@@ -333,4 +333,67 @@ EOF
             ]
         ], $result);
     }
+
+    public function testCleanGeneratedFiles() {
+        $path = $this->root->url();
+
+        $deletableFiles = [
+            "/3.md",
+            "/7.escripta",
+            "/8.escripta.php",
+            "/8.escripta.sh"
+        ];
+
+        $deletableFolders = [
+            "/files",
+            "/a.escripta"
+        ];
+
+        $files = [
+            "/1.md.php",
+            "/2.md.php",
+            "/4.php",
+            "/5.md.php",
+            "/6.md.php"
+        ];
+
+        $folders = [
+            "/a",
+            "/config"
+        ];
+
+        foreach ($deletableFiles as $file) {
+            file_put_contents($path . $file, "");
+        }
+
+        foreach ($deletableFolders as $folder) {
+            mkdir($path . $folder);
+        }
+
+        foreach ($files as $file) {
+            file_put_contents($path . $file, "");
+        }
+
+        foreach ($folders as $folder) {
+            mkdir($path . $folder);
+        }
+
+        Core::cleanGeneratedFiles($path);
+
+        foreach ($deletableFiles as $file) {
+            $this->assertFileDoesNotExist($path . $file, "");
+        }
+
+        foreach ($deletableFolders as $folder) {
+            $this->assertFileDoesNotExist($path . $folder);
+        }
+
+        foreach ($files as $file) {
+            $this->assertFileExists($path . $file, "");
+        }
+
+        foreach ($folders as $folder) {
+            $this->assertFileExists($path . $folder);
+        }
+    }
 }
