@@ -7,17 +7,20 @@ namespace labo86\escripta;
 class OnePassword
 {
 
-    static function getValue(string $itemName): string
+    function getValue(string $itemName): string
     {
+
+        $itemName = escapeshellarg($itemName);
         ob_start();
-        passthru("op read --cache " . escapeshellarg($itemName), $return);
+        passthru("op read --cache $itemName", $return);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $strValue = ob_get_clean();
         return $strValue;
     }
 
-    static function getItemRawInfo(string $itemName): array
+    function getItemRawInfo(string $itemName): array
     {
+        $itemName = escapeshellarg($itemName);
         ob_start();
         passthru("op item get --cache $itemName --format json", $return);
 
@@ -27,9 +30,8 @@ class OnePassword
         return $arrayData;
     }
 
-    static function getItemInfo(string $itemName): array
+    function getItemInfo(array $itemRawInfo): array
     {
-        $itemRawInfo = self::getItemRawInfo($itemName);
         $itemList = [];
         foreach ($itemRawInfo["fields"] as $field) {
             $label = $field["label"];
@@ -48,6 +50,8 @@ class OnePassword
                 $itemList["private_key"] = $field["ssh_formats"]["openssh"]["reference"];
             } else if (!in_array($type, ["CONCEALED", "STRING"])) {
                 continue;
+            } else if ( $field['id'] === "public_key") {
+                $itemList[$field['id']] = $value;
             } else {
                 $itemList[$label] = $value;
             }
@@ -55,7 +59,7 @@ class OnePassword
         return $itemList;
     }
 
-    static function getItemListByTags(string ...$tags)
+    function getItemListByTags(string ...$tags) : array
     {
         $tagString = join(",", $tags);
         $command = "op item list --tags $tagString --cache --format json";
@@ -66,12 +70,11 @@ class OnePassword
         return $arrayData;
     }
 
-    static function getConfigEnvironmentList(string $targetProjectName, string $targetConfigName): array
+    function getConfigEnvironmentList(array $itemListByTagsOutput, string $targetProjectName, string $targetConfigName): array
     {
-        $itemList = self::getItemListByTags($targetProjectName, "config");
         $environments = [];
         $prefix = "{$targetProjectName}_config_{$targetConfigName}_";
-        foreach ($itemList as $item) {
+        foreach ($itemListByTagsOutput as $item) {
             $title = $item['title'];
             //remove the prefix of a string
             if (!str_starts_with($title, $prefix))
@@ -118,25 +121,24 @@ class OnePassword
 
     }
 
-    static function getConfig(string $environment, string $targetProjectName, string $targetConfigName, string $targetFolder) {
-        {
-            $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
-            echo "Retrieving Information [$configName]:\n\n";
-            $itemInfo = self::getItemInfo($configName);
-            $iniFormatString = Util::arrayToIniFormat($itemInfo);
-            echo $iniFormatString . "\n\n";
-            if (!is_dir($targetFolder)) {
-                mkdir($targetFolder, 0755, true);
-            }
-            file_put_contents("$targetFolder/$targetConfigName.ini", $iniFormatString);
-
-            if (isset($itemInfo['private_key'])) {
-                $privateKeyRef = $itemInfo['private_key'];
-                $privateKey = self::getValue($privateKeyRef);
-                file_put_contents("$targetFolder/$targetConfigName.key", str_ireplace("\r", "", $privateKey));
-                chmod("$targetFolder/$targetConfigName.key", 0600);
-            }
-
+    function getConfig(string $environment, string $targetProjectName, string $targetConfigName, string $targetFolder) : string
+    {
+        $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
+        echo "Retrieving Information [$configName]:\n\n";
+        $itemInfo = $this->getItemInfo($configName);
+        $iniFormatString = Util::arrayToIniFormat($itemInfo);
+        if (!is_dir($targetFolder)) {
+            mkdir($targetFolder, 0755, true);
         }
+        file_put_contents("$targetFolder/$targetConfigName.ini", $iniFormatString);
+
+        if (isset($itemInfo['private_key'])) {
+            $privateKeyRef = $itemInfo['private_key'];
+            $privateKey = $this->getValue($privateKeyRef);
+            file_put_contents("$targetFolder/$targetConfigName.key", str_ireplace("\r", "", $privateKey));
+            chmod("$targetFolder/$targetConfigName.key", 0600);
+        }
+        return $iniFormatString;
+
     }
 }
