@@ -230,11 +230,11 @@ EOF;
             echo <<<EOF
 Escripta, la desplegadora
 =========================
-Version: $escriptaVersion
+Versión: $escriptaVersion
 Fecha de compilación: $escriptaDate
 
-Hora de la ciudad de La Concepción de María Purísima del Nuevo Extremo, Reino de Chile, fundada el 5 de octubre de 1550 por el gobernador Don Pedro de Valdivia.
-Fecha desde la primera venida de nuestro señor Jesuscristo. 
+Hora de la ciudad de La Concepción de María Purísima del Nuevo Extremo, Reino de Chile, fundada por gracia de Dios el día 5 de octubre de 1550 por el gobernador Don Pedro de Valdivia.
+Fecha desde la primera venida de Nuestro Señor Jesucristo. 
 
 EOF;
             return;

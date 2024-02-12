@@ -46,7 +46,7 @@ class Escripta {
         $targetFolder = getcwd() .  "/config";
 
         $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
-        echo "Retrieving Information [$configName]...\n\n";
+        echo "Obteniendo configuración [$configName]...\n\n";
 
         $itemInfo = OnePassword::getItemRawInfo($configName);
         $itemInfo = OnePassword::getItemInfo($itemInfo);

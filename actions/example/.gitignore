@@ -1,5 +1,3 @@
 *
 !.gitignore
-!*.md.php
-!config.php
-!escripta.php
+!*.php
