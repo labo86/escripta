@@ -12,7 +12,8 @@ class PharBuilder {
      * Eso se puede hacer modificando el archivo {@see https://www.php.net/manual/en/configuration.file.php php.ini} o llamando el script con <code>php -d phar.readonly=Off</code>.
      * El primer argumento que captura es el nombre de phar de salida.
      */
-    static public function build(string $filePath) {
+    static public function build(string $filePath, $version = 'unknown') {
+        $date = date('Y-m-d H:i:s');
         $phar = new Phar($filePath);
 
         $phar->startBuffering();
@@ -29,6 +30,16 @@ class PharBuilder {
         $addFile('EscriptaInstance.php');
         $addFile('Escripta.php');
         $addFile('Util.php');
+        $phar->addFromString('src/globals.php', <<<EOF
+<?php
+declare(strict_types=1);
+global \$escriptaVersion;
+global \$escriptaDate;
+
+\$escriptaVersion = '$version';
+\$escriptaDate = '$date';
+EOF
+);
         $phar->setStub(<<<'EOF'
 #!/usr/bin/php
 <?php
@@ -37,6 +48,7 @@ $PHAR_NAME = 'escripta.phar';
 
 Phar::mapPhar($PHAR_NAME);
 
+require_once("phar://${PHAR_NAME}/src/globals.php");
 require_once("phar://${PHAR_NAME}/src/OnePassword.php");
 require_once("phar://${PHAR_NAME}/src/Core.php");
 require_once("phar://${PHAR_NAME}/src/Config.php");

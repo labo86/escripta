@@ -6,9 +6,9 @@ Escripta
  
  <table>
  <tr><td>Nombre completo</td><td>Esmeralda Inés de la Fuente Carrasco</td></tr>
- <tr><td>Sobrenombre</td><td>Escripta, la deployadora</td></tr>
+ <tr><td>Sobrenombre</td><td>Escripta, la desplegadora</td></tr>
  <tr><td>Edad</td><td>34 años</td></tr>
- <tr><td>Lugar de nacimiento</td><td>La Concepción de María Purísima del Nuevo Extremo, Reyno de Chile</td></tr>
+ <tr><td>Lugar de nacimiento</td><td>La Concepción de María Purísima del Nuevo Extremo, Reino de Chile</td></tr>
  </table>
 
 
