@@ -57,8 +57,8 @@ TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
 
 cp -rf \
   -v \
-  $SOURCE_DIR/action_scripts.phar \
-  $TARGET_DIR/action_scripts.phar
+  $SOURCE_DIR/escripta.phar \
+  $TARGET_DIR/escripta.phar
 ```
 
 ## Hacer commit y push
