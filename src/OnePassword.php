@@ -7,7 +7,7 @@ namespace labo86\escripta;
 class OnePassword
 {
 
-    function getValue(string $itemName): string
+    static function getValue(string $itemName): string
     {
 
         $itemName = escapeshellarg($itemName);
@@ -18,7 +18,7 @@ class OnePassword
         return $strValue;
     }
 
-    function getItemRawInfo(string $itemName): array
+    static function getItemRawInfo(string $itemName): array
     {
         $itemName = escapeshellarg($itemName);
         ob_start();
@@ -30,7 +30,7 @@ class OnePassword
         return $arrayData;
     }
 
-    function getItemInfo(array $itemRawInfo): array
+    static function getItemInfo(array $itemRawInfo): array
     {
         $itemList = [];
         foreach ($itemRawInfo["fields"] as $field) {
@@ -59,7 +59,7 @@ class OnePassword
         return $itemList;
     }
 
-    function getItemListByTags(string ...$tags) : array
+    static function getItemListByTags(string ...$tags) : array
     {
         $tagString = join(",", $tags);
         $command = "op item list --tags $tagString --cache --format json";
@@ -70,7 +70,7 @@ class OnePassword
         return $arrayData;
     }
 
-    function getConfigEnvironmentList(array $itemListByTagsOutput, string $targetProjectName, string $targetConfigName): array
+    static function getConfigEnvironmentList(array $itemListByTagsOutput, string $targetProjectName, string $targetConfigName): array
     {
         $environments = [];
         $prefix = "{$targetProjectName}_config_{$targetConfigName}_";
@@ -107,38 +107,49 @@ class OnePassword
 
 
         if (count($argv) < 3) {
-            $environmentList = self::getConfigEnvironmentList($targetProjectName, $targetConfigName);
+            $output = self::getItemListByTags($targetProjectName, $targetConfigName);
+            $environmentList = self::getConfigEnvironmentList($output, $targetProjectName, $targetConfigName);
             echo "Usage: config.php $targetConfigName <environment>\n\n";
             echo "Available environments:\n";
             foreach ($environmentList as $envName => $envData) {
                 echo $envName . "\n";
             }
-            exit(1);
+            return;
+        } else {
+            self::getConfig($argv[2], $targetProjectName, $targetConfigName, $targetFolder);
         }
-
-        self::getConfig($argv[2], $targetProjectName, $targetConfigName, $targetFolder);
-
 
     }
 
-    function getConfig(string $environment, string $targetProjectName, string $targetConfigName, string $targetFolder) : string
+    static function  getConfig(string $environment, string $targetProjectName, string $targetConfigName, string $targetFolder) : string
     {
         $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
         echo "Retrieving Information [$configName]:\n\n";
-        $itemInfo = $this->getItemInfo($configName);
+
+        $itemInfo = self::getItemRawInfo($configName);
+        $itemInfo = self::getItemInfo($itemInfo);
+        self::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
+        self::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
+
+    }
+
+    static function writeIniFile(string $targetFolder, string $targetConfigName, array $itemInfo) : string
+    {
         $iniFormatString = Util::arrayToIniFormat($itemInfo);
         if (!is_dir($targetFolder)) {
             mkdir($targetFolder, 0755, true);
         }
         file_put_contents("$targetFolder/$targetConfigName.ini", $iniFormatString);
 
+        return $iniFormatString;
+    }
+
+    static function writeKeyFile(string $targetFolder, string $targetConfigName, array $itemInfo) {
         if (isset($itemInfo['private_key'])) {
             $privateKeyRef = $itemInfo['private_key'];
-            $privateKey = $this->getValue($privateKeyRef);
+            $privateKey = self::getValue($privateKeyRef);
             file_put_contents("$targetFolder/$targetConfigName.key", str_ireplace("\r", "", $privateKey));
             chmod("$targetFolder/$targetConfigName.key", 0600);
         }
-        return $iniFormatString;
-
     }
 }
