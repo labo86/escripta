@@ -4,6 +4,6 @@ declare(strict_types=1);
 
 require_once(__DIR__ . '/../../vendor/autoload.php');
 
-use labo86\action_scripts\PharBuilder;
+use labo86\escripta\PharBuilder;
 
-PharBuilder::build(__DIR__ . '/../action_scripts.phar');
+PharBuilder::build(__DIR__ . '/../escripta.phar');

@@ -1,9 +1,10 @@
 <?php
 declare(strict_types=1);
 
-namespace labo86\action_scripts;
+namespace labo86\escripta;
 
 use ArrayAccess;
+use Exception;
 
 class Config implements ArrayAccess
 {
@@ -15,40 +16,30 @@ class Config implements ArrayAccess
         $this->data = $data;
     }
 
-    static function getCallerDirectory() : string
+    public function addConfigs(array $config) : void
     {
-        $backtrace = debug_backtrace();
-
-        return dirname($backtrace[1]['file']);
+        $this->data = array_merge($this->data, $config);
     }
 
-    static function load() : Config {
-        $dir = self::getCallerDirectory();
-        $dir .= '/config';
-        if ( !is_dir($dir) ) {
-            trigger_error("Config directory not found: [$dir]", E_USER_ERROR);
-        }
-        fwrite(STDERR, "Loading configs from directory: [$dir]\n");
-
-        return new Config(self::loadConfigsAndKeys($dir));
-    }
 
     static function loadConfigsAndKeys(string $baseDir): array
     {
         $config = [];
 
-        foreach ( glob($baseDir . '/*.ini') as $file ) {
-            fwrite(STDERR, " - $file\n");
-            $data = parse_ini_file($file, true, INI_SCANNER_RAW);
+        foreach ( Util::glob($baseDir,  '*.ini') as $file ) {
+            $pathName = $file;
+            fwrite(STDERR, " - $pathName\n");
+            $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
             if ($data) {
                 $config = array_merge($config, $data);
             }
         }
 
-        foreach ( glob($baseDir . '/*.key') as $file ) {
-            fwrite(STDERR," - $file\n");
-            $key = basename($file, '.key') . "_private_key";
-            $config[$key] = $file;
+        foreach ( Util::glob($baseDir,  '*.key') as $file )  {
+            $pathName = $file;
+            fwrite(STDERR," - $pathName\n");
+            $key = basename($pathName, '.key') . "_private_key";
+            $config[$key] = $pathName;
         }
 
         return $config;
@@ -66,7 +57,7 @@ class Config implements ArrayAccess
         }
 
         trigger_error(
-            "Config [$offset] not found. Putting a placeholder",
+            "Configuración [$offset] no encontrada.",
             E_USER_NOTICE);
         return "[[$offset]]";
     }

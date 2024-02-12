@@ -1,19 +1,13 @@
 {
-  "name" : "labo86/action_scripts",
+  "name" : "labo86/escripta",
   "autoload" : {
     "psr-4" : {
-      "labo86\\action_scripts\\" : "src/"
-    },
-    "files" : [
-        "src/docker.php",
-        "src/git.php",
-        "src/image.php",
-        "src/mySql.php"
-    ]
+      "labo86\\escripta\\" : "src/"
+    }
   },
   "autoload-dev": {
     "psr-4": {
-      "labo86\\action_scripts\\tests\\": "tests/"
+      "labo86\\escripta\\tests\\": "tests/"
     }
   },
   "require-dev": {
@@ -22,6 +16,7 @@
   "require" : {
     "php" : ">=8.2.0",
     "ext-curl" : "*",
-    "ext-json" : "*"
+    "ext-json" : "*",
+    "mikey179/vfsstream" : "^1.6"
   }
 }
