@@ -24,6 +24,9 @@ class BlockListProcessor
 
             $this->storeReferencedBlock($block);
 
+            if ( $block['params']['hidden'] ?? false )
+                continue;
+
             $targetFolder = BlockProcessor::getTargetFolder($block);
 
             if ($block['params']['file'] ?? false) {

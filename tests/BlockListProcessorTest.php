@@ -111,6 +111,166 @@ class BlockListProcessorTest extends TestCase
 
      }
 
+    public function testProcessHidden()
+    {
+        $blockList = [
+            [
+                'params' => [
+                    'dir' => 'a',
+                    'name' => 'script_1',
+                ],
+
+                'content' => 'hello'
+            ],
+            [
+                'params' => [
+                    'dir' => 'a',
+                    'name' => 'script_2',
+                ],
+
+                'content' => 'hello'
+            ],
+            [
+                'params' => [
+                    'dir' => 'b',
+                    'name' => 'script_3',
+                    'hidden' => 'true'
+                ],
+                'content' => 'world'
+            ],
+            [
+                'params' => [
+                    'name' => 'script_4',
+                ],
+                'content' => 'world'
+            ],
+            [
+                'params' => [
+                    'name' => 'script_5',
+                    'file' => 'true',
+                    'hidden' => 'true'
+                ],
+                'content' => 'world 2'
+            ],
+            [
+                'params' => [
+                    'name' => 'script_6',
+                    'file' => 'true',
+                    'dir' => 'b',
+                ],
+                'content' => 'world 3'
+            ]
+        ];
+        $processor = new BlockListProcessor();
+        $actual = $processor->process($blockList);
+        $this->assertEquals([
+            'a.escripta' => [
+                [
+                    'content' => 'hello',
+                    'fileName' => '01.script_1.escripta.txt'
+                ],
+                [
+                    'content' => 'hello',
+                    'fileName' => '02.script_2.escripta.txt'
+                ]
+            ],
+            'b.escripta/files' => [
+                [
+                    'fileName' => 'script_6',
+                    'content' => 'world 3'
+                ]
+            ],
+            '.' => [
+                [
+                    'fileName' => '03.script_4.escripta.txt',
+                    'content' => 'world'
+                ]
+            ]
+        ], $actual);
+
+    }
+
+    public function testProcessRefHidden()
+    {
+        $blockList = [
+            [
+                'params' => [
+                    'dir' => 'a',
+                    'name' => 'script_1',
+                ],
+
+                'content' => 'hello'
+            ],
+            [
+                'params' => [
+                    'dir' => 'a',
+                    'name' => 'script_2',
+                ],
+
+                'content' => 'hello'
+            ],
+            [
+                'params' => [
+                    'dir' => 'b',
+                    'id' => 'id_1',
+                    'name' => 'script_3',
+                    'hidden' => 'true'
+                ],
+                'content' => 'world 2'
+            ],
+            [
+                'params' => [
+                    'ref' => 'id_1',
+                    'name' => 'script_4',
+                ],
+                'content' => 'world'
+            ],
+            [
+                'params' => [
+                    'name' => 'script_5',
+                    'file' => 'true',
+                    'hidden' => 'true'
+                ],
+                'content' => 'world 2'
+            ],
+            [
+                'params' => [
+                    'name' => 'script_6',
+                    'file' => 'true',
+                    'dir' => 'b',
+                ],
+                'content' => 'world 3'
+            ]
+        ];
+        $processor = new BlockListProcessor();
+        $actual = $processor->process($blockList);
+        $this->assertEquals([
+            'a.escripta' => [
+                [
+                    'content' => 'hello',
+                    'fileName' => '01.script_1.escripta.txt'
+                ],
+                [
+                    'content' => 'hello',
+                    'fileName' => '02.script_2.escripta.txt'
+                ]
+            ],
+            'b.escripta/files' => [
+                [
+                    'fileName' => 'script_6',
+                    'content' => 'world 3'
+                ]
+            ],
+            '.' => [
+                [
+                    'fileName' => '03.script_4.escripta.txt',
+                    'content' => 'world 2'
+                ]
+            ]
+        ], $actual);
+
+    }
+
      public function testGetReferencedBlock() {
             $referencedBlock =
                 [
