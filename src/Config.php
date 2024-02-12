@@ -26,6 +26,8 @@ class Config implements ArrayAccess
         return new Config(self::loadConfigsAndKeys($configDir));
     }
 
+
+
     static function loadConfigsAndKeys(string $baseDir): array
     {
         $config = [];
