@@ -70,4 +70,23 @@ class UtilTest extends TestCase
         $files = iterator_to_array(Util::glob($path . '/a', '*.txt'));
         $this->assertEquals([$path . '/a/b.txt', $path . '/a/c.txt', $path . '/a/d.txt'], $files);
     }
+
+    public function testFindFileBackwards() {
+        $path = $this->root->url();
+        mkdir($path . '/a', 0777, true);
+        mkdir($path . '/a/b', 0777, true);
+        file_put_contents($path . '/a3.txt', 'hello');
+        file_put_contents($path . '/a/a1.txt', 'hello');
+        file_put_contents($path . '/a/a2.txt', 'hello');
+        file_put_contents($path . '/a/b/c.txt', 'hello');
+        file_put_contents($path . '/a/b/d.txt', 'hello');
+        file_put_contents($path . '/a/b/e.txt', 'hello');
+        $this->assertEquals($path . '/a/b/c.txt', Util::findFileBackwards('c.txt', $path . '/a/b'));
+        $this->assertEquals($path . '/a/b/d.txt', Util::findFileBackwards('d.txt', $path . '/a/b'));
+        $this->assertEquals($path . '/a/b/e.txt', Util::findFileBackwards('e.txt', $path . '/a/b'));
+        $this->assertEquals($path . '/a/a1.txt', Util::findFileBackwards('a1.txt', $path . '/a/b'));
+        $this->assertEquals($path . '/a/a2.txt', Util::findFileBackwards('a2.txt', $path . '/a/b'));
+        $this->assertEquals($path . '/a3.txt', Util::findFileBackwards('a3.txt', $path . '/a/b'));
+
+    }
 }

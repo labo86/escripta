@@ -85,4 +85,18 @@ class Util
         $stringData = join("\n", $arrayString);
         return $stringData;
     }
+
+    public static function findFileBackwards(string $filename, string $startFolder) : ?string {
+        $folder = $startFolder;
+        while ( true ) {
+            $path = $folder . '/' . $filename;
+            if ( file_exists($path) )
+                return $path;
+
+            $parent = dirname($folder);
+            if ( $parent === $folder )
+                return null;
+            $folder = $parent;
+        }
+    }
 }
