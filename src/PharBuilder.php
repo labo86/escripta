@@ -21,7 +21,6 @@ class PharBuilder {
             $phar->addFile(__DIR__ . '/' . $file, 'src/' . $file);
         };
 
-        $addFile('Common.php');
         $addFile('OnePassword.php');
         $addFile('Core.php');
         $addFile('Config.php');
@@ -33,10 +32,12 @@ $PHAR_NAME = 'escripta.phar';
 
 Phar::mapPhar($PHAR_NAME);
 
-require_once("phar://${PHAR_NAME}/src/Common.php");
 require_once("phar://${PHAR_NAME}/src/OnePassword.php");
 require_once("phar://${PHAR_NAME}/src/Core.php");
 require_once("phar://${PHAR_NAME}/src/Config.php");
+require_once("phar://${PHAR_NAME}/src/BlockProcessor.php");
+require_once("phar://${PHAR_NAME}/src/BlockListProcessor.php");
+require_once("phar://${PHAR_NAME}/src/Util.php");
 
 if (isset($argv[0])) {
     $scriptName = realpath($argv[0]);

@@ -60,4 +60,29 @@ class Util
             }
         }
     }
+
+    public static function executeCommandAndGetStdOut(string $command, bool $captureStdout = true): string
+    {
+        if ($captureStdout) {
+            ob_start();
+        }
+        passthru($command, $return);
+
+        if ($captureStdout) {
+            $strValue = ob_get_clean();
+            return $strValue;
+        } else {
+            return "";
+        }
+    }
+
+    public static function arrayToIniFormat(array $data): string
+    {
+        $arrayString = [];
+        foreach ($data as $key => $value) {
+            $arrayString[] = join("=", [$key, $value]);
+        }
+        $stringData = join("\n", $arrayString);
+        return $stringData;
+    }
 }

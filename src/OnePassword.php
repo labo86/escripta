@@ -59,7 +59,7 @@ class OnePassword
     {
         $tagString = join(",", $tags);
         $command = "op item list --tags $tagString --cache --format json";
-        $jsonString = Common::executeCommandAndGetStdOut($command);
+        $jsonString = Util::executeCommandAndGetStdOut($command);
 
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $arrayData = json_decode($jsonString, true);
@@ -123,7 +123,7 @@ class OnePassword
             $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
             echo "Retrieving Information [$configName]:\n\n";
             $itemInfo = self::getItemInfo($configName);
-            $iniFormatString = Common::arrayToIniFormat($itemInfo);
+            $iniFormatString = Util::arrayToIniFormat($itemInfo);
             echo $iniFormatString . "\n\n";
             if (!is_dir($targetFolder)) {
                 mkdir($targetFolder, 0755, true);
