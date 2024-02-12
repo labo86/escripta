@@ -16,15 +16,11 @@ class Config implements ArrayAccess
         $this->data = $data;
     }
 
-
-    static function load($configDir) : Config {
-        if ( !is_dir($configDir) ) {
-            throw new Exception("Carpeta de configuraciones no encontrada: [$configDir]");
-        }
-        fwrite(STDERR, "Cargando configuraciones de la carpeta [$configDir]\n");
-
-        return new Config(self::loadConfigsAndKeys($configDir));
+    public function addConfigs(array $config) : void
+    {
+        $this->data = array_merge($this->data, $config);
     }
+
 
     static function loadConfigsAndKeys(string $baseDir): array
     {

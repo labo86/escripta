@@ -3,12 +3,12 @@ declare(strict_types=1);
 
 require_once(__DIR__ . '/include.php');
 
-use labo86\action_scripts\Config;
+use labo86\escripta\Escripta;
 
 $DEPLOY_APP_DIR =__DIR__ .  '/var/app';
-$CONFIG_DEPLOY_GITHUB = LOCAL_CONFIG_DEPLOY_GITHUB;
+$CONFIG_DEPLOY_GITHUB = 'deploy_github';
 
-$config = Config::load();
+$config = Escripta::loadConfig();
 
 
 ?>
@@ -24,7 +24,7 @@ $sshKeyFilename = $config["{$CONFIG_DEPLOY_GITHUB}_private_key"];
 
 ?>
 
-```bash escript name=clone_deploy_repo
+```bash escripta name=clone_deploy_repo
 
 TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
 TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
@@ -49,7 +49,7 @@ $targetDir = __DIR__ . '/var/repo';
 
 ?>
 
-```bash escript name=copy_deploy_files_to_repo
+```bash escripta name=copy_deploy_files_to_repo
 
 SOURCE_DIR=<?=escapeshellarg($sourceDir)?> # PARAM
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
@@ -70,7 +70,7 @@ $sshKeyFilename = $config["{$CONFIG_DEPLOY_GITHUB}_private_key"];
 
 ?>
 
-```bash escript name=commit_and_push
+```bash escripta name=commit_and_push
 
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
 SSH_KEY_FILENAME=<?=$sshKeyFilename?> # PARAM

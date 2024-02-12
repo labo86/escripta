@@ -121,17 +121,6 @@ class OnePassword
 
     }
 
-    static function  getConfig(string $environment, string $targetProjectName, string $targetConfigName, string $targetFolder) : string
-    {
-        $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
-        echo "Retrieving Information [$configName]:\n\n";
-
-        $itemInfo = self::getItemRawInfo($configName);
-        $itemInfo = self::getItemInfo($itemInfo);
-        self::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
-        self::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
-
-    }
 
     static function writeIniFile(string $targetFolder, string $targetConfigName, array $itemInfo) : string
     {

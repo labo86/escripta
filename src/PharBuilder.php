@@ -24,6 +24,11 @@ class PharBuilder {
         $addFile('OnePassword.php');
         $addFile('Core.php');
         $addFile('Config.php');
+        $addFile('BlockProcessor.php');
+        $addFile('BlockListProcessor.php');
+        $addFile('EscriptaInstance.php');
+        $addFile('Escripta.php');
+        $addFile('Util.php');
         $phar->setStub(<<<'EOF'
 #!/usr/bin/php
 <?php
@@ -37,6 +42,8 @@ require_once("phar://${PHAR_NAME}/src/Core.php");
 require_once("phar://${PHAR_NAME}/src/Config.php");
 require_once("phar://${PHAR_NAME}/src/BlockProcessor.php");
 require_once("phar://${PHAR_NAME}/src/BlockListProcessor.php");
+require_once("phar://${PHAR_NAME}/src/EscriptaInstance.php");
+require_once("phar://${PHAR_NAME}/src/Escripta.php");
 require_once("phar://${PHAR_NAME}/src/Util.php");
 
 if (isset($argv[0])) {

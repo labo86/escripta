@@ -30,10 +30,14 @@ class Util
     }
 
     public static function removeFileRecursive(string $fileOrFolder) : void {
-        if ( !is_dir($fileOrFolder) ) {
+        if ( !file_exists($fileOrFolder) ) {
+            return;
+        } else if ( is_file($fileOrFolder) ) {
             unlink($fileOrFolder);
             return;
         }
+
+
 
         $folder = $fileOrFolder;
 

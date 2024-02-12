@@ -178,6 +178,8 @@ EOF;
                 //if filename ends with .md.php
                 echo "Traduciendo $pathName...\n";
                 $newCodeBlockList = self::translateMdPhpFile($pathName);
+                $count = count($newCodeBlockList);
+                echo " [$count] bloques encontrados\n";
 
                 array_push($codeBlockList, ...$newCodeBlockList);
             }
@@ -218,37 +220,10 @@ EOF;
      */
     static function processFolderByCommandLine() {
 
-        global $argv;
-        if ( count($argv) !== 2 ) {
-            echo "Usage: ./escripta.phar <folder>\n";
 
 
-            $phar = debug_backtrace()[0]['file'];
-            $dir = dirname($phar);
-            $dir = realpath($dir);
+        $folder = getcwd();
 
-            $configFile = "$dir/.escripta.json";
-            if ( file_exists($configFile) ) {
-                $contents = file_get_contents($configFile);
-                $config = json_decode($contents, true);
-                if ( $config === null ) {
-                    throw new Exception("Error de formato de $configFile");
-                } else {
-                    echo "Using config file $configFile\n";
-                    echo "$contents\n";
-                }
-            }
-            else {
-                echo "Archivo de configuración [$configFile] no encontrado\n";
-            }
-
-        }
-
-        $folder = $argv[1];
-
-        if ( !is_dir($folder) ) {
-            throw new Exception( "La carpeta [$folder] no existe");
-        }
 
 
         echo "Removiendo archivos viejos...\n";
@@ -257,10 +232,22 @@ EOF;
 
         echo "Traduciendo archivos md.php...\n";
         $codeBlockList = self::translateMdPhpFolder($folder);
+        $count = count($codeBlockList);
+        echo "Carpeta: [$folder] con [$count] bloques encontrados:\n";
 
         echo "Procesando bloques...\n";
         $blockListProcessor = new BlockListProcessor();
-        $blockListProcessor->process($codeBlockList);
+        $blocks = $blockListProcessor->process($codeBlockList);
+        $count = count($blocks);
+        echo "Carpeta: [$folder] con [$count] bloques a generar:\n";
+
+        //print processed blocks
+        foreach ( $blocks as $subFolder => $blockList ) {
+
+            foreach ( $blockList as $block ) {
+                echo "  - " . $subFolder . "/" . $block['fileName'] . "\n";
+            }
+        }
 
         echo "Guardando archivos...\n";
         $blockListProcessor->save($folder);

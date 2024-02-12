@@ -2,15 +2,13 @@
 <?php
 declare(strict_types=1);
 
-require_once(__DIR__ . '/include.php');
+require_once(__DIR__ . '/../escripta.phar');
 
-use labo86\action_scripts\OnePassword;
+use labo86\escripta\Escripta;
 
-OnePassword::getConfig(
-    "prod",
-    PROJECT_NAME,
-    LOCAL_CONFIG_DEPLOY_GITHUB,
-    __DIR__ . '/config'
+Escripta::pullConfig(
+    'deploy_github',
+    "prod"
 );
 
 

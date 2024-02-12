@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace labo86\escripta\tests;
 
 
+use labo86\escripta\BlockListProcessor;
 use labo86\escripta\Core;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -230,6 +231,141 @@ EOF;
 
     }
 
+    public function testTranslateMdPhpFile2() {
+        $path = $this->root->url();
+
+        $md = <<<EOF
+
+## Clonar repositorio de despliegue
+
+
+```txt escripta name=clone_deploy_repo
+```
+
+## Copiar archivos de despliegue al repositorio
+
+
+```txt escripta name=var dir=remoto file=true
+```
+
+## Copiar archivos de despliegue al repositorio
+
+
+```txt escripta name=copy_deploy_files_to_repo file=true
+```
+
+
+## Copiar archivos de despliegue al repositorio
+
+
+```txt escripta name=copy_deploy_files_to_repo dir=remoto
+```
+
+## Hacer commit y push
+
+
+```txt escripta name=commit_and_push
+```
+
+
+## Clonar repositorio de despliegue
+
+
+```txt escripta name=clone_deploy_repo
+```
+
+## Copiar archivos de despliegue al repositorio
+
+
+```txt escripta name=var dir=remoto file=true
+```
+
+## Copiar archivos de despliegue al repositorio
+
+
+```txt escripta name=copy_deploy_files_to_repo file=true
+```
+
+
+## Copiar archivos de despliegue al repositorio
+
+
+```txt escripta name=copy_deploy_files_to_repo dir=remoto
+```
+
+## Hacer commit y push
+
+
+```txt escripta name=commit_and_push
+```
+
+
+
+EOF;
+
+        file_put_contents($path . '/file.md.php', $md);
+
+        $codeBlockList = Core::translateMdPhpFile($path . '/file.md.php');
+
+        $processor = new BlockListProcessor();
+        $blockList = $processor->process($codeBlockList);
+
+        $expected =  Array (
+            '.' => Array (
+                0 => Array (
+                    'fileName' => '01.clone_deploy_repo.escripta.txt',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => '03.commit_and_push.escripta.txt',
+                    'content' => ''
+                ),
+                2 => Array (
+                    'fileName' => '04.clone_deploy_repo.escripta.txt',
+                    'content' => ''
+                ),
+                3 => Array (
+                    'fileName' => '06.commit_and_push.escripta.txt',
+                    'content' => ''
+                ),
+            ),
+            'remoto.escripta/files' => Array (
+                    0 => Array (
+                        'fileName' => 'var',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => 'var',
+                    'content' => ''
+                )
+            ),
+            './files' => Array (
+                    0 => Array (
+                        'fileName' => 'copy_deploy_files_to_repo',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => 'copy_deploy_files_to_repo',
+                    'content' => ''
+                )
+            ),
+            'remoto.escripta' => Array (
+                    0 => Array (
+                        'fileName' => '02.copy_deploy_files_to_repo.escripta.txt',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => '05.copy_deploy_files_to_repo.escripta.txt',
+                    'content' => ''
+                )
+            )
+        );
+
+        $this->assertEquals($expected, $blockList);
+
+    }
+
+
     /**
      * @throws \Throwable
      */
@@ -395,5 +531,115 @@ EOF
         foreach ($folders as $folder) {
             $this->assertFileExists($path . $folder);
         }
+    }
+
+    public function testCleanGeneratedFiles2() {
+        $path = $this->root->url();
+
+        $deletableFiles = [
+            "/3.md",
+            "/7.escripta",
+            "/8.escripta.php",
+            "/8.escripta.sh"
+        ];
+
+        $deletableFolders = [
+            "/files",
+            "/a.escripta"
+        ];
+
+        $files = [
+            "/1.md.php",
+            "/2.md.php",
+            "/4.php",
+            "/5.md.php",
+            "/6.md.php"
+        ];
+
+        $folders = [
+            "/a",
+            "/config"
+        ];
+
+
+        Core::cleanGeneratedFiles($path);
+
+        foreach ($deletableFiles as $file) {
+            $this->assertFileDoesNotExist($path . $file, "");
+        }
+
+        foreach ($deletableFolders as $folder) {
+            $this->assertFileDoesNotExist($path . $folder);
+        }
+
+        foreach ($files as $file) {
+            $this->assertFileDoesNotExist($path . $file, "");
+        }
+
+        foreach ($folders as $folder) {
+            $this->assertFileDoesNotExist($path . $folder);
+        }
+    }
+
+    public function testSave2()
+    {
+        $path = $this->root->url();
+
+        $processor = new BlockListProcessor();
+        $processor->folderList =         $expected =  Array (
+            '.' => Array (
+                0 => Array (
+                    'fileName' => '01.clone_deploy_repo.escripta.txt',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => '03.commit_and_push.escripta.txt',
+                    'content' => ''
+                ),
+                2 => Array (
+                    'fileName' => '04.clone_deploy_repo.escripta.txt',
+                    'content' => ''
+                ),
+                3 => Array (
+                    'fileName' => '06.commit_and_push.escripta.txt',
+                    'content' => ''
+                ),
+            ),
+            'remoto.escripta/files' => Array (
+                0 => Array (
+                    'fileName' => 'var',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => 'var',
+                    'content' => ''
+                )
+            ),
+            './files' => Array (
+                0 => Array (
+                    'fileName' => 'copy_deploy_files_to_repo',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => 'copy_deploy_files_to_repo',
+                    'content' => ''
+                )
+            ),
+            'remoto.escripta' => Array (
+                0 => Array (
+                    'fileName' => '02.copy_deploy_files_to_repo.escripta.txt',
+                    'content' => ''
+                ),
+                1 => Array (
+                    'fileName' => '05.copy_deploy_files_to_repo.escripta.txt',
+                    'content' => ''
+                )
+            )
+        );
+
+        $processor->save($path);
+
+        $this->assertFileExists($path . '/01.clone_deploy_repo.escripta.txt');
+
     }
 }
