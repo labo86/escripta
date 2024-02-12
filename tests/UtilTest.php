@@ -87,6 +87,8 @@ class UtilTest extends TestCase
         $this->assertEquals($path . '/a/a1.txt', Util::findFileBackwards('a1.txt', $path . '/a/b'));
         $this->assertEquals($path . '/a/a2.txt', Util::findFileBackwards('a2.txt', $path . '/a/b'));
         $this->assertEquals($path . '/a3.txt', Util::findFileBackwards('a3.txt', $path . '/a/b'));
+        $this->assertEquals(null, Util::findFileBackwards('escripta.txt', $path . '/a/b'));
+        $this->assertEquals($path . '/a/b', Util::findFileBackwards('b', $path . '/a/b'));
 
     }
 }
