@@ -73,18 +73,24 @@ class BlockListProcessor
 
 
 
-    public function save(string $targetFolder) : void {
-        foreach ($this->folderList as $folder => $file) {
+    public function save(string $targetFolder) : int {
+        $fileCount = 0;
+        foreach ($this->folderList as $folder => $fileList) {
             $folder = "$targetFolder/$folder";
-            $filePath = "$folder/{$file['fileName']}";
-            echo "Guardando [$filePath]...";
             if (!is_dir($folder)) {
                 mkdir($folder, 0777, true);
             }
+            foreach ($fileList as $file) {
+                $filePath = "$folder/{$file['fileName']}";
+                echo "Guardando [$filePath]...";
 
-            file_put_contents($filePath, $file['content']);
-            chmod($filePath, 0755);
-            echo "HECHO\n";
+
+                file_put_contents($filePath, $file['content']);
+                chmod($filePath, 0755);
+                echo "HECHO\n";
+                $fileCount++;
+            }
         }
+        return $fileCount;
     }
 }

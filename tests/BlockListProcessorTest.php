@@ -5,11 +5,19 @@ namespace labo86\escripta\tests;
 
 use Exception;
 use labo86\escripta\BlockListProcessor;
+use org\bovigo\vfs\vfsStream;
+use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
 use Throwable;
 
 class BlockListProcessorTest extends TestCase
 {
+
+    protected vfsStreamDirectory $root;
+    public function setUp(): void
+    {
+        $this->root = vfsStream::setup();
+    }
 
     /**
      * @throws Throwable
@@ -132,6 +140,56 @@ class BlockListProcessorTest extends TestCase
                             'name' => 'script_2'
                         ]
             ], $actual);
+     }
+
+     public function testSave() {
+    $processor = new BlockListProcessor();
+            $processor->folderList = [
+                'a.escripta' => [
+                    [
+                        'content' => 'hello',
+                        'fileName' => '01.script_1.escripta.txt'
+                    ],
+                    [
+                        'content' => 'hello',
+                        'fileName' => '02.script_2.escripta.txt'
+                    ]
+                ],
+                'b.escripta' => [
+                    [
+                        'content' => 'world',
+                        'fileName' => '03.script_3.escripta.txt'
+                    ]
+                ],
+                'b.escripta/files' => [
+                    [
+                        'fileName' => 'script_6',
+                        'content' => 'world 3'
+                    ]
+                ],
+                '.' => [
+                    [
+                        'fileName' => '04.script_4.escripta.txt',
+                        'content' => 'world'
+                    ]
+                ],
+                './files' => [
+                    [
+                        'fileName' => 'script_5',
+                        'content' => 'world 2'
+                    ]
+                ]
+            ];
+            $path = $this->root->url();
+            $filesCreatedCount = $processor->save($path);
+            $this->assertEquals(6, $filesCreatedCount);
+
+            $this->assertFileExists($path . '/a.escripta/01.script_1.escripta.txt');
+            $this->assertFileExists($path . '/a.escripta/02.script_2.escripta.txt');
+            $this->assertFileExists($path . '/b.escripta/03.script_3.escripta.txt');
+            $this->assertFileExists($path . '/b.escripta/files/script_6');
+            $this->assertFileExists($path . '/04.script_4.escripta.txt');
+            $this->assertFileExists($path . '/files/script_5');
      }
 
 }
