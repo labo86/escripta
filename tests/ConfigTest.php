@@ -29,11 +29,11 @@ class ConfigTest extends TestCase
 
         $config = Config::loadConfigsAndKeys($path);
 
-        $this->assertEquals(['a' => '1', 'b' => '2', 'c_private_key' => $path . '/c.key'], $config);
+        $this->assertEquals(['a' => ['a' =>'1'], 'b' => ['b' =>'2'], 'c' => ['private_key' => $path . '/c.key']], $config);
 
-        $this->assertEquals('1', $config['a']);
-        $this->assertEquals('2', $config['b']);
-        $this->assertEquals($path . '/c.key', $config['c_private_key']);
+        $this->assertEquals('1', $config['a']['a']);
+        $this->assertEquals('2', $config['b']['b']);
+        $this->assertEquals($path . '/c.key', $config['c']['private_key']);
 
     }
 
@@ -49,12 +49,32 @@ class ConfigTest extends TestCase
 
         $config = Config::loadConfigsAndKeys($path);
 
-        $this->assertEquals(['a' => '2', 'b' => '4', 'c' => '3', 'c_private_key' => $path . '/c.key'], $config);
+        $this->assertEquals(['a' => ['a' =>'1', 'b'=> '4'], 'b' => ['a' => '2', 'c' => '3'], 'c' => ['private_key' => $path . '/c.key']], $config);
 
-        $this->assertEquals('2', $config['a']);
-        $this->assertEquals('4', $config['b']);
-        $this->assertEquals('3', $config['c']);
-        $this->assertEquals($path . '/c.key', $config['c_private_key']);
+        $this->assertEquals('2', $config['b']['a']);
+        $this->assertEquals('4', $config['a']['b']);
+        $this->assertEquals('3', $config['b']['c']);
+        $this->assertEquals($path . '/c.key', $config['c']['private_key']);
+    }
+
+    public function testLoadConfigObject()
+    {
+        $path = $this->root->url();
+
+        mkdir($path, 0777, true);
+
+        file_put_contents($path . '/a.ini', "a=1\nb=4");
+        file_put_contents($path . '/b.ini', "a=2\nc=3");
+        file_put_contents($path . '/c.key', 'some_key');
+
+        $config = new Config(Config::loadConfigsAndKeys($path));
+
+        $this->assertEquals(['a' => ['a' =>'1', 'b'=> '4'], 'b' => ['a' => '2', 'c' => '3'], 'c' => ['private_key' => $path . '/c.key']], $config->data);
+
+        $this->assertEquals('2', $config['b']['a']);
+        $this->assertEquals('4', $config['a']['b']);
+        $this->assertEquals('3', $config['b']['c']);
+        $this->assertEquals($path . '/c.key', $config['c']['private_key']);
     }
 
 

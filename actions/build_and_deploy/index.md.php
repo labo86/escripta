@@ -17,10 +17,10 @@ $config = Escripta::loadConfig();
 
 <?php
 
-$targetRepo = $config['git_repo_url'];
-$targetBranch = $config['git_repo_branch'];
+$targetRepo = $config['deploy_github']['git_repo_url'];
+$targetBranch = $config['deploy_github']['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
-$sshKeyFilename = $config["{$CONFIG_DEPLOY_GITHUB}_private_key"];
+$sshKeyFilename = $config['deploy_github']['private_key'];
 
 ?>
 
@@ -66,7 +66,7 @@ cp -rf \
 <?php
 
 $targetDir = __DIR__ . '/var/repo';
-$sshKeyFilename = $config["{$CONFIG_DEPLOY_GITHUB}_private_key"];
+$sshKeyFilename = $config['deploy_github']['private_key'];
 
 ?>
 

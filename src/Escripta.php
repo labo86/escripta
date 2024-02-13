@@ -34,7 +34,6 @@ class Escripta {
         fwrite(STDERR, "Cargando configuraciones de la carpeta [$currentWorkingDir]\n");
 
         $config = new Config(Config::loadConfigsAndKeys($currentWorkingDir . "/config"));
-        $config->addConfigs(self::$instance->projectConfig);
         return $config;
 
     }
@@ -53,6 +52,24 @@ class Escripta {
         $iniData = OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
         OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
         echo $iniData , "\n\n";
+    }
+
+    public static function getProjectName() : string {
+        self::initInstance();
+        return self::$instance->getProjectName();
+    }
+
+    public static function getActionName() : string {
+        self::initInstance();
+        $folder = getcwd();
+        return basename($folder);
+    }
+
+    public static function getFullActionFolderName() : string {
+        $projectName = self::getProjectName();
+        $actionName = self::getActionName();
+
+        return "$projectName\_$actionName.escripta";
     }
 
 

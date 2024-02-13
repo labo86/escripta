@@ -10,17 +10,13 @@ class Config implements ArrayAccess
 {
 
     public array $data = [];
+    public ?Config $parent = null;
 
-    public function __construct(array $data)
+    public function __construct(array $data, Config $parent = null)
     {
         $this->data = $data;
+        $this->parent = $parent;
     }
-
-    public function addConfigs(array $config) : void
-    {
-        $this->data = array_merge($this->data, $config);
-    }
-
 
     static function loadConfigsAndKeys(string $baseDir): array
     {
@@ -28,18 +24,20 @@ class Config implements ArrayAccess
 
         foreach ( Util::glob($baseDir,  '*.ini') as $file ) {
             $pathName = $file;
+            $fileName = basename($pathName, '.ini');
             fwrite(STDERR, " - $pathName\n");
             $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
+
             if ($data) {
-                $config = array_merge($config, $data);
+                $config[$fileName] = $data;
             }
         }
 
         foreach ( Util::glob($baseDir,  '*.key') as $file )  {
             $pathName = $file;
+            $fileName = basename($pathName, '.key');
             fwrite(STDERR," - $pathName\n");
-            $key = basename($pathName, '.key') . "_private_key";
-            $config[$key] = $pathName;
+            $config[$fileName]["private_key"] = $pathName;
         }
 
         return $config;
@@ -53,22 +51,38 @@ class Config implements ArrayAccess
     public function offsetGet(mixed $offset): mixed
     {
         if (array_key_exists($offset, $this->data)) {
-            return $this->data[$offset];
+            if (is_array($this->data[$offset]))
+                return new Config($this->data[$offset], $this);
+            else
+                return $this->data[$offset];
         }
 
+        $name = $this->fullScopeKeyName($offset);
+
         trigger_error(
-            "Configuración [$offset] no encontrada.",
+            "Configuración [$name] no encontrada.",
             E_USER_NOTICE);
-        return "[[$offset]]";
+        return "[[$name]]";
+    }
+
+    public function fullScopeKeyName(string $key): string
+    {
+        if ($this->parent) {
+            return $this->parent->fullScopeKeyName($key) . "." . $key;
+        } else {
+            return $key;
+        }
     }
 
     public function offsetSet(mixed $offset, mixed $value): void
     {
-        $this->data[$offset] = $value;
+        $name = $this->fullScopeKeyName($offset);
+        trigger_error("No se puede eliminar la configuración [$name]", E_USER_NOTICE);
     }
 
     public function offsetUnset(mixed $offset): void
     {
-        unset($this->data[$offset]);
+        $name = $this->fullScopeKeyName($offset);
+        trigger_error("No se puede eliminar la configuración [$name]", E_USER_NOTICE);
     }
 }
