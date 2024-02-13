@@ -65,7 +65,7 @@ cp -rf \
 
 $targetDir = __DIR__ . '/var/repo';
 $sshKeyFilename = $config['deploy_github']['private_key'];
-$message = Escripta::getFullActionFolderName();
+$message = Escripta::getFullActionName();
 
 ?>
 

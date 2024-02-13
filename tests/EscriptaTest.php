@@ -31,6 +31,7 @@ class EscriptaTest extends TestCase
         $path .= '/action';
         mkdir($path, 0777, true);
 
+        Escripta::$instance = null;
         Escripta::initInstance($path);
 
         $this->assertEquals('action', Escripta::getActionName());
@@ -38,7 +39,7 @@ class EscriptaTest extends TestCase
 
         $this->assertEquals('test', Escripta::getProjectName());
         $this->assertEquals('vfs://root/root/..', Escripta::getProjectBaseDir());
-        $this->assertEquals('test_action.escripta', Escripta::getFullActionFolderName());
+        $this->assertEquals('test_action', Escripta::getFullActionName());
 
     }
 

@@ -68,15 +68,15 @@ class Escripta {
     }
 
     /**
-     * Identificador para directorios del archivo actual.
+     * Identificador para la acción del archivo actual.
      * Ideal para crear un identificador de archivo remoto
      * @return string
      */
-    public static function getFullActionFolderName() : string {
+    public static function getFullActionName() : string {
         $projectName = self::getProjectName();
         $actionName = self::getActionName();
 
-        return "{$projectName}_{$actionName}.escripta";
+        return "{$projectName}_{$actionName}";
     }
 
     public static function setCurrentFile(string $file) {
