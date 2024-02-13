@@ -208,6 +208,8 @@ EOF;
      */
     static function translateMdPhpFile(string $file): array
     {
+        Escripta::setCurrentFile($file);
+
         $markdown = Util::outputBufferSafe(function() use($file) {
             include  $file;
         });

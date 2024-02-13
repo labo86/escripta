@@ -10,11 +10,13 @@ class Escripta {
 
 
     public static ?EscriptaInstance $instance = null;
-    public static function initInstance()
-    {
-        if (!self::$instance)
+    public static function initInstance(string $currentWorkingDir = null) {
+        if (!self::$instance) {
+            if ( !$currentWorkingDir )
+                $currentWorkingDir = getcwd();
             self::$instance = new EscriptaInstance();
-            self::$instance->loadEscriptaConfigInDir(getcwd());
+            self::$instance->loadEscriptaConfigInDir($currentWorkingDir);
+        }
     }
 
     /**
@@ -27,7 +29,7 @@ class Escripta {
         self::initInstance();
 
         //currentWorkingDir
-        $currentWorkingDir = getcwd();
+        $currentWorkingDir = self::$instance->getCwd();
         if ( !is_dir($currentWorkingDir) ) {
             throw new Exception("Carpeta de configuraciones no encontrada: [$currentWorkingDir]");
         }
@@ -42,7 +44,7 @@ class Escripta {
         self::initInstance();
 
         $targetProjectName = self::$instance->getProjectName();
-        $targetFolder = getcwd() .  "/config";
+        $targetFolder = self::$instance->getCwd() .  "/config";
 
         $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
         echo "Obteniendo configuración [$configName]...\n\n";
@@ -61,15 +63,63 @@ class Escripta {
 
     public static function getActionName() : string {
         self::initInstance();
-        $folder = getcwd();
+        $folder = self::$instance->getCwd();
         return basename($folder);
     }
 
+    /**
+     * Identificador para directorios del archivo actual.
+     * Ideal para crear un identificador de archivo remoto
+     * @return string
+     */
     public static function getFullActionFolderName() : string {
         $projectName = self::getProjectName();
         $actionName = self::getActionName();
 
-        return "$projectName\_$actionName.escripta";
+        return "{$projectName}_{$actionName}.escripta";
+    }
+
+    public static function setCurrentFile(string $file) {
+        self::initInstance();
+        self::$instance->setCurrentFile($file);
+    }
+
+    /**
+     * La ruta completa del archivo md.php que se procesa actualmente
+     * @return string
+     */
+    public static function getCurrentFile() : string {
+        self::initInstance();
+        return self::$instance->getCurrentFile();
+    }
+
+    /**
+     * El nombre del actual del archivo md.php sin extensiones
+     * @return string
+     */
+    public static function getCurrentFileBaseName() : string {
+        return basename(self::getCurrentFile(), '.md.php');
+    }
+
+    /**
+     * Es directorio en donde esta el archivo de configuración .escripta.json.
+     * Esta función busca el archivo .escripta.json más cercano hacia arriba en el árbol de directorios.
+     * @return array
+     */
+    public static function getProjectConfigDir() : STRING {
+        self::initInstance();
+        return self::$instance->getProjectConfigDir();
+    }
+
+    /**
+     * Es el directorio base como 'base_dir' especificado en el archivo de configuración .escripta.json.
+     * El valor especificado siempre es relativo a la posición del archivo .escripta.json.
+     *
+     * @return string
+     */
+    public static function getProjectBaseDir() : string {
+        self::initInstance();
+        return self::$instance->getProjectBaseDir();
     }
 
 

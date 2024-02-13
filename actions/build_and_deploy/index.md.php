@@ -1,8 +1,6 @@
 <?php
 declare(strict_types=1);
 
-require_once(__DIR__ . '/include.php');
-
 use labo86\escripta\Escripta;
 
 $DEPLOY_APP_DIR =__DIR__ .  '/var/app';
@@ -44,7 +42,7 @@ $TARGET_DIR
 
 <?php
 
-$sourceDir = __DIR__ . '/..';
+$sourceDir = Escripta::getProjectConfigDir();
 $targetDir = __DIR__ . '/var/repo';
 
 ?>
@@ -67,6 +65,7 @@ cp -rf \
 
 $targetDir = __DIR__ . '/var/repo';
 $sshKeyFilename = $config['deploy_github']['private_key'];
+$message = Escripta::getFullActionFolderName();
 
 ?>
 
@@ -74,11 +73,12 @@ $sshKeyFilename = $config['deploy_github']['private_key'];
 
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
 SSH_KEY_FILENAME=<?=$sshKeyFilename?> # PARAM
+MESSAGE=<?=escapeshellarg($message)?> # PARAM
 
 cd $TARGET_DIR;
 GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME";
 git add -A;
-git commit -m "commit"
+git commit -m $MESSAGE;
 git push;
 ```
 

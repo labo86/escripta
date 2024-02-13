@@ -201,13 +201,27 @@ EOF;
     public function testTranslateMdPhpFile() {
         $path = $this->root->url();
 
-        $md = <<<EOF
+        $md = <<<'EOF'
+<?php
+use labo86\escripta\Escripta;
+
+$config = Escripta::getCurrentFileBaseName();
+
+?>
 # Hola
         
+
+        
 ```bash escripta name=hola
+<?=$config?> #PARAM
 ```
 
 ```bash escripta name=chao
+asd1
+```
+
+```bash escripta name=chao
+123
 ```
     
 EOF;
@@ -220,12 +234,17 @@ EOF;
             [
                 Core::LANG => 'bash',
                 Core::PARAMS => [ 'name' => 'hola'],
-                Core::CONTENT => ''
+                Core::CONTENT => "file #PARAM\n"
             ],
             [
                 Core::LANG => 'bash',
                 Core::PARAMS => [ 'name' => 'chao'],
-                Core::CONTENT => ''
+                Core::CONTENT => "asd1\n"
+            ],
+            [
+                Core::LANG => 'bash',
+                Core::PARAMS => [ 'name' => 'chao'],
+                Core::CONTENT => "123\n"
             ]
         ], $codeBlockList);
 
