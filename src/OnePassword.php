@@ -133,12 +133,23 @@ class OnePassword
         return $iniFormatString;
     }
 
-    static function writeKeyFile(string $targetFolder, string $targetConfigName, array $itemInfo) {
+    static function writeKeyFile(string $targetFolder, string $targetConfigName, array $itemInfo) : void {
         if (isset($itemInfo['private_key'])) {
             $privateKeyRef = $itemInfo['private_key'];
             $privateKey = self::getValue($privateKeyRef);
-            file_put_contents("$targetFolder/$targetConfigName.key", str_ireplace("\r", "", $privateKey));
-            chmod("$targetFolder/$targetConfigName.key", 0600);
+            file_put_contents("$targetFolder/$targetConfigName.private_key", str_ireplace("\r", "", $privateKey));
+            chmod("$targetFolder/$targetConfigName.private_key", 0600);
         }
     }
+
+    static function writeMultilineFiles(string $targetFolder, string $targetConfigName,array $itemInfo) : void {
+        foreach ($itemInfo as $key => $value) {
+            if ( $key === 'private_key' )
+                continue;
+            if (Util::isStringMultiline($value)) {
+                file_put_contents("$targetFolder/$targetConfigName.$key", $value);
+            }
+        }
+    }
+
 }

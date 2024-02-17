@@ -52,6 +52,7 @@ class Escripta {
         $itemInfo = OnePassword::getItemRawInfo($configName);
         $itemInfo = OnePassword::getItemInfo($itemInfo);
         $iniData = OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
+        OnePassword::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
         OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
         echo $iniData , "\n\n";
     }

@@ -1,0 +1,93 @@
+{
+  "id": "fgefahrdjql7g2bybx36shiegy",
+  "title": "alba_rpi_frontend_web_config_device_vbox",
+  "tags": ["alba_rpi_frontend_web", "config"],
+  "version": 2,
+  "vault": {
+    "id": "plfdjdvm4m2qy72ku5fkb7cbre",
+    "name": "Labo86"
+  },
+  "category": "SSH_KEY",
+  "last_edited_by": "S6RVHET6EVHXRGJUOC55KT2HIM",
+  "created_at": "2023-10-23T01:33:54Z",
+  "updated_at": "2024-02-09T19:51:41Z",
+  "additional_information": "SHA256:adsfasdfasdfasdf",
+  "sections": [
+    {
+      "id": "add more"
+    }
+  ],
+  "fields": [
+    {
+      "id": "public_key",
+      "type": "STRING",
+      "label": "public key",
+      "value": "ssh-ed25519 adfasdfasdfadsfasdf"
+    },
+    {
+      "id": "fingerprint",
+      "type": "STRING",
+      "label": "fingerprint",
+      "value": "SHA256:adsfasdfasdfasdf"
+    },
+    {
+      "id": "private_key",
+      "type": "SSHKEY",
+      "label": "private key",
+      "value": "PRIVATE",
+      "reference": "op://Test/test/private key",
+      "ssh_formats": {
+        "openssh": {
+          "reference": "op://Test/test/private key?ssh-format=openssh",
+          "value": "PRIVATE"
+        }
+      }
+    },
+    {
+      "id": "key_type",
+      "type": "STRING",
+      "label": "key type",
+      "value": "ed25519",
+      "reference": "op://Test/test/key type"
+    },
+    {
+      "id": "notesPlain",
+      "type": "STRING",
+      "purpose": "NOTES",
+      "label": "notesPlain",
+      "value": "Para probar el primer raspberry de Edwin\nHola como te va\nmuy bien",
+      "reference": "op://Test/test/notesPlain"
+    },
+
+    {
+      "id": "x37q7w2rvvr7nt2xgomod3vmkq",
+      "section": {
+        "id": "add more"
+      },
+      "type": "STRING",
+      "label": "device_name",
+      "value": "alba_rpi\n\hola\ncomo\nestas\nmuy\nbien\ny\nvos\n?
+      "reference": "op://Test/test/add more/device_name"
+    },
+    {
+      "id": "th65hgmpbfwm3vbj5ao2bjzca4",
+      "section": {
+        "id": "add more"
+      },
+      "type": "STRING",
+      "label": "device_raspbian_version",
+      "value": "bullseye",
+      "reference": "op://Test/test/add more/device_raspbian_version"
+    },
+    {
+      "id": "tertvjetpn4as7tyaczohn7aua",
+      "section": {
+        "id": "add more"
+      },
+      "type": "STRING",
+      "label": "device_screen_orientation",
+      "value": "normal",
+      "reference": "op://Test/test/add more/device_screen_orientation"
+    }
+  ]
+}

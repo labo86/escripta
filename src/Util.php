@@ -84,6 +84,9 @@ class Util
     {
         $arrayString = [];
         foreach ($data as $key => $value) {
+            //if multiline ignore
+            if (self::isStringMultiline($value))
+                continue;
             $arrayString[] = join("=", [$key, $value]);
         }
         $stringData = join("\n", $arrayString);
@@ -102,5 +105,9 @@ class Util
                 return null;
             $folder = $parent;
         }
+    }
+
+    public static function isStringMultiline(string $string) : bool {
+        return str_contains($string, "\n");
     }
 }

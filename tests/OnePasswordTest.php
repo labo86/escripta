@@ -85,4 +85,50 @@ EOF
 
         $this->assertFileExists($this->root->url() . '/test.ini');
     }
+
+    public function testWriteInitFile2()
+    {
+        $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output_2.json'), true);
+
+        $actual = OnePassword::getItemInfo($input);
+
+        //mock getItemRawInfo
+        $output = OnePassword::writeIniFile($this->root->url(), "test",  $actual);
+        $this->assertEquals(<<<EOF
+public_key=ssh-ed25519 adfasdfasdfadsfasdf
+fingerprint=SHA256:adsfasdfasdfasdf
+private_key=op://Test/test/private key?ssh-format=openssh
+key type=ed25519
+device_screen_orientation=normal
+EOF
+            , $output);
+
+        $this->assertFileExists($this->root->url() . '/test.ini');
+    }
+
+    public function testWriteFiles()
+    {
+        $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output_2.json'), true);
+
+        $actual = OnePassword::getItemInfo($input);
+
+        //mock getItemRawInfo
+        OnePassword::writeMultilineFiles($this->root->url(), "test",  $actual);
+        $this->assertFileExists($this->root->url() . '/test.device_name');
+        $this->assertFileExists($this->root->url() . '/test.device_raspbian_version');
+        $this->assertEquals(<<<EOF
+alba_rpi
+hola
+mundo
+EOF
+            , file_get_contents($this->root->url() . '/test.device_name'));
+        $this->assertEquals(<<<EOF
+bullseye
+some
+asdfasdf
+sdfsdfsdf
+EOF
+            , file_get_contents($this->root->url() . '/test.device_raspbian_version'));
+
+    }
 }
