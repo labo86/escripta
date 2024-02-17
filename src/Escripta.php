@@ -106,7 +106,7 @@ class Escripta {
      * Esta función busca el archivo .escripta.json más cercano hacia arriba en el árbol de directorios.
      * @return array
      */
-    public static function getProjectConfigDir() : STRING {
+    public static function getProjectConfigDir() : string {
         self::initInstance();
         return self::$instance->getProjectConfigDir();
     }
