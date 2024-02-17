@@ -11,3 +11,5 @@ Escripta::pullConfig(
     "prod"
 );
 
+Escripta::processCurrentFolder();
+

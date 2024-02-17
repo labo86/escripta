@@ -122,6 +122,11 @@ class Escripta {
         return self::$instance->getProjectBaseDir();
     }
 
+    public static function processCurrentFolder() : void {
+        self::initInstance();
+        Core::processFolderByCommandLine();
+    }
+
 
 
 }
