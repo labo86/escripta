@@ -33,11 +33,23 @@ class Config implements ArrayAccess
             }
         }
 
-        foreach ( Util::glob($baseDir,  '*.key') as $file )  {
+        foreach ( Util::glob($baseDir,  '*.*') as $file )  {
+            //if file is dir
+            if ( is_dir($file) )
+                continue;
+
             $pathName = $file;
-            $fileName = basename($pathName, '.key');
+            //get extension
+            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
+            if ( $extension === 'ini' )
+                continue;
+
+            $fileName = basename($pathName, ".$extension");
             fwrite(STDERR," - $pathName\n");
-            $config[$fileName]["private_key"] = $pathName;
+            if ( $extension === 'private_key' )
+                $config[$fileName][$extension] = $pathName;
+            else
+                $config[$fileName][$extension] = file_get_contents($pathName);
         }
 
         return $config;

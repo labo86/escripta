@@ -25,15 +25,15 @@ class ConfigTest extends TestCase
 
         file_put_contents($path . '/a.ini', 'a=1');
         file_put_contents($path . '/b.ini', 'b=2');
-        file_put_contents($path . '/c.key', 'some_key');
+        file_put_contents($path . '/c.private_key', 'some_key');
 
         $config = Config::loadConfigsAndKeys($path);
 
-        $this->assertEquals(['a' => ['a' =>'1'], 'b' => ['b' =>'2'], 'c' => ['private_key' => $path . '/c.key']], $config);
+        $this->assertEquals(['a' => ['a' =>'1'], 'b' => ['b' =>'2'], 'c' => ['private_key' => $path . '/c.private_key']], $config);
 
         $this->assertEquals('1', $config['a']['a']);
         $this->assertEquals('2', $config['b']['b']);
-        $this->assertEquals($path . '/c.key', $config['c']['private_key']);
+        $this->assertEquals($path . '/c.private_key', $config['c']['private_key']);
 
     }
 
@@ -45,16 +45,16 @@ class ConfigTest extends TestCase
 
         file_put_contents($path . '/a.ini', "a=1\nb=4");
         file_put_contents($path . '/b.ini', "a=2\nc=3");
-        file_put_contents($path . '/c.key', 'some_key');
+        file_put_contents($path . '/c.private_key', 'some_key');
 
         $config = Config::loadConfigsAndKeys($path);
 
-        $this->assertEquals(['a' => ['a' =>'1', 'b'=> '4'], 'b' => ['a' => '2', 'c' => '3'], 'c' => ['private_key' => $path . '/c.key']], $config);
+        $this->assertEquals(['a' => ['a' =>'1', 'b'=> '4'], 'b' => ['a' => '2', 'c' => '3'], 'c' => ['private_key' => $path . '/c.private_key']], $config);
 
         $this->assertEquals('2', $config['b']['a']);
         $this->assertEquals('4', $config['a']['b']);
         $this->assertEquals('3', $config['b']['c']);
-        $this->assertEquals($path . '/c.key', $config['c']['private_key']);
+        $this->assertEquals($path . '/c.private_key', $config['c']['private_key']);
     }
 
     public function testLoadConfigObject()
@@ -65,16 +65,18 @@ class ConfigTest extends TestCase
 
         file_put_contents($path . '/a.ini', "a=1\nb=4");
         file_put_contents($path . '/b.ini', "a=2\nc=3");
-        file_put_contents($path . '/c.key', 'some_key');
+        file_put_contents($path . '/c.private_key', 'some_key');
+        file_put_contents($path . '/c.blabla', "some_key\nhola\nmundo\n");
 
         $config = new Config(Config::loadConfigsAndKeys($path));
 
-        $this->assertEquals(['a' => ['a' =>'1', 'b'=> '4'], 'b' => ['a' => '2', 'c' => '3'], 'c' => ['private_key' => $path . '/c.key']], $config->data);
+        $this->assertEquals(['a' => ['a' =>'1', 'b'=> '4'], 'b' => ['a' => '2', 'c' => '3'], 'c' => ['private_key' => $path . '/c.private_key', 'blabla'=> "some_key\nhola\nmundo\n"]], $config->data);
 
         $this->assertEquals('2', $config['b']['a']);
         $this->assertEquals('4', $config['a']['b']);
         $this->assertEquals('3', $config['b']['c']);
-        $this->assertEquals($path . '/c.key', $config['c']['private_key']);
+        $this->assertEquals($path . '/c.private_key', $config['c']['private_key']);
+        $this->assertEquals("some_key\nhola\nmundo\n", $config['c']['blabla']);
     }
 
 
