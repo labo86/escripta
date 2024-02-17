@@ -101,6 +101,24 @@ class Core {
 #!/bin/bash
 # ESCRIPTA, la desplegadora, generó este script
 #
+
+function at_exit {
+   local script_name=\$(basename "\$0")
+   
+   cat << EEOF
+   
+####################################
+
+   ESCRIPTA ha ejecutado
+
+   \${script_name}
+
+####################################
+EEOF
+}
+
+trap at_exit EXIT
+
 EOF;
             foreach ( $block['params'] as $key => $value ) {
                 $content .= "\n# $key=$value";

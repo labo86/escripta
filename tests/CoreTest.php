@@ -162,17 +162,21 @@ EOF;
             Core::CONTENT => 'echo "hola"'
         ];
 
+        $actual = Core::processBlock($block);
         $expected = <<<EOF
 #!/bin/bash
 # ESCRIPTA, la desplegadora, generó este script
 #
+EOF;
+        $this->assertStringContainsString($expected, $actual);
+
+        $expected = <<<EOF
 # name=hola
 
 echo "hola"
 EOF;
+        $this->assertStringContainsString($expected, $actual);
 
-        $actual = Core::processBlock($block);
-        $this->assertEquals($expected, $actual);
     }
 
     public function testProcessBlock2() {
