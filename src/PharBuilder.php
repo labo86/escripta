@@ -48,15 +48,15 @@ $PHAR_NAME = 'escripta.phar';
 
 Phar::mapPhar($PHAR_NAME);
 
-require_once("phar://${PHAR_NAME}/src/globals.php");
-require_once("phar://${PHAR_NAME}/src/OnePassword.php");
-require_once("phar://${PHAR_NAME}/src/Core.php");
-require_once("phar://${PHAR_NAME}/src/Config.php");
-require_once("phar://${PHAR_NAME}/src/BlockProcessor.php");
-require_once("phar://${PHAR_NAME}/src/BlockListProcessor.php");
-require_once("phar://${PHAR_NAME}/src/EscriptaInstance.php");
-require_once("phar://${PHAR_NAME}/src/Escripta.php");
-require_once("phar://${PHAR_NAME}/src/Util.php");
+require_once("phar://{$PHAR_NAME}/src/globals.php");
+require_once("phar://{$PHAR_NAME}/src/OnePassword.php");
+require_once("phar://{$PHAR_NAME}/src/Core.php");
+require_once("phar://{$PHAR_NAME}/src/Config.php");
+require_once("phar://{$PHAR_NAME}/src/BlockProcessor.php");
+require_once("phar://{$PHAR_NAME}/src/BlockListProcessor.php");
+require_once("phar://{$PHAR_NAME}/src/EscriptaInstance.php");
+require_once("phar://{$PHAR_NAME}/src/Escripta.php");
+require_once("phar://{$PHAR_NAME}/src/Util.php");
 
 if (isset($argv[0])) {
     $scriptName = realpath($argv[0]);
