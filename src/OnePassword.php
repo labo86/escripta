@@ -59,69 +59,6 @@ class OnePassword
         return $itemList;
     }
 
-    static function getItemListByTags(string ...$tags) : array
-    {
-        $tagString = join(",", $tags);
-        $command = "op item list --tags $tagString --cache --format json";
-        $jsonString = Util::executeCommandAndGetStdOut($command);
-
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $arrayData = json_decode($jsonString, true);
-        return $arrayData;
-    }
-
-    static function getConfigEnvironmentList(array $itemListByTagsOutput, string $targetProjectName, string $targetConfigName): array
-    {
-        $environments = [];
-        $prefix = "{$targetProjectName}_config_{$targetConfigName}_";
-        foreach ($itemListByTagsOutput as $item) {
-            $title = $item['title'];
-            //remove the prefix of a string
-            if (!str_starts_with($title, $prefix))
-                continue;
-            $environment = substr($title, strlen($prefix));
-
-            $environments[$environment] = [
-                'id' => $item["id"],
-                'title' => $item['title']
-            ];
-        }
-        return $environments;
-    }
-
-    static function getConfigEnvironmentByCommandLine(string $targetProjectName, array $configNames, string $targetFolder): void
-    {
-        global $argv;
-
-        if (count($argv) < 2) {
-            echo "Usage: config.php <config> <environment>\n\n";
-            echo "Available configs:\n";
-            foreach ($configNames as $configName) {
-                echo $configName . "\n";
-            }
-
-            exit(1);
-        }
-
-        $targetConfigName = $argv[1];
-
-
-        if (count($argv) < 3) {
-            $output = self::getItemListByTags($targetProjectName, $targetConfigName);
-            $environmentList = self::getConfigEnvironmentList($output, $targetProjectName, $targetConfigName);
-            echo "Usage: config.php $targetConfigName <environment>\n\n";
-            echo "Available environments:\n";
-            foreach ($environmentList as $envName => $envData) {
-                echo $envName . "\n";
-            }
-            return;
-        } else {
-            self::getConfig($argv[2], $targetProjectName, $targetConfigName, $targetFolder);
-        }
-
-    }
-
-
     static function writeIniFile(string $targetFolder, string $targetConfigName, array $itemInfo) : string
     {
         $iniFormatString = Util::arrayToIniFormat($itemInfo);
