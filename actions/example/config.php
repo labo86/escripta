@@ -6,8 +6,11 @@ require_once(__DIR__ . '/../escripta.phar');
 
 use labo86\escripta\Escripta;
 
-Escripta::pullConfig(
-    'deploy_github_prod'
+Escripta::getConfig(
+    'deploy_github_prod',
+    'deploy_github'
 );
+
+Escripta::processCurrentFolder();
 
 
