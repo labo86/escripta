@@ -290,5 +290,7 @@ EOF;
 
         echo "Guardando archivos...\n";
         $blockListProcessor->save($folder);
+
+        Log::printErrorList();
     }
 }
