@@ -40,13 +40,19 @@ class Escripta {
 
     }
 
-    public static function pullConfig(string $targetConfigName, string $environment)  {
+    public static function pullConfig(string $targetConfigName, string $environment = null) : void {
         self::initInstance();
 
         $targetProjectName = self::$instance->getProjectName();
         $targetFolder = self::$instance->getCwd() .  "/config";
 
-        $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
+        $suffix = $targetConfigName;
+
+        if ( !is_null($environment)) {
+            $suffix .= "_$environment";
+        }
+
+        $configName = "{$targetProjectName}_config_{$suffix}";
         echo "Obteniendo configuración [$configName]...\n\n";
 
         $itemInfo = OnePassword::getItemRawInfo($configName);
