@@ -91,4 +91,15 @@ class UtilTest extends TestCase
         $this->assertEquals($path . '/a/b', Util::findFileBackwards('b', $path . '/a/b'));
 
     }
+
+    public function testFindFileBackwardsDir() {
+        $path = $this->root->url();
+        mkdir($path . '/a', 0777, true);
+        mkdir($path . '/a/b', 0777, true);
+        mkdir($path . '/a/b/c', 0777, true);
+        $this->assertEquals($path . '/a', Util::findFileBackwards('a', $path . '/a/b/c'));
+        $this->assertEquals($path . '/a/b', Util::findFileBackwards('b', $path . '/a/b/c'));
+        $this->assertEquals($path . '/a/b/c', Util::findFileBackwards('c', $path . '/a/b/c'));
+
+    }
 }

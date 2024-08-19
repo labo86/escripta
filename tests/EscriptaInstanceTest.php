@@ -28,7 +28,7 @@ class EscriptaInstanceTest extends TestCase
         $instance = new EscriptaInstance();
         $config = $instance->loadEscriptaConfig($path . '/.escripta.json');
 
-        $this->assertEquals(['project_name' => 'test', 'config_file_dir' => 'vfs://root'], $config);
+        $this->assertEquals(['project_name' => 'test', 'escripta_dir' => 'vfs://root'], $config);
 
     }
 

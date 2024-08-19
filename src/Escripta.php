@@ -61,6 +61,8 @@ class Escripta {
         $configName = "{$targetProjectName}_config_{$suffix}";
         echo "Obteniendo configuración [$configName]...\n\n";
 
+
+
         $itemInfo = OnePassword::getItemRawInfo($configName);
         $itemInfo = OnePassword::getItemInfo($itemInfo);
         $iniData = OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
@@ -85,16 +87,34 @@ class Escripta {
         $configName = "{$targetProjectName}_config_{$sourceConfigName}";
         echo "Obteniendo configuración [$configName]...\n\n";
 
-        $itemInfo = OnePassword::getItemRawInfo($configName);
-        $itemInfo = OnePassword::getItemInfo($itemInfo);
+        $localConfigDir = self::getEscriptaDir() . "/configs/$configName";
+        if ( is_dir($localConfigDir) ) {
+            if (!is_dir($targetFolder)) {
+                mkdir($targetFolder, 0755, true);
+            }
+            //copy all files in localConfigDir and replace the prefix config to targetConfigName
+            foreach (scandir($localConfigDir) as $file) {
+                if ( $file === '.' || $file === '..' )
+                    continue;
+                $sourceFile = "$localConfigDir/$file";
+                $targetFile = "$targetFolder/$targetConfigName." . str_replace("config.", "", basename($file));
+                copy($sourceFile, $targetFile);
+            }
 
-        echo "Escribiendo configuración [$targetConfigName]...\n\n";
-        $iniData = OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
-        OnePassword::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
-        OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
+        } else {
+
+            $itemInfo = OnePassword::getItemRawInfo($configName);
+            $itemInfo = OnePassword::getItemInfo($itemInfo);
+
+            echo "Escribiendo configuración [$targetConfigName]...\n\n";
+            OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
+            OnePassword::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
+            OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
+        }
         echo "Configuración [$targetConfigName] escrita.\n";
-        echo $iniData , "\n\n";
     }
+
+
 
     public static function getProjectName() : string {
         self::initInstance();
@@ -142,13 +162,19 @@ class Escripta {
     }
 
     /**
+     * @deprecated
+     * Usar getEscriptaDir instead
      * Es directorio en donde esta el archivo de configuración .escripta.json.
      * Esta función busca el archivo .escripta.json más cercano hacia arriba en el árbol de directorios.
      * @return array
      */
     public static function getProjectConfigDir() : string {
+        return self::getEscriptaDir();
+    }
+
+    public static function getEscriptaDir() : string {
         self::initInstance();
-        return self::$instance->getProjectConfigDir();
+        return self::$instance->getEscriptaDir();
     }
 
     /**
@@ -161,6 +187,7 @@ class Escripta {
         self::initInstance();
         return self::$instance->getProjectBaseDir();
     }
+
 
     public static function processCurrentFolder() : void {
         self::initInstance();
