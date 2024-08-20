@@ -22,8 +22,9 @@ class EscriptaTest extends TestCase
         $path = $this->root->url();
         $path .= '/root';
         mkdir($path, 0777, true);
+        mkdir($path . '/.escripta', 0777, true);
 
-        file_put_contents($path . '/.escripta.json', json_encode([
+        file_put_contents($path . '/.escripta/config.json', json_encode([
             'project_name' => 'test',
             'base_dir' => '..'
         ]));
@@ -35,10 +36,10 @@ class EscriptaTest extends TestCase
         Escripta::initInstance($path);
 
         $this->assertEquals('action', Escripta::getActionName());
-        $this->assertEquals('vfs://root/root', Escripta::getProjectConfigDir());
+        $this->assertEquals('vfs://root/root/.escripta', Escripta::getProjectConfigDir());
 
         $this->assertEquals('test', Escripta::getProjectName());
-        $this->assertEquals('vfs://root/root/..', Escripta::getProjectBaseDir());
+        $this->assertEquals('vfs://root/root/.escripta/..', Escripta::getProjectBaseDir());
         $this->assertEquals('test_action', Escripta::getFullActionName());
 
     }

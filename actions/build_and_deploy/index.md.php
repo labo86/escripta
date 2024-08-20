@@ -3,10 +3,8 @@ declare(strict_types=1);
 
 use labo86\escripta\Escripta;
 
-$DEPLOY_APP_DIR =__DIR__ .  '/var/app';
-$CONFIG_DEPLOY_GITHUB = 'deploy_github';
-
 $config = Escripta::loadConfig();
+$configGithubPages = $config['github_pages'];
 
 
 ?>
@@ -15,10 +13,10 @@ $config = Escripta::loadConfig();
 
 <?php
 
-$targetRepo = $config['deploy_github']['git_repo_url'];
-$targetBranch = $config['deploy_github']['git_repo_branch'];
+$targetRepo = $configGithubPages['git_repo_url'];
+$targetBranch = $configGithubPages['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
-$sshKeyFilename = $config['deploy_github']['private_key'];
+$sshKeyFilename = $configGithubPages['private_key'];
 
 ?>
 
@@ -35,6 +33,8 @@ GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME" \
 git clone \
 $TARGET_REPO \
 --branch $TARGET_BRANCH \
+--single-branch \
+--depth 1 \
 $TARGET_DIR
 ```
 
@@ -42,7 +42,7 @@ $TARGET_DIR
 
 <?php
 
-$sourceDir = Escripta::getProjectConfigDir();
+$sourceDir = Escripta::getEscriptaDir();
 $targetDir = __DIR__ . '/var/repo';
 
 ?>
@@ -64,7 +64,7 @@ cp -rf \
 <?php
 
 $targetDir = __DIR__ . '/var/repo';
-$sshKeyFilename = $config['deploy_github']['private_key'];
+$sshKeyFilename = $configGithubPages['private_key'];
 $message = Escripta::getFullActionName();
 
 ?>

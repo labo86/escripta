@@ -45,25 +45,6 @@ class OnePasswordTest extends TestCase
 
     }
 
-    public function testGetConfigEnvironmentList()
-    {
-        $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_list_output.json'), true);
-        //mock getItemRawInfo
-        $actual = OnePassword::getConfigEnvironmentList($input, "test", "dev");
-
-        $expected = [
-            'local' => [
-                'id' => 'i365hthdgfh6y',
-        'title' => 'test_config_dev_local'
-                ],
-            'proc' => [
-        'id' => 'i365hthddgfhdgfhdfghgfh6y',
-        'title' => 'test_config_dev_proc'
-        ]];
-
-        $this->assertEquals($expected, $actual);
-    }
-
     public function testWriteInitFile()
     {
         $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output.json'), true);

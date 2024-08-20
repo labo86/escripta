@@ -40,14 +40,28 @@ class Escripta {
 
     }
 
-    public static function pullConfig(string $targetConfigName, string $environment)  {
+    /**
+     * @deprecated
+     * @param string $targetConfigName
+     * @param string|null $environment
+     * @return void
+     */
+    public static function pullConfig(string $targetConfigName, string $environment = null) : void {
         self::initInstance();
 
         $targetProjectName = self::$instance->getProjectName();
         $targetFolder = self::$instance->getCwd() .  "/config";
 
-        $configName = "{$targetProjectName}_config_{$targetConfigName}_{$environment}";
+        $suffix = $targetConfigName;
+
+        if ( !is_null($environment)) {
+            $suffix .= "_$environment";
+        }
+
+        $configName = "{$targetProjectName}_config_{$suffix}";
         echo "Obteniendo configuración [$configName]...\n\n";
+
+
 
         $itemInfo = OnePassword::getItemRawInfo($configName);
         $itemInfo = OnePassword::getItemInfo($itemInfo);
@@ -56,6 +70,56 @@ class Escripta {
         OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
         echo $iniData , "\n\n";
     }
+
+    /**
+     * Reemplazo para pullConfig
+     * @param string $sourceConfigName Nombre de la configuracion en 1password
+     * @param string $targetConfigName Nombre de la configuracion que estara disponible en la variable de configuracion
+     * @return void
+     */
+    public static function getConfig(string $sourceConfigName, string $targetConfigName) : void {
+        self::initInstance();
+
+        $targetProjectName = self::$instance->getProjectName();
+        $targetFolder = self::$instance->getCwd() .  "/config";
+
+
+        $configName = "{$targetProjectName}_config_{$sourceConfigName}";
+        echo "Obteniendo configuración [$configName]...\n\n";
+
+        $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
+        if ( is_dir($localConfigDir) ) {
+            if (!is_dir($targetFolder)) {
+                mkdir($targetFolder, 0755, true);
+            }
+            //copy all files in localConfigDir and replace the prefix config to targetConfigName
+            foreach (scandir($localConfigDir) as $file) {
+                if ( $file === '.' || $file === '..' )
+                    continue;
+                $sourceFile = "$localConfigDir/$file";
+                $targetFile = "$targetFolder/$targetConfigName." . str_replace("config.", "", basename($file));
+
+                copy($sourceFile, $targetFile);
+
+                if ( str_ends_with($targetFile, '.private_key') ) {
+                    chmod($targetFile, 0600);
+                }
+            }
+
+        } else {
+
+            $itemInfo = OnePassword::getItemRawInfo($configName);
+            $itemInfo = OnePassword::getItemInfo($itemInfo);
+
+            echo "Escribiendo configuración [$targetConfigName]...\n\n";
+            OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
+            OnePassword::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
+            OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
+        }
+        echo "Configuración [$targetConfigName] escrita.\n";
+    }
+
+
 
     public static function getProjectName() : string {
         self::initInstance();
@@ -103,13 +167,19 @@ class Escripta {
     }
 
     /**
+     * @deprecated
+     * Usar getEscriptaDir instead
      * Es directorio en donde esta el archivo de configuración .escripta.json.
      * Esta función busca el archivo .escripta.json más cercano hacia arriba en el árbol de directorios.
      * @return array
      */
     public static function getProjectConfigDir() : string {
+        return self::getEscriptaDir();
+    }
+
+    public static function getEscriptaDir() : string {
         self::initInstance();
-        return self::$instance->getProjectConfigDir();
+        return self::$instance->getEscriptaDir();
     }
 
     /**
@@ -122,6 +192,7 @@ class Escripta {
         self::initInstance();
         return self::$instance->getProjectBaseDir();
     }
+
 
     public static function processCurrentFolder() : void {
         self::initInstance();

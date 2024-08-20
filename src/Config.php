@@ -70,11 +70,32 @@ class Config implements ArrayAccess
         }
 
         $name = $this->fullScopeKeyName($offset);
+        $errorMessage = $this->processDebugBacktrace(debug_backtrace());
 
-        trigger_error(
-            "Configuración [$name] no encontrada.",
-            E_USER_NOTICE);
+        Log::error($errorMessage);
         return "[[$name]]";
+    }
+
+
+    public function processDebugBacktrace(array $backtrace): string
+    {
+
+        //find in backtrace where function is 'hola'
+        $translateMdPhpFileTrace = array_values(array_filter($backtrace, function ($trace) {
+            return $trace['function'] === 'translateMdPhpFile';
+        }));
+
+        $file = $translateMdPhpFileTrace[0]['args'][0];
+
+        $offsetGetTrace = array_values(array_filter($backtrace, function ($trace) {
+            return $trace['function'] === 'offsetGet';
+        }));
+
+        $value = $offsetGetTrace[0]['args'][0];
+        $line = $offsetGetTrace[0]['line'];
+
+        $message = "No se puede encontrar [$value] en [$file:$line].";
+        return $message;
     }
 
     public function fullScopeKeyName(string $key): string
