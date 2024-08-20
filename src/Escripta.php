@@ -87,7 +87,7 @@ class Escripta {
         $configName = "{$targetProjectName}_config_{$sourceConfigName}";
         echo "Obteniendo configuración [$configName]...\n\n";
 
-        $localConfigDir = self::getEscriptaDir() . "/configs/$configName";
+        $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
         if ( is_dir($localConfigDir) ) {
             if (!is_dir($targetFolder)) {
                 mkdir($targetFolder, 0755, true);
@@ -98,7 +98,12 @@ class Escripta {
                     continue;
                 $sourceFile = "$localConfigDir/$file";
                 $targetFile = "$targetFolder/$targetConfigName." . str_replace("config.", "", basename($file));
+
                 copy($sourceFile, $targetFile);
+
+                if ( str_ends_with($targetFile, '.private_key') ) {
+                    chmod($targetFile, 0600);
+                }
             }
 
         } else {

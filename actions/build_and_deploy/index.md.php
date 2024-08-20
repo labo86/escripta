@@ -33,6 +33,8 @@ GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME" \
 git clone \
 $TARGET_REPO \
 --branch $TARGET_BRANCH \
+--single-branch \
+--depth 1 \
 $TARGET_DIR
 ```
 
