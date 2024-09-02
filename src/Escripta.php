@@ -77,18 +77,28 @@ class Escripta {
      * @param string $targetConfigName Nombre de la configuracion que estara disponible en la variable de configuracion
      * @return void
      */
-    public static function getConfig(string $sourceConfigName, string $targetConfigName) : void {
+    public static function getConfig(string $sourceConfigName, string|array $targetConfigName) : void {
         self::initInstance();
 
         $targetProjectName = self::$instance->getProjectName();
         $targetFolder = self::$instance->getCwd() .  "/config";
 
+        if ( is_string($targetConfigName) ) {
+            $targetConfigName = [$targetConfigName];
+        }
 
-        $configName = "{$targetProjectName}_config_{$sourceConfigName}";
+
+        if ( str_contains($sourceConfigName, '_config_') ) {
+            $configName = $sourceConfigName;
+        } else {
+            $configName = "{$targetProjectName}_config_{$sourceConfigName}";
+        }
+
         echo "Obteniendo configuración [$configName]...\n\n";
 
         $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
         if ( is_dir($localConfigDir) ) {
+            echo "Encontrada en directorio local!\n\n";
             if (!is_dir($targetFolder)) {
                 mkdir($targetFolder, 0755, true);
             }
@@ -97,26 +107,33 @@ class Escripta {
                 if ( $file === '.' || $file === '..' )
                     continue;
                 $sourceFile = "$localConfigDir/$file";
-                $targetFile = "$targetFolder/$targetConfigName." . str_replace("config.", "", basename($file));
 
-                copy($sourceFile, $targetFile);
-
-                if ( str_ends_with($targetFile, '.private_key') ) {
-                    chmod($targetFile, 0600);
+                foreach ($targetConfigName as $targetConfigNameItem) {
+                    echo "Escribiendo configuración [$targetConfigNameItem]...\n\n";
+                    $targetFile = "$targetFolder/$targetConfigNameItem." . str_replace("config.", "", basename($file));
+                    copy($sourceFile, $targetFile);
+                    if ( str_ends_with($targetFile, '.private_key') ) {
+                        chmod($targetFile, 0600);
+                    }
+                    echo "Configuración [$targetConfigNameItem] escrita.\n";
                 }
             }
 
         } else {
-
+            echo "Buscando [$configName] en OnePassword...\n\n";
             $itemInfo = OnePassword::getItemRawInfo($configName);
-            $itemInfo = OnePassword::getItemInfo($itemInfo);
 
-            echo "Escribiendo configuración [$targetConfigName]...\n\n";
-            OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
-            OnePassword::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
-            OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
+            $itemInfo = OnePassword::getItemInfo($itemInfo);
+            echo "Encontrada en OnePassword!\n\n";
+            foreach ($targetConfigName as $targetConfigNameItem) {
+                echo "Escribiendo configuración [$targetConfigNameItem]...\n\n";
+                OnePassword::writeIniFile($targetFolder, $targetConfigNameItem, $itemInfo);
+                OnePassword::writeMultilineFiles($targetFolder, $targetConfigNameItem, $itemInfo);
+                OnePassword::writeKeyFile($targetFolder, $targetConfigNameItem, $itemInfo);
+                echo "Configuración [$targetConfigNameItem] escrita.\n";
+            }
+
         }
-        echo "Configuración [$targetConfigName] escrita.\n";
     }
 
 

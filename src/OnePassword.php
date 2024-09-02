@@ -18,13 +18,16 @@ class OnePassword
         return $strValue;
     }
 
-    static function getItemRawInfo(string $itemName): array
+    static function getItemRawInfo(string $itemName): ?array
     {
         $itemName = escapeshellarg($itemName);
         ob_start();
         passthru("op item get --cache $itemName --format json", $return);
 
         $jsonString = ob_get_clean();
+
+        if ($return !== 0) return null;
+
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $arrayData = json_decode($jsonString, true);
         return $arrayData;

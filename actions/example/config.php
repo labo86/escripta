@@ -8,7 +8,7 @@ use labo86\escripta\Escripta;
 
 Escripta::getConfig(
     'example',
-    'github_pages'
+    ['github_pages', 'holi']
 );
 
 Escripta::processCurrentFolder();
