@@ -18,6 +18,61 @@ class Config implements ArrayAccess
         $this->parent = $parent;
     }
 
+    static function listConfigs(string $baseDir, string $configName): array {
+        $configList = [];
+
+        foreach ( Util::glob($baseDir,  '*.*') as $file )  {
+            //if file is dir
+            if ( is_dir($file) )
+                continue;
+
+            $pathName = $file;
+            //get extension
+            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
+
+
+            $fileName = basename($pathName, ".$extension");
+            $configList[] = $fileName; 
+        }
+
+        return array_unique($configList);
+    }
+
+    static function loadConfig(string $baseDir, string $configName): array
+    {
+        $config = [];
+
+        foreach ( Util::glob($baseDir,  "$configName.ini") as $file ) {
+            $pathName = $file;
+            fwrite(STDERR, " - $pathName\n");
+            $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
+
+            if ($data) {
+                $config = $data;
+            }
+        }
+
+        foreach ( Util::glob($baseDir,  "$configName.*") as $file )  {
+            //if file is dir
+            if ( is_dir($file) )
+                continue;
+
+            $pathName = $file;
+            //get extension
+            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
+            if ( $extension === 'ini' )
+                continue;
+
+            fwrite(STDERR," - $pathName\n");
+            if ( $extension === 'private_key' )
+                $config[$extension] = $pathName;
+            else
+                $config[$extension] = file_get_contents($pathName);
+        }
+
+        return $config;
+    }
+
     static function loadConfigsAndKeys(string $baseDir): array
     {
         $config = [];

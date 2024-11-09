@@ -41,37 +41,6 @@ class Escripta {
     }
 
     /**
-     * @deprecated
-     * @param string $targetConfigName
-     * @param string|null $environment
-     * @return void
-     */
-    public static function pullConfig(string $targetConfigName, string $environment = null) : void {
-        self::initInstance();
-
-        $targetProjectName = self::$instance->getProjectName();
-        $targetFolder = self::$instance->getCwd() .  "/config";
-
-        $suffix = $targetConfigName;
-
-        if ( !is_null($environment)) {
-            $suffix .= "_$environment";
-        }
-
-        $configName = "{$targetProjectName}_config_{$suffix}";
-        echo "Obteniendo configuración [$configName]...\n\n";
-
-
-
-        $itemInfo = OnePassword::getItemRawInfo($configName);
-        $itemInfo = OnePassword::getItemInfo($itemInfo);
-        $iniData = OnePassword::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
-        OnePassword::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
-        OnePassword::writeKeyFile($targetFolder, $targetConfigName, $itemInfo);
-        echo $iniData , "\n\n";
-    }
-
-    /**
      * Reemplazo para pullConfig
      * @param string $sourceConfigName Nombre de la configuracion en 1password
      * @param string $targetConfigName Nombre de la configuracion que estara disponible en la variable de configuracion
