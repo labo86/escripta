@@ -37,6 +37,37 @@ class ConfigTest extends TestCase
 
     }
 
+    public function testListConfigs()
+    {
+        $path = $this->root->url();
+
+        mkdir($path, 0777, true);
+
+        file_put_contents($path . '/a.ini', 'a=1');
+        file_put_contents($path . '/b.ini', 'b=2');
+        file_put_contents($path . '/c.ini', 'b=2');
+        file_put_contents($path . '/c.private_key', 'some_key');
+
+        $config = Config::listConfigs($path);
+
+        $this->assertEquals(['a', 'b', 'c'], $config);
+    }
+
+    public function testLoadConfig()     {
+        $path = $this->root->url();
+
+        mkdir($path, 0777, true);
+
+        file_put_contents($path . '/a.ini', 'a=1');
+        file_put_contents($path . '/b.ini', 'b=2');
+        file_put_contents($path . '/c.private_key', 'some_key');
+
+        $config = Config::loadConfig($path, 'a');
+
+        $this->assertEquals(['a' =>'1'], $config);
+
+    }
+
     public function testLoadOverwriteVariable()
     {
         $path = $this->root->url();

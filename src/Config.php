@@ -18,7 +18,7 @@ class Config implements ArrayAccess
         $this->parent = $parent;
     }
 
-    static function listConfigs(string $baseDir, string $configName): array {
+    static function listConfigs(string $baseDir): array {
         $configList = [];
 
         foreach ( Util::glob($baseDir,  '*.*') as $file )  {
@@ -76,35 +76,10 @@ class Config implements ArrayAccess
     static function loadConfigsAndKeys(string $baseDir): array
     {
         $config = [];
-
-        foreach ( Util::glob($baseDir,  '*.ini') as $file ) {
-            $pathName = $file;
-            $fileName = basename($pathName, '.ini');
-            fwrite(STDERR, " - $pathName\n");
-            $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
-
-            if ($data) {
-                $config[$fileName] = $data;
-            }
-        }
-
-        foreach ( Util::glob($baseDir,  '*.*') as $file )  {
-            //if file is dir
-            if ( is_dir($file) )
-                continue;
-
-            $pathName = $file;
-            //get extension
-            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
-            if ( $extension === 'ini' )
-                continue;
-
-            $fileName = basename($pathName, ".$extension");
-            fwrite(STDERR," - $pathName\n");
-            if ( $extension === 'private_key' )
-                $config[$fileName][$extension] = $pathName;
-            else
-                $config[$fileName][$extension] = file_get_contents($pathName);
+        $configList = self::listConfigs($baseDir);
+        foreach ( $configList as $configName ) {
+            fwrite(STDERR," - $configName\n");
+            $config[$configName] = self::loadConfig($baseDir, $configName);
         }
 
         return $config;

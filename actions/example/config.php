@@ -2,13 +2,15 @@
 <?php
 declare(strict_types=1);
 
-require_once(__DIR__ . '/../../.escripta/escripta.phar');
+require_once(__DIR__ . '/escripta.php');
 
 use labo86\escripta\Escripta;
 
-Escripta::getConfig(
-    'example',
-    ['github_pages', 'holi']
+Escripta::saveConfig(['github_pages', 'holi'],
+    [
+            Escripta::getConfigLocal('example')
+    ]
+
 );
 
 Escripta::processCurrentFolder();

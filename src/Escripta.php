@@ -40,8 +40,38 @@ class Escripta {
 
     }
 
+    public static function getConfigLocal($sourceConfigName) : array {
+        self::initInstance();
+        echo "Buscando [$sourceConfigName] en Local...\n\n";
+        $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
+        if ( is_dir($localConfigDir) ) {
+            return Config::loadConfig($localConfigDir, "config");
+        }
+        return [];
+    }
+
+    public static function getConfigOnePassword($sourceConfigName) : array {
+        self::initInstance();
+        echo "Buscando [$sourceConfigName] en OnePassword...\n\n";
+        $itemInfo = OnePassword::getItemRawInfo($sourceConfigName);
+
+        return OnePassword::getItemInfo($itemInfo);
+    }
+
+    public static function saveConfig(array $targetConfigNameList, array $configList) {
+        self::initInstance();
+        $targetFolder = self::$instance->getCwd() .  "/config";
+        $config = array_merge(...$configList);
+        foreach ( $targetConfigNameList as $configName) {
+            echo "Escribiendo configuración [$configName]...\n\n";
+            ConfigWriter::write($targetFolder, $configName, $config);
+            echo "Configuración [$configName] escrita.\n";
+        }
+    }
+
     /**
      * Reemplazo para pullConfig
+     * @deprecated
      * @param string $sourceConfigName Nombre de la configuracion en 1password
      * @param string $targetConfigName Nombre de la configuracion que estara disponible en la variable de configuracion
      * @return void
@@ -181,8 +211,18 @@ class Escripta {
 
 
     public static function processCurrentFolder() : void {
-        self::initInstance();
         Core::processFolderByCommandLine();
+    }
+
+    public static function makeExecutable() {
+        global $argv;
+        if (isset($argv[0])) {
+            $scriptName = realpath($argv[0]);
+            $currentPhar = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0]['file'];
+            if ( $scriptName === $currentPhar ) {
+                Core::processFolderByCommandLine();
+            }
+        }
     }
 
 
