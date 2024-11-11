@@ -84,7 +84,7 @@ echo "HECHO"
 ?>
 SERVER_HOST=<?=escapeshellarg($sshHost)?> # PARAM
 SERVER_USER=<?=escapeshellarg($sshUser)?> # PARAM
-COMMAND="<?=escapeshellcmd($command)?>" #PARAM
+COMMAND="<?=$command?>" #PARAM
 
 <?=escapeshellcmd(self::getSshCommandAsString($sshKeyFilename, $sshPort))?> \
 -t \
@@ -95,7 +95,7 @@ $SERVER_USER@$SERVER_HOST \
     }
 
     public static function installRsyncUsingSsh(string $sshHost, string $sshPort, string $sshUser) {
-        self::executeUsingSsh($sshHost, $sshPort, $sshUser, "", "sudo apt-get install -y rsync");
+        self::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "sudo apt-get install -y rsync");
     }
 
 

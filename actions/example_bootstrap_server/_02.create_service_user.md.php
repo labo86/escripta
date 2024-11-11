@@ -26,4 +26,4 @@ $installDir = "/home/{$sshUser}/{$projectName}";
 
 <?php Escripta::callFunction("connect_to_$remoteIdentifier") ?>
 
-<?php Script::unixCreateUser($remoteIdentifier, $sshUser, $publicKey, $remoteIdentifier) ?>
+<?php Script::unixCreateUser($remoteIdentifier, $sshUser, $publicKey, $escriptaRemoteDir) ?>

@@ -24,9 +24,10 @@ Escripta::registerFunction("connect_to_$remoteIdentifier", function() use ($remo
 
 ```bash escripta name=connect_to_<?=$remoteIdentifier?>
 
-TARGET_DIR=<?=escapeshellarg($escriptaRemoteDir)?> # PARAM
+<?php
 
-<?php Script::executeUsingSsh($sshHost, $sshPort, $sshRootUser, null, "cd \$TARGET_DIR; bash") ?>
+$target_dir=escapeshellarg($escriptaRemoteDir);
+Script::executeUsingSsh($sshHost, $sshPort, $sshRootUser, null, "cd $target_dir; bash") ?>
 
 ```
 <?php
