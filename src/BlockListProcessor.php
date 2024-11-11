@@ -43,7 +43,8 @@ class BlockListProcessor
 
                 $this->folderList[$targetFolder][] = BlockProcessor::generateBlockData($i, $block);
 
-                $i++;
+                if ( BlockProcessor::isBlockNumbered($block) )
+                    $i++;
             }
         }
 

@@ -1,51 +1,44 @@
 <?php
 declare(strict_types=1);
 
-use labo86\escripta\Escripta;
+use labo86\escripta\Escripta;use labo86\escripta\Script;
 
 $config = Escripta::loadConfig();
 $configGithubPages = $config['github_pages'];
+
+$targetRepo = $configGithubPages['git_repo_url'];
+$targetBranch = $configGithubPages['git_repo_branch'];
+$sshKeyFilename = $configGithubPages->getAsKeyFile('private_key');
+
+$sourceDir = Escripta::getEscriptaDir();
+$targetDir = __DIR__ . '/var/repo';
+$message = Escripta::getFullActionName();
+
+
+
+
 
 
 ?>
 
 ## Clonar repositorio de despliegue
 
-<?php
-
-$targetRepo = $configGithubPages['git_repo_url'];
-$targetBranch = $configGithubPages['git_repo_branch'];
-$targetDir =  __DIR__ . '/var/repo';
-$sshKeyFilename = $configGithubPages->getAsKeyFile('private_key');
-
-?>
-
 ```bash escripta name=clone_deploy_repo
+<?php Script::gitCloneRepo($targetRepo, $targetBranch, $targetDir, $sshKeyFilename) ?>
 
-TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
-TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
-TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
-SSH_KEY_FILENAME=<?=$sshKeyFilename?> # PARAM
-
-rm $TARGET_DIR -rf;
-
-GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME" \
-git clone \
-$TARGET_REPO \
---branch $TARGET_BRANCH \
---single-branch \
---depth 1 \
-$TARGET_DIR
 ```
 
+
+
+
+
+
+
+
+
+
+
 ## Copiar archivos de despliegue al repositorio
-
-<?php
-
-$sourceDir = Escripta::getEscriptaDir();
-$targetDir = __DIR__ . '/var/repo';
-
-?>
 
 ```bash escripta name=copy_deploy_files_to_repo
 
@@ -54,31 +47,29 @@ TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
 
 
 cp -rf \
-  -v \
-  $SOURCE_DIR/escripta.phar \
-  $TARGET_DIR/escripta.phar
+   -v \
+   $SOURCE_DIR/escripta.phar \
+   $TARGET_DIR/escripta.phar
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ## Hacer commit y push
 
-<?php
-
-$targetDir = __DIR__ . '/var/repo';
-$sshKeyFilename = $configGithubPages['private_key'];
-$message = Escripta::getFullActionName();
-
-?>
 
 ```bash escripta name=commit_and_push
+<?php Script::gitCommitAndPush($targetDir, $sshKeyFilename, $message) ?>
 
-TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
-SSH_KEY_FILENAME=<?=$sshKeyFilename?> # PARAM
-MESSAGE=<?=escapeshellarg($message)?> # PARAM
-
-cd $TARGET_DIR;
-GIT_SSH_COMMAND="ssh -i $SSH_KEY_FILENAME";
-git add -A;
-git commit -m $MESSAGE;
-git push;
 ```
 

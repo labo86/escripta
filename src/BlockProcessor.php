@@ -20,7 +20,7 @@ class BlockProcessor
         $scriptName = Core::generateFileName($block);
         $scriptContent = Core::processBlock($block);
 
-        $fileName = "$numberPrefix.$scriptName";
+        $fileName = self::isBlockNumbered($block) ? "$numberPrefix.$scriptName" : $scriptName;
 
         return [
             'fileName' => $fileName,
@@ -28,4 +28,7 @@ class BlockProcessor
         ];
     }
 
+    public static function isBlockNumbered(array $block) : bool {
+        return filter_var($block['params']['numbered'] ?? true, FILTER_VALIDATE_BOOLEAN);
+    }
 }

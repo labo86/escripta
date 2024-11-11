@@ -30,6 +30,7 @@ class PharBuilder {
         $addFile('BlockListProcessor.php');
         $addFile('EscriptaInstance.php');
         $addFile('Escripta.php');
+        $addFile('Script.php');
         $addFile('Util.php');
         $addFile('Log.php');
         $phar->addFromString('src/globals.php', <<<EOF
@@ -59,6 +60,7 @@ require_once("phar://{$PHAR_NAME}/src/BlockProcessor.php");
 require_once("phar://{$PHAR_NAME}/src/BlockListProcessor.php");
 require_once("phar://{$PHAR_NAME}/src/EscriptaInstance.php");
 require_once("phar://{$PHAR_NAME}/src/Escripta.php");
+require_once("phar://{$PHAR_NAME}/src/Script.php");
 require_once("phar://{$PHAR_NAME}/src/Log.php");
 require_once("phar://{$PHAR_NAME}/src/Util.php");
 

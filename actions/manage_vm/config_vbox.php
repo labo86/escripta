@@ -6,10 +6,9 @@ require_once(__DIR__ . '/escripta.php');
 
 use labo86\escripta\Escripta;
 
-Escripta::saveConfig(['github_pages'],
-    [
-            Escripta::getConfigOnePassword('escripta_config_github_pages_prod')
-    ]
+Escripta::saveConfig(['server'],
+    [Escripta::getConfigLocal('ssh_admin'),
+     Escripta::getConfigLocal('app_private')]
 );
 
 Escripta::processCurrentFolder();

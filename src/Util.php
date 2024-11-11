@@ -118,7 +118,7 @@ class Util
 
         $filePath = "$folder/$filename";
         file_put_contents($filePath, $content);
-        chmod($filePath, 0755);
+        chmod($filePath, $permission);
 
         return $filePath;
     }
