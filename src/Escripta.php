@@ -225,6 +225,15 @@ class Escripta {
         }
     }
 
+    public static function registerFunction(string $functionName, callable $function) {
+        self::initInstance();
+        self::$instance->registerFunction($functionName, $function);
+    }
+
+    public static function callFunction(string $functionName) {
+        self::initInstance();
+        self::$instance->callFunction($functionName);
+    }
 
 
 }

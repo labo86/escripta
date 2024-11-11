@@ -8,7 +8,7 @@ use Exception;
 
 class Script {
 
-    public static function getSshCommandAsString(string $sshKeyFilename = null, string $port = "22") : string {
+    public static function getSshCommandAsString(?string $sshKeyFilename = null, string $port = "22") : string {
         ob_start()?>
         ssh
         <?php if ( is_string($sshKeyFilename) ) : ?>
@@ -58,7 +58,7 @@ echo "HECHO"
     }
 
 
-    public static function gitCommitAndPush(string $targetDir, string $sshKeyFilename, string $message) : void {
+    public static function gitCommitAndPush(string $targetDir, ?string $sshKeyFilename, string $message) : void {
         $gitCommand = self::getSshCommandAsString($sshKeyFilename);
 
         ?>
@@ -80,7 +80,7 @@ echo "HECHO"
 
     }
 
-    public static function executeUsingSsh(string $sshHost, string $sshPort, string $sshUser, string $sshKeyFilename, string $command) {
+    public static function executeUsingSsh(string $sshHost, string $sshPort, string $sshUser, ?string $sshKeyFilename, string $command) {
 ?>
 SERVER_HOST=<?=escapeshellarg($sshHost)?> # PARAM
 SERVER_USER=<?=escapeshellarg($sshUser)?> # PARAM
@@ -99,7 +99,7 @@ $SERVER_USER@$SERVER_HOST \
     }
 
 
-    public static function uploadUsingRsync(string $sshHost, string $sshPort, string $sshUser, string $localSource, string $remoteTarget, string $sshKeyFilename = "") {
+    public static function uploadUsingRsync(string $sshHost, string $sshPort, string $sshUser, string $localSource, string $remoteTarget, ?string $sshKeyFilename = null) {
 
         $gitCommand = self::getSshCommandAsString($sshKeyFilename, $sshPort);
 ?>
@@ -245,5 +245,58 @@ vboxmanage unregistervm $VM_NAME --delete
 
 <?php
     }
+
+    public static function unixCreateUser(string $scriptDir, string $sshUserToCreate, string $publicKey, string $identifier) {?>
+
+```bash escripta name=check_if_app_user_exists_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
+
+USERNAME=<?=escapeshellarg($sshUserToCreate)?> # PARAM
+
+if id $USERNAME >/dev/null 2>&1; then
+    echo 'user found'
+else
+    echo 'user not found'
+fi
+```
+
+
+
+
+
+
+
+
+## Crear usuario de la aplicación
+
+```bash escripta name=create_app_user_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
+
+USERNAME=<?=escapeshellarg($sshUserToCreate)?> # PARAM
+
+sudo useradd --create-home --shell /bin/bash --user-group $USERNAME
+sudo passwd --delete $USERNAME
+```
+
+
+
+
+
+
+
+
+## Agregar llave autorizada de ssh
+
+
+```bash escripta name=add_authorized_key_for_user_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
+
+SSH_USER=<?=escapeshellarg($sshUserToCreate)?> # PARAM
+IDENTIFIER=<?=escapeshellarg($identifier)?> # PARAM
+PUBLIC_KEY=<?=escapeshellarg($publicKey)?> # PARAM
+
+sudo mkdir -p /home/$SSH_USER/.ssh
+echo "$PUBLIC_KEY $IDENTIFIER" | sudo tee --append /home/$SSH_USER/.ssh/authorized_keys
+sudo chmod 700 /home/$SSH_USER/.ssh
+sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
+```
+<?php }
 
 }
