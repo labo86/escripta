@@ -19,6 +19,15 @@ $escriptaRemoteDir = Escripta::getFullActionName() . "_{$remoteIdentifier}_escri
 $escriptaLocalDir = __DIR__. "/" . $remoteIdentifier . ".escripta";
 
 
+
+
+
+
+
+
+
+
+
 Escripta::registerFunction("connect_to_$remoteIdentifier", function() use ($remoteIdentifier, $sshHost, $sshRootUser, $sshPort, $escriptaRemoteDir) { ?>
 ## Conectarse al servidor
 
@@ -32,6 +41,13 @@ Script::executeUsingSsh($sshHost, $sshPort, $sshRootUser, null, "cd $target_dir;
 ```
 <?php
 });
+
+
+
+
+
+
+
 
 Escripta::registerFunction("return_to_local", function() use ($remoteIdentifier) {?>
 ## Volver al cliente
@@ -50,6 +66,14 @@ echo "Escribe 'exit' para salir"
 
 
 
+
+
+
+
+
+
+
+
 ## Instalar rsync mediante ssh
 
 ```bash escripta name=install_rsync_in_<?=$remoteIdentifier?>
@@ -57,6 +81,16 @@ echo "Escribe 'exit' para salir"
 <?php Script::installRsyncUsingSsh($sshHost, $sshPort, $sshRootUser)?>
 
 ```
+
+
+
+
+
+
+
+
+
+
 
 
 ## Subir scripts de despliegue a servidor
