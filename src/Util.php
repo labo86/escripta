@@ -110,4 +110,19 @@ class Util
     public static function isStringMultiline(string $string) : bool {
         return str_contains($string, "\n");
     }
+
+    public static function filePutContents(string $folder, string $filename, string $content, int $permission = 0755) : string {
+        if (!is_dir($folder)) {
+            mkdir($folder, 0777, true);
+        }
+
+        $filePath = "$folder/$filename";
+        file_put_contents($filePath, $content);
+        chmod($filePath, 0755);
+
+        return $filePath;
+    }
+
+
+
 }

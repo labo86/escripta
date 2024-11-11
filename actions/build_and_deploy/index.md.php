@@ -16,7 +16,7 @@ $configGithubPages = $config['github_pages'];
 $targetRepo = $configGithubPages['git_repo_url'];
 $targetBranch = $configGithubPages['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
-$sshKeyFilename = $configGithubPages['private_key'];
+$sshKeyFilename = $configGithubPages->getAsKeyFile('private_key');
 
 ?>
 

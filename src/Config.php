@@ -64,10 +64,7 @@ class Config implements ArrayAccess
                 continue;
 
             fwrite(STDERR," - $pathName\n");
-            if ( $extension === 'private_key' )
-                $config[$extension] = $pathName;
-            else
-                $config[$extension] = file_get_contents($pathName);
+            $config[$extension] = file_get_contents($pathName);
         }
 
         return $config;
@@ -106,6 +103,27 @@ class Config implements ArrayAccess
         return "[[$name]]";
     }
 
+    public function getAsFile(string $offset) : string {
+        $value = $this[$offset];
+
+        Escripta::initInstance();
+        $targetFolder = Escripta::$instance->getCwd() .  "/files";
+        $name = $this->fullScopeKeyName($offset);
+       return Util::filePutContents($targetFolder, $name, $value);
+
+
+    }
+
+    public function getAsKeyFile(string $offset) : string {
+        $value = $this[$offset];
+
+        Escripta::initInstance();
+        $targetFolder = Escripta::$instance->getCwd() .  "/files";
+        $name = $this->fullScopeKeyName($offset);
+        return Util::filePutContents($targetFolder, $name, $value, 0600);
+
+    }
+
 
     public function processDebugBacktrace(array $backtrace): string
     {
@@ -128,10 +146,10 @@ class Config implements ArrayAccess
         return $message;
     }
 
-    public function fullScopeKeyName(string $key): string
+    public function fullScopeKeyName(string $key = ""): string
     {
         if ($this->parent) {
-            return $this->parent->fullScopeKeyName($key) . "." . $key;
+            return $this->parent->fullScopeKeyName() . "." . $key;
         } else {
             return $key;
         }
