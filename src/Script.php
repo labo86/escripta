@@ -246,7 +246,10 @@ vboxmanage unregistervm $VM_NAME --delete
 <?php
     }
 
-    public static function unixCreateUser(string $scriptDir, string $sshUserToCreate, string $publicKey, string $identifier) {?>
+    public static function unixCreateUser(string $scriptDir, string $sshUserToCreate, string $publicKey) {
+
+$identifier = Escripta::getFullActionName() . "_{$scriptDir}_escripta";
+        ?>
 
 ```bash escripta name=check_if_app_user_exists_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
 
@@ -561,5 +564,129 @@ journalctl | grep <?=$serviceName?>.service | grep systemd
 
 <?php
 }
+
+public static function sshRemoteAdmin(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir) {
+
+$remoteDir =  Escripta::getFullActionName() . "_{$remoteIdentifier}_escripta";
+
+Escripta::registerFunction("connect_to_$remoteIdentifier", function() use ($remoteIdentifier, $sshHost, $sshUser, $sshPort, $remoteDir) { ?>
+## Conectarse al servidor
+
+```bash escripta name=connect_to_<?=$remoteIdentifier?>
+
+at_exit
+trap - EXIT
+
+<?php
+
+$target_dir=escapeshellarg($remoteDir);
+Script::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "cd $target_dir; bash") ?>
+
+```
+<?php
+});
+
+?>
+
+
+
+
+
+
+## Instalar rsync mediante ssh
+
+```bash escripta name=install_rsync_in_<?=$remoteIdentifier?>
+
+<?php Script::installRsyncUsingSsh($sshHost, $sshPort, $sshUser)?>
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+## Subir scripts de despliegue a servidor
+
+```bash escripta name=upload_scripts_to_<?=$remoteIdentifier?>
+
+<?php Script::uploadUsingRsync($sshHost, $sshPort, $sshUser, $localDir . "/", $remoteDir . "/", null) ?>
+
+```
+
+
+<?php
+}
+
+public static function sshRemote(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir, string $sshKeyFilename) {
+
+        $remoteDir =  Escripta::getFullActionName() . "_{$remoteIdentifier}_escripta";
+
+        Escripta::registerFunction("connect_to_$remoteIdentifier", function() use ($remoteIdentifier, $sshHost, $sshUser, $sshPort, $remoteDir, $sshKeyFilename) { ?>
+## Conectarse al servidor
+
+```bash escripta name=connect_to_<?=$remoteIdentifier?>
+
+at_exit
+trap - EXIT
+
+<?php
+
+$target_dir=escapeshellarg($remoteDir);
+Script::executeUsingSsh($sshHost, $sshPort, $sshUser, $sshKeyFilename, "cd $target_dir; bash") ?>
+
+```
+<?php
+        });
+
+        ?>
+
+
+
+## Subir scripts de despliegue a servidor
+
+```bash escripta name=upload_scripts_to_<?=$remoteIdentifier?>
+
+<?php Script::uploadUsingRsync($sshHost, $sshPort, $sshUser, $localDir . "/", $remoteDir . "/", $sshKeyFilename) ?>
+
+```
+
+
+        <?php
+    }
+
+
+
+
+    public static function returnToLocal(string $remoteIdentifier) {?>
+## Volver al cliente
+
+```bash escripta name=return_to_local dir=<?=$remoteIdentifier?>
+
+echo "
+######  ##    ## ######  ######
+##       ##  ##    ##      ##
+######     ##      ##      ##
+##       ##  ##    ##      ##
+######  ##    ## ######    ##
+"
+
+
+function command_at_exit {
+    at_exit
+    kill -SIGHUP $PPID
+}
+
+trap command_at_exit EXIT
+
+```
+        <?php
+    }
 
 }
