@@ -299,4 +299,267 @@ sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
 ```
 <?php }
 
+
+
+    public static function nginxProxyPass(string $scriptDir, string $publicHost, string $privateHost, string $privatePort) { ?>
+
+
+## Archivo de configuracion de sitio
+
+```txt escripta name=vhost_conf_<?=$publicHost?> dir=<?=$scriptDir?> file=true
+server {
+    listen 80;
+    listen [::]:80;
+
+    server_name <?=$publicHost?>;
+
+    location / {
+        proxy_pass http://<?=$privateHost?>:<?=$privatePort?>/;
+    }
+}
+
+```
+
+
+
+
+
+
+## Registar configuracion de sitio
+
+```bash escripta name=available_site_<?=$publicHost?> dir=<?=$scriptDir?>
+
+PUBLIC_HOST=<?=$publicHost?> # PARAM
+
+sudo cp files/vhost_conf_PUBLIC_HOST /etc/nginx/sites-available/$PUBLIC_HOST
+```
+
+
+
+
+
+
+
+
+
+
+## Habilitar sitio
+
+```bash escripta name=enable_site_<?=$publicHost?> dir=<?=$scriptDir?>
+
+PUBLIC_HOST=<?=$publicHost?> # PARAM
+
+
+sudo ln -s /etc/nginx/sites-available/$PUBLIC_HOST /etc/nginx/sites-enabled/
+sudo systemctl restart nginx
+```
+
+<?php
+    }
+
+    public static function systemDSetupService(string $scriptDir, string $serviceName, string $sshUser, string $installDir) {
+
+        $fileName = "sudoers_service_$serviceName";
+        ?>
+
+## Permisos de sudo
+
+```txt escripta name=<?=$fileName?> dir=<?=$scriptDir?> file=true
+<?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl start <?=$serviceName?>.service
+<?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop <?=$serviceName?>.service
+<?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl enable <?=$serviceName?>.service --now
+<?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl disable <?=$serviceName?>.service --now
+<?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart <?=$serviceName?>.service
+<?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl status <?=$serviceName?>.service
+```
+
+
+
+
+
+
+## Agregar usuario a grupo sudo
+
+```bash escripta name=add_user_to_<?=$sshUser?>_sudo_group dir=<?=$scriptDir?>
+
+SERVICE_USERNAME=<?=escapeshellarg($sshUser)?> # PARAM
+SUDO_FILE="files/<?=$fileName?>"
+cat $SUDO_FILE | sudo EDITOR='tee --append' visudo /etc/sudoers.d/$SERVICE_USERNAME
+```
+
+
+
+
+
+
+## Crear datos dummy
+
+```bash escripta name=launch_<?=$serviceName?> dir=<?=$scriptDir?> file=true
+#!/bin/bash
+
+# while loop with echo sleep
+while true; do
+    echo "Service running"
+    sleep 10
+done
+```
+
+
+
+
+## Crear archivo de ejecucion de servicio
+
+```bash escripta name=create_launch_file_<?=$serviceName?> dir=<?=$scriptDir?>
+
+SERVICE_DIR=<?=$installDir?> # PARAM
+SSH_USER=<?=escapeshellarg($sshUser)?> # PARAM
+
+sudo mkdir -p $SERVICE_DIR/launch
+sudo mkdir -p $SERVICE_DIR/var/logs
+
+sudo cp files/launch_<?=$serviceName?> $SERVICE_DIR/launch/launch.sh
+sudo chmod +x $SERVICE_DIR/launch/
+sudo chown -R $SSH_USER:$SSH_USER $SERVICE_DIR
+
+```
+
+
+
+
+
+
+
+
+## Archivo de servicio
+
+
+```txt escripta name=service_file_<?=$serviceName?> dir=<?=$scriptDir?> file=true
+[Unit]
+Description=<?=$serviceName?>
+
+After=network.target
+
+[Service]
+Type=simple
+User=<?=$sshUser?>
+
+Group=<?=$sshUser?>
+
+LimitNOFILE=65536
+
+Restart=on-failure
+RestartSec=5
+
+WorkingDirectory=<?=$installDir?>/launch
+ExecStart=<?=$installDir?>/launch/launch.sh
+
+StandardOutput=append:<?=$installDir?>/var/logs/stdout.log
+StandardError=append:<?=$installDir?>/var/logs/stderr.log
+SyslogIdentifier=<?=$sshUser?>
+
+
+[Install]
+WantedBy=multi-user.target
+```
+
+
+
+
+
+
+
+
+
+
+## Crear archivo de servicio
+
+```bash escripta name=create_service_file_<?=$serviceName?> dir=<?=$scriptDir?>
+
+SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
+
+sudo cp files/service_file_<?=$serviceName?> /etc/systemd/system/$SERVICE_NAME.service
+sudo chmod 644 /etc/systemd/system/$SERVICE_NAME.service
+```
+
+
+
+
+
+
+
+
+
+
+
+## Checkear archivo de servicio
+
+
+```bash escripta name=check_service_file_<?=$serviceName?> dir=<?=$scriptDir?>
+
+SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
+
+sudo systemd-analyze verify $SERVICE_NAME.service
+```
+
+## Habilitar servicio
+
+
+
+
+
+
+
+
+
+
+
+
+```bash escripta name=enable_service_<?=$serviceName?> dir=<?=$scriptDir?>
+
+SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
+
+sudo systemctl enable $SERVICE_NAME.service --now
+```
+
+
+
+
+
+
+
+## Verificar estado de servicio
+
+
+```bash escripta name=status_service_<?=$serviceName?> dir=<?=$scriptDir?>
+
+SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
+
+sudo systemctl status $SERVICE_NAME.service
+```
+
+
+
+
+## Check journalctl status messages
+
+
+```bash escripta name=journalctl_<?=$serviceName?> dir=<?=$scriptDir?>
+
+SERVICE_NAME=<?=$serviceName?> # PARAM
+
+journalctl | grep <?=$serviceName?>.service | grep systemd
+```
+
+
+
+
+
+
+
+
+
+
+<?php
+}
+
 }
