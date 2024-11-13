@@ -11,8 +11,4 @@ $configServer = $config['server'];
 $sshUser= $configServer['ssh_user'];
 $publicKey = $configServer['public_key'];
 
-$remoteIdentifier = "remote_admin";
-
-
-
-Script::unixCreateUser($remoteIdentifier, $sshUser, $publicKey);
+Script::unixCreateUserScriptList($sshUser, $publicKey);

@@ -16,26 +16,9 @@ $message = Escripta::getFullActionName();
 
 
 
-
-
+Script::gitCloneRepoScript($targetRepo, $targetBranch, $targetDir, $sshKeyFilename)
 
 ?>
-
-## Clonar repositorio de despliegue
-
-```bash escripta name=clone_deploy_repo
-<?php Script::gitCloneRepo($targetRepo, $targetBranch, $targetDir, $sshKeyFilename) ?>
-
-```
-
-
-
-
-
-
-
-
-
 
 
 ## Copiar archivos de despliegue al repositorio
@@ -55,21 +38,7 @@ cp -rf \
 
 
 
+<?php
 
-
-
-
-
-
-
-
-
-
-## Hacer commit y push
-
-
-```bash escripta name=commit_and_push
-<?php Script::gitCommitAndPush($targetDir, $sshKeyFilename, $message) ?>
-
-```
+Script::gitCommitAndPushScript($targetDir, $sshKeyFilename, $message);
 

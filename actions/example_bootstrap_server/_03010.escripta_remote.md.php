@@ -17,6 +17,6 @@ $remoteIdentifier = "remote";
 $escriptaLocalDir = __DIR__. "/" . $remoteIdentifier . ".escripta";
 
 
-Script::sshRemote($sshHost, $sshUser, $sshPort, $remoteIdentifier, $escriptaLocalDir, $sshKeyFilename);
+Script::sshRemoteScriptList($sshHost, $sshUser, $sshPort, $remoteIdentifier, $escriptaLocalDir, $sshKeyFilename);
 
 

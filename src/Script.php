@@ -24,11 +24,13 @@ class Script {
         return ob_get_clean();
     }
 
-    public static function gitCloneRepo(string $targetRepo, string $targetBranch, string $targetDir, string $sshKeyFilename) : void {
+    public static function gitCloneRepoScript(string $targetRepo, string $targetBranch, string $targetDir, string $sshKeyFilename) : void {
 
         $gitCommand = self::getSshCommandAsString($sshKeyFilename);
 
         ?>
+```bash escripta name=clone_deploy_repo
+
 TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
 TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
@@ -53,15 +55,24 @@ $TARGET_DIR
 
 echo "HECHO"
 
+
+```
+
 <?php
 
     }
 
 
-    public static function gitCommitAndPush(string $targetDir, ?string $sshKeyFilename, string $message) : void {
+    public static function gitCommitAndPushScript(string $targetDir, ?string $sshKeyFilename, string $message) : void {
         $gitCommand = self::getSshCommandAsString($sshKeyFilename);
 
         ?>
+
+## Hacer commit y push
+
+
+```bash escripta name=commit_and_push
+
 TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
 MESSAGE=<?=escapeshellarg($message)?> # PARAM
 SSH_COMMAND="<?=escapeshellcmd($gitCommand)?>"
@@ -76,11 +87,15 @@ git commit -m $MESSAGE;
 git push;
 
 echo "HECHO"
+
+```
+
+
 <?php
 
     }
 
-    public static function executeUsingSsh(string $sshHost, string $sshPort, string $sshUser, ?string $sshKeyFilename, string $command) {
+    public static function executeUsingSshCommand(string $sshHost, string $sshPort, string $sshUser, ?string $sshKeyFilename, string $command) {
 ?>
 SERVER_HOST=<?=escapeshellarg($sshHost)?> # PARAM
 SERVER_USER=<?=escapeshellarg($sshUser)?> # PARAM
@@ -94,12 +109,12 @@ $SERVER_USER@$SERVER_HOST \
 
     }
 
-    public static function installRsyncUsingSsh(string $sshHost, string $sshPort, string $sshUser) {
-        self::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "sudo apt-get install -y rsync");
+    public static function installRsyncUsingSshCommand(string $sshHost, string $sshPort, string $sshUser) {
+        self::executeUsingSshCommand($sshHost, $sshPort, $sshUser, null, "sudo apt-get install -y rsync");
     }
 
 
-    public static function uploadUsingRsync(string $sshHost, string $sshPort, string $sshUser, string $localSource, string $remoteTarget, ?string $sshKeyFilename = null) {
+    public static function uploadUsingRsyncCommand(string $sshHost, string $sshPort, string $sshUser, string $localSource, string $remoteTarget, ?string $sshKeyFilename = null) {
 
         $gitCommand = self::getSshCommandAsString($sshKeyFilename, $sshPort);
 ?>
@@ -132,7 +147,7 @@ $SSH_USER@$SSH_HOST:$REMOTE_TARGET
 
     }
 
-    public static function vBoxAddPort(string $serviceName, string $ruleName, string $hostPort, string $guestPort) { ?>
+    public static function vBoxAddPortCommand(string $serviceName, string $ruleName, string $hostPort, string $guestPort) { ?>
 VM_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 HOST_PORT=<?=escapeshellarg($hostPort)?> # PARAM
 GUEST_PORT=<?=escapeshellarg($guestPort)?> # PARAM
@@ -141,7 +156,7 @@ vboxmanage modifyvm $VM_NAME --natpf1="<?=$ruleName?>,tcp,,$HOST_PORT,,$GUEST_PO
 <?php
     }
 
-    public static function vboxBootstrap(string $serviceName, string $sshPort) { ?>
+    public static function vboxBootstrapScriptList(string $serviceName, string $sshPort) { ?>
 ## Probar version de vbox
 
 ```bash escripta name=check_vbox_version dir=bootstrap
@@ -192,13 +207,13 @@ vboxmanage showvminfo $VM_NAME
 ## Configurar puertos vm
 
 ```bash escripta name=configure_vm_ports dir=bootstrap
-<?php self::vBoxAddPort($serviceName, "guestssh", $sshPort, "22") ?>
+<?php self::vBoxAddPortCommand($serviceName, "guestssh", $sshPort, "22") ?>
 
 ```
 <?php
     }
 
-    public static function vboxCommands(string $serviceName, string $sshHost, string $sshPort, string $sshUser) { ?>
+    public static function vboxCommandsScriptList(string $serviceName, string $sshHost, string $sshPort, string $sshUser) { ?>
 ## Comenzar vm
 
 ```bash escripta name=start_vm numbered=false dir=command
@@ -246,12 +261,12 @@ vboxmanage unregistervm $VM_NAME --delete
 <?php
     }
 
-    public static function unixCreateUser(string $scriptDir, string $sshUserToCreate, string $publicKey) {
+    public static function unixCreateUserScriptList(string $sshUserToCreate, string $publicKey) {
 
-$identifier = Escripta::getFullActionName() . "_{$scriptDir}_escripta";
+$identifier = Escripta::getFullActionName() . "_{$sshUserToCreate}_escripta";
         ?>
 
-```bash escripta name=check_if_app_user_exists_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
+```bash escripta name=check_if_app_user_exists_<?=$sshUserToCreate?>
 
 USERNAME=<?=escapeshellarg($sshUserToCreate)?> # PARAM
 
@@ -271,7 +286,7 @@ fi
 
 ## Crear usuario de la aplicación
 
-```bash escripta name=create_app_user_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
+```bash escripta name=create_app_user_<?=$sshUserToCreate?>
 
 USERNAME=<?=escapeshellarg($sshUserToCreate)?> # PARAM
 
@@ -289,7 +304,7 @@ sudo passwd --delete $USERNAME
 ## Agregar llave autorizada de ssh
 
 
-```bash escripta name=add_authorized_key_for_user_<?=$sshUserToCreate?> dir=<?=$scriptDir?>
+```bash escripta name=add_authorized_key_for_user_<?=$sshUserToCreate?>
 
 SSH_USER=<?=escapeshellarg($sshUserToCreate)?> # PARAM
 IDENTIFIER=<?=escapeshellarg($identifier)?> # PARAM
@@ -304,12 +319,12 @@ sudo chown -R $SSH_USER:$SSH_USER /home/$SSH_USER/.ssh
 
 
 
-    public static function nginxProxyPass(string $scriptDir, string $publicHost, string $privateHost, string $privatePort) { ?>
+    public static function nginxProxyPassScriptList(string $publicHost, string $privateHost, string $privatePort) { ?>
 
 
 ## Archivo de configuracion de sitio
 
-```txt escripta name=vhost_conf_<?=$publicHost?> dir=<?=$scriptDir?> file=true
+```txt escripta name=vhost_conf_<?=$publicHost?> file=true
 server {
     listen 80;
     listen [::]:80;
@@ -330,7 +345,7 @@ server {
 
 ## Registar configuracion de sitio
 
-```bash escripta name=available_site_<?=$publicHost?> dir=<?=$scriptDir?>
+```bash escripta name=available_site_<?=$publicHost?>
 
 PUBLIC_HOST=<?=$publicHost?> # PARAM
 
@@ -348,7 +363,7 @@ sudo cp files/vhost_conf_PUBLIC_HOST /etc/nginx/sites-available/$PUBLIC_HOST
 
 ## Habilitar sitio
 
-```bash escripta name=enable_site_<?=$publicHost?> dir=<?=$scriptDir?>
+```bash escripta name=enable_site_<?=$publicHost?>
 
 PUBLIC_HOST=<?=$publicHost?> # PARAM
 
@@ -360,14 +375,14 @@ sudo systemctl restart nginx
 <?php
     }
 
-    public static function systemDSetupService(string $scriptDir, string $serviceName, string $sshUser, string $installDir) {
+    public static function systemDSetupServiceScriptList(string $serviceName, string $sshUser, string $installDir) {
 
         $fileName = "sudoers_service_$serviceName";
         ?>
 
 ## Permisos de sudo
 
-```txt escripta name=<?=$fileName?> dir=<?=$scriptDir?> file=true
+```txt escripta name=<?=$fileName?> file=true
 <?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl start <?=$serviceName?>.service
 <?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop <?=$serviceName?>.service
 <?=$sshUser?> ALL=(ALL) NOPASSWD: /usr/bin/systemctl enable <?=$serviceName?>.service --now
@@ -383,7 +398,7 @@ sudo systemctl restart nginx
 
 ## Agregar usuario a grupo sudo
 
-```bash escripta name=add_user_to_<?=$sshUser?>_sudo_group dir=<?=$scriptDir?>
+```bash escripta name=add_user_to_<?=$sshUser?>_sudo_group
 
 SERVICE_USERNAME=<?=escapeshellarg($sshUser)?> # PARAM
 SUDO_FILE="files/<?=$fileName?>"
@@ -397,7 +412,7 @@ cat $SUDO_FILE | sudo EDITOR='tee --append' visudo /etc/sudoers.d/$SERVICE_USERN
 
 ## Crear datos dummy
 
-```bash escripta name=launch_<?=$serviceName?> dir=<?=$scriptDir?> file=true
+```bash escripta name=launch_<?=$serviceName?> file=true
 #!/bin/bash
 
 # while loop with echo sleep
@@ -412,7 +427,7 @@ done
 
 ## Crear archivo de ejecucion de servicio
 
-```bash escripta name=create_launch_file_<?=$serviceName?> dir=<?=$scriptDir?>
+```bash escripta name=create_launch_file_<?=$serviceName?>
 
 SERVICE_DIR=<?=$installDir?> # PARAM
 SSH_USER=<?=escapeshellarg($sshUser)?> # PARAM
@@ -436,7 +451,7 @@ sudo chown -R $SSH_USER:$SSH_USER $SERVICE_DIR
 ## Archivo de servicio
 
 
-```txt escripta name=service_file_<?=$serviceName?> dir=<?=$scriptDir?> file=true
+```txt escripta name=service_file_<?=$serviceName?> file=true
 [Unit]
 Description=<?=$serviceName?>
 
@@ -476,7 +491,7 @@ WantedBy=multi-user.target
 
 ## Crear archivo de servicio
 
-```bash escripta name=create_service_file_<?=$serviceName?> dir=<?=$scriptDir?>
+```bash escripta name=create_service_file_<?=$serviceName?>
 
 SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 
@@ -497,7 +512,7 @@ sudo chmod 644 /etc/systemd/system/$SERVICE_NAME.service
 ## Checkear archivo de servicio
 
 
-```bash escripta name=check_service_file_<?=$serviceName?> dir=<?=$scriptDir?>
+```bash escripta name=check_service_file_<?=$serviceName?>
 
 SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 
@@ -517,7 +532,7 @@ sudo systemd-analyze verify $SERVICE_NAME.service
 
 
 
-```bash escripta name=enable_service_<?=$serviceName?> dir=<?=$scriptDir?>
+```bash escripta name=enable_service_<?=$serviceName?>
 
 SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 
@@ -533,7 +548,7 @@ sudo systemctl enable $SERVICE_NAME.service --now
 ## Verificar estado de servicio
 
 
-```bash escripta name=status_service_<?=$serviceName?> dir=<?=$scriptDir?>
+```bash escripta name=status_service_<?=$serviceName?>
 
 SERVICE_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 
@@ -546,7 +561,7 @@ sudo systemctl status $SERVICE_NAME.service
 ## Check journalctl status messages
 
 
-```bash escripta name=journalctl_<?=$serviceName?> dir=<?=$scriptDir?>
+```bash escripta name=journalctl_<?=$serviceName?>
 
 SERVICE_NAME=<?=$serviceName?> # PARAM
 
@@ -565,7 +580,7 @@ journalctl | grep <?=$serviceName?>.service | grep systemd
 <?php
 }
 
-public static function sshRemoteAdmin(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir) {
+public static function sshRemoteAdminScriptList(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir) {
 
 $remoteDir =  Escripta::getFullActionName() . "_{$remoteIdentifier}_escripta";
 
@@ -580,9 +595,14 @@ trap - EXIT
 <?php
 
 $target_dir=escapeshellarg($remoteDir);
-Script::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "cd $target_dir; bash") ?>
+Script::executeUsingSshCommand($sshHost, $sshPort, $sshUser, null, "cd $target_dir; bash") ?>
 
 ```
+
+```escripta escripta command=set_dir dir=<?=$remoteIdentifier?>
+
+```
+
 <?php
 });
 
@@ -597,7 +617,7 @@ Script::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "cd $target_dir; bas
 
 ```bash escripta name=install_rsync_in_<?=$remoteIdentifier?>
 
-<?php Script::installRsyncUsingSsh($sshHost, $sshPort, $sshUser)?>
+<?php Script::installRsyncUsingSshCommand($sshHost, $sshPort, $sshUser)?>
 
 ```
 
@@ -616,7 +636,7 @@ Script::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "cd $target_dir; bas
 
 ```bash escripta name=upload_scripts_to_<?=$remoteIdentifier?>
 
-<?php Script::uploadUsingRsync($sshHost, $sshPort, $sshUser, $localDir . "/", $remoteDir . "/", null) ?>
+<?php Script::uploadUsingRsyncCommand($sshHost, $sshPort, $sshUser, $localDir . "/", $remoteDir . "/", null) ?>
 
 ```
 
@@ -624,7 +644,7 @@ Script::executeUsingSsh($sshHost, $sshPort, $sshUser, null, "cd $target_dir; bas
 <?php
 }
 
-public static function sshRemote(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir, string $sshKeyFilename) {
+public static function sshRemoteScriptList(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir, string $sshKeyFilename) {
 
         $remoteDir =  Escripta::getFullActionName() . "_{$remoteIdentifier}_escripta";
 
@@ -639,10 +659,14 @@ trap - EXIT
 <?php
 
 $target_dir=escapeshellarg($remoteDir);
-Script::executeUsingSsh($sshHost, $sshPort, $sshUser, $sshKeyFilename, "cd $target_dir; bash") ?>
+Script::executeUsingSshCommand($sshHost, $sshPort, $sshUser, $sshKeyFilename, "cd $target_dir; bash") ?>
 
 ```
-<?php
+
+```escripta escripta command=set_dir dir=<?=$remoteIdentifier?>
+
+```
+            <?php
         });
 
         ?>
@@ -653,7 +677,7 @@ Script::executeUsingSsh($sshHost, $sshPort, $sshUser, $sshKeyFilename, "cd $targ
 
 ```bash escripta name=upload_scripts_to_<?=$remoteIdentifier?>
 
-<?php Script::uploadUsingRsync($sshHost, $sshPort, $sshUser, $localDir . "/", $remoteDir . "/", $sshKeyFilename) ?>
+<?php Script::uploadUsingRsyncCommand($sshHost, $sshPort, $sshUser, $localDir . "/", $remoteDir . "/", $sshKeyFilename) ?>
 
 ```
 
@@ -664,10 +688,10 @@ Script::executeUsingSsh($sshHost, $sshPort, $sshUser, $sshKeyFilename, "cd $targ
 
 
 
-    public static function returnToLocal(string $remoteIdentifier) {?>
+    public static function returnToLocalScript() {?>
 ## Volver al cliente
 
-```bash escripta name=return_to_local dir=<?=$remoteIdentifier?>
+```bash escripta name=return_to_local
 
 echo "
 ######  ##    ## ######  ######
@@ -686,7 +710,28 @@ function command_at_exit {
 trap command_at_exit EXIT
 
 ```
+
+```escripta escripta command=unset_dir
+```
+
         <?php
+    }
+
+    public static function cleanDirScript(string $dir) {?>
+
+```bash escripta name=clean_tmp_dir
+TARGET_DIR=<?=escapeshellarg($dir)?> # PARAM
+
+rm -rf $TARGET_DIR
+
+if [ -d $TARGET_DIR ]; then
+    echo "Error: $TARGET_DIR no se pudo eliminar"
+    exit 1
+fi
+
+mkdir -p $TARGET_DIR
+```
+<?php
     }
 
 }

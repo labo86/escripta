@@ -13,6 +13,6 @@ $sshPort = $configServer['ssh_port'];
 $serverHost = $configServer['ssh_host'];
 $sshRootUser = $configServer['ssh_root_user'];
 
-Script::vboxBootstrap($serviceName, $sshPort);
+Script::vboxBootstrapScriptList($serviceName, $sshPort);
 
-Script::vboxCommands($serviceName, $serverHost, $sshPort, $sshRootUser);
+Script::vboxCommandsScriptList($serviceName, $serverHost, $sshPort, $sshRootUser);

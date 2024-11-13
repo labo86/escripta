@@ -16,6 +16,6 @@ $remoteIdentifier = "remote_admin";
 $escriptaLocalDir = __DIR__. "/" . $remoteIdentifier . ".escripta";
 
 
-Script::sshRemoteAdmin($sshHost, $sshRootUser, $sshPort, $remoteIdentifier, $escriptaLocalDir);
+Script::sshRemoteAdminScriptList($sshHost, $sshRootUser, $sshPort, $remoteIdentifier, $escriptaLocalDir);
 
 
