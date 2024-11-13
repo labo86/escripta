@@ -147,12 +147,28 @@ $SSH_USER@$SSH_HOST:$REMOTE_TARGET
 
     }
 
-    public static function vBoxAddPortCommand(string $serviceName, string $ruleName, string $hostPort, string $guestPort) { ?>
+    public static function vBoxAddPortScript(string $serviceName, string $ruleName, string $hostPort, string $guestPort) { ?>
+
+## Configurar puertos vm
+
+```bash escripta name=configure_vm_ports_<?=$ruleName?> dir=bootstrap
+
 VM_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 HOST_PORT=<?=escapeshellarg($hostPort)?> # PARAM
 GUEST_PORT=<?=escapeshellarg($guestPort)?> # PARAM
 
 vboxmanage modifyvm $VM_NAME --natpf1="<?=$ruleName?>,tcp,,$HOST_PORT,,$GUEST_PORT"
+
+```
+
+
+## Configurar puertos vm
+
+```bash escripta name=show_vm_ports_<?=$ruleName?> dir=bootstrap
+VM_NAME=<?=escapeshellarg($serviceName)?> # PARAM
+
+vboxmanage showvminfo $VM_NAME | grep "guestapi"
+```
 <?php
     }
 
@@ -204,13 +220,11 @@ VM_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 vboxmanage showvminfo $VM_NAME
 ```
 
-## Configurar puertos vm
 
-```bash escripta name=configure_vm_ports dir=bootstrap
-<?php self::vBoxAddPortCommand($serviceName, "guestssh", $sshPort, "22") ?>
+<?php self::vBoxAddPortScript($serviceName, "guestssh", $sshPort, "22");
 
-```
-<?php
+
+
     }
 
     public static function vboxCommandsScriptList(string $serviceName, string $sshHost, string $sshPort, string $sshUser) { ?>
