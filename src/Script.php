@@ -156,8 +156,9 @@ $SSH_USER@$SSH_HOST:$REMOTE_TARGET
 VM_NAME=<?=escapeshellarg($serviceName)?> # PARAM
 HOST_PORT=<?=escapeshellarg($hostPort)?> # PARAM
 GUEST_PORT=<?=escapeshellarg($guestPort)?> # PARAM
+RULE_NAME=<?=escapeshellarg($ruleName)?> # PARAM
 
-vboxmanage modifyvm $VM_NAME --natpf1="<?=$ruleName?>,tcp,,$HOST_PORT,,$GUEST_PORT"
+vboxmanage modifyvm $VM_NAME --natpf1="$RULE_NAME,tcp,,$HOST_PORT,,$GUEST_PORT"
 
 ```
 
@@ -166,8 +167,9 @@ vboxmanage modifyvm $VM_NAME --natpf1="<?=$ruleName?>,tcp,,$HOST_PORT,,$GUEST_PO
 
 ```bash escripta name=show_vm_ports_<?=$ruleName?> dir=bootstrap
 VM_NAME=<?=escapeshellarg($serviceName)?> # PARAM
+RULE_NAME=<?=escapeshellarg($ruleName)?> # PARAM
 
-vboxmanage showvminfo $VM_NAME | grep "guestapi"
+vboxmanage showvminfo $VM_NAME | grep "$RULE_NAME"
 ```
 <?php
     }
@@ -731,9 +733,12 @@ trap command_at_exit EXIT
         <?php
     }
 
-    public static function cleanDirScript(string $dir) {?>
+    public static function cleanDirScript(string $dir) {
 
-```bash escripta name=clean_tmp_dir
+        $name = basename($dir);
+?>
+
+```bash escripta name=clean_<?=$name?>_dir
 TARGET_DIR=<?=escapeshellarg($dir)?> # PARAM
 
 rm -rf $TARGET_DIR
@@ -744,7 +749,10 @@ if [ -d $TARGET_DIR ]; then
 fi
 
 mkdir -p $TARGET_DIR
+
+echo "Directorio limpiado [$TARGET_DIR]"
 ```
+
 <?php
     }
 
