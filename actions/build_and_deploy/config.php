@@ -8,7 +8,8 @@ use labo86\escripta\Escripta;
 
 Escripta::saveConfig(['github_pages'],
     [
-            Escripta::getConfigOnePassword('escripta_config_github_pages_prod')
+            Escripta::getConfigOnePassword('escripta_github_pages_prod'),
+            Escripta::getConfigLocal('github_pages'),
     ]
 );
 
