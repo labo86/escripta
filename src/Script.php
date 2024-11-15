@@ -24,7 +24,7 @@ class Script {
         return ob_get_clean();
     }
 
-    public static function gitCloneRepoScript(string $targetRepo, string $targetBranch, string $targetDir, string $sshKeyFilename) : void {
+    public static function gitCloneRepoScript(string $targetRepo, string $targetBranch, string $targetDir, ?string $sshKeyFilename) : void {
 
         $gitCommand = self::getSshCommandAsString($sshKeyFilename);
 
@@ -660,7 +660,7 @@ Script::executeUsingSshCommand($sshHost, $sshPort, $sshUser, null, "cd $target_d
 <?php
 }
 
-public static function sshRemoteScriptList(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir, string $sshKeyFilename) {
+public static function sshRemoteScriptList(string $sshHost, string $sshUser, string $sshPort, string $remoteIdentifier, string $localDir, ?string $sshKeyFilename) {
 
         $remoteDir =  Escripta::getFullActionName() . "_{$remoteIdentifier}_escripta";
 
@@ -787,7 +787,7 @@ echo "HECHO"
         <?php
     }
 
-    public static function gitCommitAndPushFirstTimeScript(string $targetBranch, string $targetDir, string $sshKeyFilename, string $message) : void {
+    public static function gitCommitAndPushFirstTimeScript(string $targetBranch, string $targetDir, ?string $sshKeyFilename, string $message) : void {
         $gitCommand = self::getSshCommandAsString($sshKeyFilename);
 
         ?>
@@ -819,7 +819,7 @@ echo "HECHO"
 
     }
 
-    public static function gitInitScriptList(string $targetRepo, string $targetBranch, string $targetDir, string $sshKeyFilename, string $message) : void {
+    public static function gitInitScriptList(string $targetRepo, string $targetBranch, string $targetDir, ?string $sshKeyFilename, string $message) : void {
         self::gitInitRepoScript($targetRepo, $targetBranch, $targetDir);
         self::gitCommitAndPushFirstTimeScript($targetBranch, $targetDir, $sshKeyFilename, $message);
     }
