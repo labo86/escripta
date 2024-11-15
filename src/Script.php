@@ -756,4 +756,72 @@ echo "Directorio limpiado [$TARGET_DIR]"
 <?php
     }
 
+
+    public static function gitInitRepoScript(string $targetRepo, string $targetBranch, string $targetDir) : void {
+
+        ?>
+```bash escripta name=init_deploy_repo dir=init numbered=false
+
+TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
+TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
+TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
+
+echo "Eliminando directorio [$TARGET_DIR]..."
+
+rm $TARGET_DIR -rf;
+
+echo "HECHO"
+
+echo "Clonando branch [$TARGET_BRANCH] del repositorio [$TARGET_REPO] en el directorio [$TARGET_DIR]..."
+
+mkdir -p $TARGET_DIR
+cd $TARGET_DIR
+git init -b $TARGET_BRANCH
+git remote add origin $TARGET_REPO;
+
+echo "HECHO"
+
+
+```
+
+        <?php
+    }
+
+    public static function gitCommitAndPushFirstTimeScript(string $targetBranch, string $targetDir, string $sshKeyFilename, string $message) : void {
+        $gitCommand = self::getSshCommandAsString($sshKeyFilename);
+
+        ?>
+
+## Hacer commit y push
+
+
+```bash escripta name=commit_and_push_first_time numbered=false dir=init
+TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
+TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
+MESSAGE=<?=escapeshellarg($message)?> # PARAM
+SSH_COMMAND="<?=escapeshellcmd($gitCommand)?>"
+
+cd $TARGET_DIR;
+
+echo "Comiteando branch [$TARGET_BRANCH] por primera vez..."
+
+git add -A;
+git commit -m "$MESSAGE";
+GIT_SSH_COMMAND="$SSH_COMMAND" \
+git push -u origin $TARGET_BRANCH;
+
+echo "HECHO"
+
+```
+
+
+        <?php
+
+    }
+
+    public static function gitInitScriptList(string $targetRepo, string $targetBranch, string $targetDir, string $sshKeyFilename, string $message) : void {
+        self::gitInitRepoScript($targetRepo, $targetBranch, $targetDir);
+        self::gitCommitAndPushFirstTimeScript($targetBranch, $targetDir, $sshKeyFilename, $message);
+    }
+
 }
