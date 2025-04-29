@@ -38,7 +38,7 @@ SSH_COMMAND="<?=escapeshellcmd($gitCommand)?>"
 
 echo "Eliminando directorio [$TARGET_DIR]..."
 
-rm $TARGET_DIR -rf;
+rm -rf $TARGET_DIR;
 
 echo "HECHO"
 
@@ -768,7 +768,7 @@ TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
 
 echo "Eliminando directorio [$TARGET_DIR]..."
 
-rm $TARGET_DIR -rf;
+rm -rf $TARGET_DIR;
 
 echo "HECHO"
 
