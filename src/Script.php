@@ -62,6 +62,42 @@ echo "HECHO"
 
     }
 
+    public static function gitCloneRepoDeepScript(string $targetRepo, string $targetBranch, string $targetDir, ?string $sshKeyFilename) : void {
+
+        $gitCommand = self::getSshCommandAsString($sshKeyFilename);
+
+        ?>
+        ```bash escripta name=clone_deploy_repo
+
+        TARGET_REPO=<?=escapeshellarg($targetRepo)?> # PARAM
+        TARGET_BRANCH=<?=escapeshellarg($targetBranch)?> # PARAM
+        TARGET_DIR=<?=escapeshellarg($targetDir)?> # PARAM
+        SSH_COMMAND="<?=escapeshellcmd($gitCommand)?>"
+
+        echo "Eliminando directorio [$TARGET_DIR]..."
+
+        rm -rf $TARGET_DIR;
+
+        echo "HECHO"
+
+
+        echo "Clonando branch [$TARGET_BRANCH] del repositorio [$TARGET_REPO] en el directorio [$TARGET_DIR]..."
+
+        GIT_SSH_COMMAND="$SSH_COMMAND" \
+        git clone \
+        $TARGET_REPO \
+        --branch $TARGET_BRANCH \
+        $TARGET_DIR
+
+        echo "HECHO"
+
+
+        ```
+
+        <?php
+
+    }
+
 
     public static function gitCommitAndPushScript(string $targetDir, ?string $sshKeyFilename, string $message) : void {
         $gitCommand = self::getSshCommandAsString($sshKeyFilename);
