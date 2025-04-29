@@ -365,7 +365,7 @@ server {
 
 PUBLIC_HOST=<?=$publicHost?> # PARAM
 
-sudo cp files/vhost_conf_PUBLIC_HOST /etc/nginx/sites-available/$PUBLIC_HOST
+sudo cp files/vhost_conf_$PUBLIC_HOST /etc/nginx/sites-available/$PUBLIC_HOST
 ```
 
 
