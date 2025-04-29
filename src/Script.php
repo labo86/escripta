@@ -162,7 +162,7 @@ REMOTE_TARGET=<?=escapeshellarg($remoteTarget)?> # PARAM
 
 SSH_COMMAND="<?=escapeshellcmd($gitCommand)?>"
 
-echo "Subiendo scripts de despliegue a [SSH_HOST] en [$REMOTE_TARGET]"
+echo "Subiendo scripts de despliegue a [$SSH_HOST] en [$REMOTE_TARGET]"
 
 rsync \
 --recursive \
