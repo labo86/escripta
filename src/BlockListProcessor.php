@@ -8,6 +8,9 @@ use Exception;
 class BlockListProcessor
 {
 
+    /**
+     * @var array
+     */
     public array $folderList = [];
 
     /**
