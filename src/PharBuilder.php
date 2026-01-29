@@ -23,6 +23,7 @@ class PharBuilder {
         };
 
         $addFile('OnePassword.php');
+        $addFile('AmazonSecrets.php');
         $addFile('Core.php');
         $addFile('Config.php');
         $addFile('ConfigWriter.php');
@@ -53,6 +54,7 @@ Phar::mapPhar($PHAR_NAME);
 
 require_once("phar://{$PHAR_NAME}/src/globals.php");
 require_once("phar://{$PHAR_NAME}/src/OnePassword.php");
+require_once("phar://{$PHAR_NAME}/src/AmazonSecrets.php");
 require_once("phar://{$PHAR_NAME}/src/Core.php");
 require_once("phar://{$PHAR_NAME}/src/Config.php");
 require_once("phar://{$PHAR_NAME}/src/ConfigWriter.php");

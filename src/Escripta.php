@@ -55,7 +55,19 @@ class Escripta {
         echo "Buscando [$sourceConfigName] en OnePassword...\n\n";
         $itemInfo = OnePassword::getItemRawInfo($sourceConfigName);
 
+        if ($itemInfo === null) {
+            return [];
+        }
+
         return OnePassword::getItemInfo($itemInfo);
+    }
+
+    public static function getConfigAmazonSecrets($sourceConfigName) : array {
+        self::initInstance();
+        echo "Buscando [$sourceConfigName] en Amazon Secrets Manager...\n\n";
+        $itemInfo = AmazonSecrets::getSecretInfo($sourceConfigName);
+
+        return $itemInfo ?? [];
     }
 
     public static function saveConfig(array $targetConfigNameList, array $configList) {
