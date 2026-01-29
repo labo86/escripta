@@ -6,6 +6,16 @@ namespace labo86\escripta;
 
 class OnePassword
 {
+    private static function normalizeSshKey(string $value): string
+    {
+        $value = str_replace("\r", "", $value);
+
+        if ($value !== "" && !str_ends_with($value, "\n")) {
+            $value .= "\n";
+        }
+
+        return $value;
+    }
 
     static function getValue(string $itemName): string
     {
@@ -56,7 +66,7 @@ class OnePassword
                 } else {
                     $reference = $getValueFunction($reference);
                 }
-                $itemList["private_key"] = str_ireplace("\r", "", $reference );
+                $itemList["private_key"] = self::normalizeSshKey($reference);
 
             } else if (!in_array($type, ["CONCEALED", "STRING"])) {
                 continue;

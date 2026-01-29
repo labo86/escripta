@@ -28,13 +28,18 @@ class OpenPasswordTest extends TestCase
     {
 
         $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output.json'), true);
+        $sshKey = <<<EOF
+-----BEGIN OPENSSH PRIVATE KEY-----
+abc123
+-----END OPENSSH PRIVATE KEY-----
+EOF;
         //mock getItemRawInfo
-        $actual = OnePassword::getItemInfo($input, function ($v) { return $v; } );
+        $actual = OnePassword::getItemInfo($input, function () use ($sshKey) { return $sshKey; } );
 
         $expected = [
             'public_key' => 'ssh-ed25519 adfasdfasdfadsfasdf',
     'fingerprint' => 'SHA256:adsfasdfasdfasdf',
-    'private_key' => 'op://Test/test/private key?ssh-format=openssh',
+    'private_key' => $sshKey . "\n",
     'key type' => 'ed25519',
     'device_name' => 'alba_rpi',
     'device_raspbian_version' => 'bullseye',
@@ -48,13 +53,18 @@ class OpenPasswordTest extends TestCase
     public function testWriteInitFile2()
     {
         $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output_2.json'), true);
+        $sshKey = <<<EOF
+-----BEGIN OPENSSH PRIVATE KEY-----
+abc123
+-----END OPENSSH PRIVATE KEY-----
+EOF;
 
-        $actual = OnePassword::getItemInfo($input, function ($v) { return $v; } );
+        $actual = OnePassword::getItemInfo($input, function () use ($sshKey) { return $sshKey; } );
 
         $expected = [
             "public_key" => "ssh-ed25519 adfasdfasdfadsfasdf",
     "fingerprint" => "SHA256:adsfasdfasdfasdf",
-    "private_key" => "op://Test/test/private key?ssh-format=openssh",
+    "private_key" => $sshKey . "\n",
     "key type" => "ed25519",
     "device_name" => <<<EOF
 alba_rpi
