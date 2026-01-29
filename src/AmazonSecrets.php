@@ -37,7 +37,7 @@ class AmazonSecrets
     {
         $secretString = self::getSecretRawValue($secretName);
         if ($secretString === null || $secretString === '') {
-            return null;
+            return [];
         }
 
         $decoded = json_decode($secretString, true);
