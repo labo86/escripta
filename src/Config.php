@@ -116,6 +116,9 @@ class Config implements ArrayAccess
 
     public function getAsKeyFile(string $offset) : string {
         $value = $this[$offset];
+        if (!str_ends_with($value, "\n")) {
+            $value .= "\n";
+        }
 
         Escripta::initInstance();
         $targetFolder = Escripta::$instance->getCwd() .  "/files";

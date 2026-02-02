@@ -11,8 +11,20 @@ use labo86\escripta\Escripta;
 
 $key = "data";
 
-$data = Escripta::getConfigAmazonSecrets($key);
 
-var_dump($data);
+Escripta::saveConfig(['public'],
+        [Escripta::getConfigAmazonSecrets($key)]
+);
+
+
+
+Escripta::processCurrentFolder();
+
+
+$config = Escripta::loadConfig();
+$configServer = $config['public'];
+
+$sshUser= $configServer->getAsKeyFile('private_key');
+
 
 
