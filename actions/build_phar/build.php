@@ -6,4 +6,4 @@ require_once(__DIR__ . '/../../vendor/autoload.php');
 
 use labo86\escripta\PharBuilder;
 
-PharBuilder::build(__DIR__ . '/../../.escripta/escripta.phar', '3.8.1');
+PharBuilder::build(__DIR__ . '/../../.escripta/escripta.phar', '3.9.1');

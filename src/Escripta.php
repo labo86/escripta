@@ -70,6 +70,7 @@ class Escripta {
         return $itemInfo ?? [];
     }
 
+    /** @deprecated */
     public static function saveConfig(array $targetConfigNameList, array $configList) {
         self::initInstance();
         $targetFolder = self::$instance->getCwd() .  "/config";
@@ -81,70 +82,20 @@ class Escripta {
         }
     }
 
-    /**
-     * Reemplazo para pullConfig
-     * @deprecated
-     * @param string $sourceConfigName Nombre de la configuracion en 1password
-     * @param string $targetConfigName Nombre de la configuracion que estara disponible en la variable de configuracion
-     * @return void
-     */
-    public static function getConfig(string $sourceConfigName, string|array $targetConfigName) : void {
+    public static function fetchConfig(array $targetConfigNameList, array $configList) {
         self::initInstance();
-
-        $targetProjectName = self::$instance->getProjectName();
         $targetFolder = self::$instance->getCwd() .  "/config";
-
-        if ( is_string($targetConfigName) ) {
-            $targetConfigName = [$targetConfigName];
+        Util::removeFileRecursive($targetFolder);
+        $config = array_merge(...$configList);
+        foreach ( $targetConfigNameList as $configName) {
+            echo "Escribiendo configuración [$configName]...\n\n";
+            ConfigWriter::writeInFiles($targetFolder, $configName, $config);
+            echo "Configuración [$configName] escrita.\n";
         }
 
+        $g = new BootstrapGenerator($targetFolder, self::$instance->getCwd());
+        $g->generate(self::$instance->getProjectBaseDir());
 
-        if ( str_contains($sourceConfigName, '_config_') ) {
-            $configName = $sourceConfigName;
-        } else {
-            $configName = "{$targetProjectName}_config_{$sourceConfigName}";
-        }
-
-        echo "Obteniendo configuración [$configName]...\n\n";
-
-        $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
-        if ( is_dir($localConfigDir) ) {
-            echo "Encontrada en directorio local!\n\n";
-            if (!is_dir($targetFolder)) {
-                mkdir($targetFolder, 0755, true);
-            }
-            //copy all files in localConfigDir and replace the prefix config to targetConfigName
-            foreach (scandir($localConfigDir) as $file) {
-                if ( $file === '.' || $file === '..' )
-                    continue;
-                $sourceFile = "$localConfigDir/$file";
-
-                foreach ($targetConfigName as $targetConfigNameItem) {
-                    echo "Escribiendo configuración [$targetConfigNameItem]...\n\n";
-                    $targetFile = "$targetFolder/$targetConfigNameItem." . str_replace("config.", "", basename($file));
-                    copy($sourceFile, $targetFile);
-                    if ( str_ends_with($targetFile, '.private_key') ) {
-                        chmod($targetFile, 0600);
-                    }
-                    echo "Configuración [$targetConfigNameItem] escrita.\n";
-                }
-            }
-
-        } else {
-            echo "Buscando [$configName] en OnePassword...\n\n";
-            $itemInfo = OnePassword::getItemRawInfo($configName);
-
-            $itemInfo = OnePassword::getItemInfo($itemInfo);
-            echo "Encontrada en OnePassword!\n\n";
-            foreach ($targetConfigName as $targetConfigNameItem) {
-                echo "Escribiendo configuración [$targetConfigNameItem]...\n\n";
-                OnePassword::writeIniFile($targetFolder, $targetConfigNameItem, $itemInfo);
-                OnePassword::writeMultilineFiles($targetFolder, $targetConfigNameItem, $itemInfo);
-                OnePassword::writeKeyFile($targetFolder, $targetConfigNameItem, $itemInfo);
-                echo "Configuración [$targetConfigNameItem] escrita.\n";
-            }
-
-        }
     }
 
 

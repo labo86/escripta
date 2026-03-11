@@ -6,10 +6,26 @@ namespace labo86\escripta;
 
 class ConfigWriter
 {
+    /** @deprecated */
     static function write(string $targetFolder, string $targetConfigName, array $itemInfo) {
         self::writeIniFile($targetFolder, $targetConfigName, $itemInfo);
         self::writeMultilineFiles($targetFolder, $targetConfigName, $itemInfo);
     }
+
+    static function writeInFiles(string $targetFolder, string $targetConfigName, array $itemInfo) {
+        if (!is_dir($targetFolder)) {
+            mkdir($targetFolder, 0755, true);
+        }
+
+        foreach ($itemInfo as $key => $value) {
+            $configKey = preg_replace('/\s+/', '_', "{$targetConfigName}_{$key}");
+            
+            $filename = "$targetFolder/$configKey";
+            file_put_contents($filename, $value);
+            chmod($filename, 0600);
+        }
+    }
+    /** @deprecated */
     static function writeIniFile(string $targetFolder, string $targetConfigName, array $itemInfo) : string
     {
         $iniFormatString = Util::arrayToIniFormat($itemInfo);
@@ -21,6 +37,7 @@ class ConfigWriter
         return $iniFormatString;
     }
 
+    /** @deprecated */
     static function writeMultilineFiles(string $targetFolder, string $targetConfigName,array $itemInfo) : void {
         foreach ($itemInfo as $key => $value) {
 

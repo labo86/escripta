@@ -18,6 +18,70 @@ class ConfigWriterTest extends TestCase
     }
 
 
+    public function testWriteInFiles()
+    {
+
+        $actual =  [
+            "public_key" => "ssh-ed25519 adfasdfasdfadsfasdf",
+            "fingerprint" => "SHA256:adsfasdfasdfasdf",
+            "private_key" => <<<EOF
+SOME SOME
+LA LA LA
+CO OC OC
+EOF,
+            "key type" => "ed25519",
+            "device_name" => <<<EOF
+alba_rpi
+hola
+mundo
+EOF,
+            "device_raspbian_version" => <<<EOF
+bullseye
+some
+asdfasdf
+sdfsdfsdf
+EOF,
+            "device_screen_orientation" => "normal"
+        ];
+
+
+
+
+        //mock getItemRawInfo
+        ConfigWriter::writeInFiles($this->root->url(), "test",  $actual);
+        $this->assertFileExists($this->root->url() . '/test_public_key');
+        $this->assertFileExists($this->root->url() . '/test_fingerprint');
+        $this->assertFileExists($this->root->url() . '/test_key_type');
+        $this->assertFileExists($this->root->url() . '/test_private_key');
+        $this->assertFileExists($this->root->url() . '/test_device_name');
+        $this->assertFileExists($this->root->url() . '/test_device_raspbian_version');
+        $this->assertFileExists($this->root->url() . '/test_device_screen_orientation');
+        $this->assertEquals("ssh-ed25519 adfasdfasdfadsfasdf", file_get_contents($this->root->url() . '/test_public_key'));
+        $this->assertEquals("SHA256:adsfasdfasdfasdf", file_get_contents($this->root->url() . '/test_fingerprint'));
+        $this->assertEquals("ed25519", file_get_contents($this->root->url() . '/test_key_type'));
+        $this->assertEquals(<<<EOF
+SOME SOME
+LA LA LA
+CO OC OC
+EOF
+            , file_get_contents($this->root->url() . '/test_private_key'));
+        $this->assertEquals(<<<EOF
+alba_rpi
+hola
+mundo
+EOF
+            , file_get_contents($this->root->url() . '/test_device_name'));
+        $this->assertEquals(<<<EOF
+bullseye
+some
+asdfasdf
+sdfsdfsdf
+EOF
+            , file_get_contents($this->root->url() . '/test_device_raspbian_version'));
+
+        $this->assertEquals("normal", file_get_contents($this->root->url() . '/test_device_screen_orientation'));
+    }
+
 
     /**
      * @throws Throwable
