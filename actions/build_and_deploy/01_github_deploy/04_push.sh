@@ -19,6 +19,8 @@ SSH_COMMAND="ssh \
   -o UserKnownHostsFile=/dev/null \
   -p 22"
 
+cd $TARGET_DIR;
+
 echo "Push a repositorio..."
 
 

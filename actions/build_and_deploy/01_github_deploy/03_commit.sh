@@ -20,6 +20,8 @@ SSH_COMMAND="ssh \
   -o UserKnownHostsFile=/dev/null \
   -p 22"
 
+cd $TARGET_DIR;
+
 echo "Actualizando repositorio..."
 
 GIT_SSH_COMMAND="$SSH_COMMAND" git add -A || {
