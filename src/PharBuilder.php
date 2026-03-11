@@ -23,12 +23,15 @@ class PharBuilder {
         };
 
         $addFile('OnePassword.php');
+        $addFile('AmazonSecrets.php');
         $addFile('Core.php');
         $addFile('Config.php');
+        $addFile('ConfigWriter.php');
         $addFile('BlockProcessor.php');
         $addFile('BlockListProcessor.php');
         $addFile('EscriptaInstance.php');
         $addFile('Escripta.php');
+        $addFile('Script.php');
         $addFile('Util.php');
         $addFile('Log.php');
         $phar->addFromString('src/globals.php', <<<EOF
@@ -51,22 +54,20 @@ Phar::mapPhar($PHAR_NAME);
 
 require_once("phar://{$PHAR_NAME}/src/globals.php");
 require_once("phar://{$PHAR_NAME}/src/OnePassword.php");
+require_once("phar://{$PHAR_NAME}/src/AmazonSecrets.php");
 require_once("phar://{$PHAR_NAME}/src/Core.php");
 require_once("phar://{$PHAR_NAME}/src/Config.php");
+require_once("phar://{$PHAR_NAME}/src/ConfigWriter.php");
 require_once("phar://{$PHAR_NAME}/src/BlockProcessor.php");
 require_once("phar://{$PHAR_NAME}/src/BlockListProcessor.php");
 require_once("phar://{$PHAR_NAME}/src/EscriptaInstance.php");
 require_once("phar://{$PHAR_NAME}/src/Escripta.php");
+require_once("phar://{$PHAR_NAME}/src/Script.php");
 require_once("phar://{$PHAR_NAME}/src/Log.php");
 require_once("phar://{$PHAR_NAME}/src/Util.php");
 
-if (isset($argv[0])) {
-    $scriptName = realpath($argv[0]);
-    $currentPhar = __FILE__;
-    if ( $scriptName === $currentPhar ) {
-        \labo86\escripta\Core::processFolderByCommandLine();
-    }
-}
+
+\labo86\escripta\Escripta::makeExecutable();
 
 __HALT_COMPILER();
 EOF);

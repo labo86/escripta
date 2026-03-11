@@ -131,10 +131,11 @@ class BlockListProcessorTest extends TestCase
                 'content' => 'hello'
             ],
             [
+                'lang' => 'escripta',
                 'params' => [
                     'dir' => 'b',
                     'name' => 'script_3',
-                    'hidden' => 'true'
+                    'command' => 'true'
                 ],
                 'content' => 'world'
             ],
@@ -145,10 +146,10 @@ class BlockListProcessorTest extends TestCase
                 'content' => 'world'
             ],
             [
+                'lang' => 'escripta',
                 'params' => [
                     'name' => 'script_5',
-                    'file' => 'true',
-                    'hidden' => 'true'
+                    'command' => 'true'
                 ],
                 'content' => 'world 2'
             ],
@@ -210,11 +211,12 @@ class BlockListProcessorTest extends TestCase
                 'content' => 'hello'
             ],
             [
+                'lang' => 'escripta',
                 'params' => [
                     'dir' => 'b',
                     'id' => 'id_1',
                     'name' => 'script_3',
-                    'hidden' => 'true'
+                    'command' => 'true'
                 ],
                 'content' => 'world 2'
             ],
@@ -223,13 +225,13 @@ class BlockListProcessorTest extends TestCase
                     'ref' => 'id_1',
                     'name' => 'script_4',
                 ],
-                'content' => 'world'
+                'content' => 'world 2'
             ],
             [
+                'lang' => 'escripta',
                 'params' => [
                     'name' => 'script_5',
-                    'file' => 'true',
-                    'hidden' => 'true'
+                    'command' => 'true'
                 ],
                 'content' => 'world 2'
             ],
@@ -271,36 +273,6 @@ class BlockListProcessorTest extends TestCase
 
     }
 
-     public function testGetReferencedBlock() {
-            $referencedBlock =
-                [
-                    'params' => [
-                        'id' => 'a',
-                        'name' => 'script_1',
-                        'hidden' => 'true'
-                    ],
-                    'lang' => 'bash',
-                    'content' => 'original'
-                ];
-            $referedBlock = [
-                    'params' => [
-                        'ref' => 'a',
-                        'name' => 'script_2',
-                    ],
-                    'lang' => 'php',
-                    'content' => 'ignored'
-                ];
-            $processor = new BlockListProcessor();
-            $processor->storeReferencedBlock($referencedBlock);
-            $actual = $processor->getReferencedBlock($referedBlock);
-            $this->assertEquals( [
-                        'content' => 'original',
-                        'lang' => 'bash',
-                        'params' => [
-                            'name' => 'script_2'
-                        ]
-            ], $actual);
-     }
 
      public function testSave() {
     $processor = new BlockListProcessor();

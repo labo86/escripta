@@ -3,9 +3,6 @@ declare(strict_types=1);
 
 namespace labo86\escripta;
 
-
-use Exception;
-
 class Log {
 
     static public array $log = [];

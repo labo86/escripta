@@ -135,11 +135,13 @@ declare(strict_types=1);
 // ESCRIPTA, la desplegadora, generó este script
 EOF;
 
-            foreach ( $block['params'] as $key => $value ) {
+            foreach ($block['params'] as $key => $value) {
                 $content .= "\n// $key=$value";
             }
 
             $content .= "\n\n?>" . $block['content'];
+        } else if ( $block['lang'] === 'escripta') {
+
         } else {
             $content = $block['content'];
 
@@ -168,16 +170,6 @@ EOF;
         }
         return $name;
 
-    }
-
-    static function mergeBlock(array $block, array $refBlock) : array {
-        $mergedBlock = array_merge($refBlock, $block);
-        $mergedBlock['content'] = $refBlock['content'];
-        $mergedBlock['lang'] = $refBlock['lang'];
-        unset($mergedBlock['params']['id']);
-        unset($mergedBlock['params']['ref']);
-        unset($mergedBlock['params']['hidden']);
-        return $mergedBlock;
     }
 
     /**
@@ -284,7 +276,8 @@ EOF;
         foreach ( $blocks as $subFolder => $blockList ) {
 
             foreach ( $blockList as $block ) {
-                echo "  - " . $subFolder . "/" . $block['fileName'] . "\n";
+                $preffix = $subFolder === "." ? "" : $subFolder . "/";
+                echo "  - " . $preffix . $block['fileName'] . "\n";
             }
         }
 

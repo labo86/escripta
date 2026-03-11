@@ -12,16 +12,20 @@ class EscriptaInstance
     public string $currentFile = '';
     public string $currentWorkingDir = '';
 
-    public function findEscriptaDir(string $currentWorkingDir) : ?string {
+    public array $registeredFunction = [];
+
+    public function findEscriptaDir(string $currentWorkingDir): ?string
+    {
         $this->currentWorkingDir = $currentWorkingDir;
-        return Util::findFileBackwards('.escripta', $currentWorkingDir );
+        return Util::findFileBackwards('.escripta', $currentWorkingDir);
     }
 
-    public function loadEscriptaConfigInDir(string $currentWorkingDir) : void {
+    public function loadEscriptaConfigInDir(string $currentWorkingDir): void
+    {
         $this->currentWorkingDir = $currentWorkingDir;
         $escriptaDir = $this->findEscriptaDir($currentWorkingDir);
-        if ( $escriptaDir ) {
-            if ( file_exists($escriptaDir . '/config.json') ) {
+        if ($escriptaDir) {
+            if (file_exists($escriptaDir . '/config.json')) {
                 $this->projectConfig = $this->loadEscriptaConfig($escriptaDir . '/config.json');
             }
         }
@@ -30,9 +34,10 @@ class EscriptaInstance
     /**
      * @throws Exception
      */
-    public function loadEscriptaConfig(string $fileName) : array {
+    public function loadEscriptaConfig(string $fileName): array
+    {
         $data = json_decode(file_get_contents($fileName), true);
-        if ( !$data )
+        if (!$data)
 
             throw new Exception("No se pudo leer el archivo [$fileName]");
 
@@ -42,44 +47,65 @@ class EscriptaInstance
         return $data;
     }
 
-    public function getCwd() : string {
+    public function getCwd(): string
+    {
         return $this->currentWorkingDir;
     }
 
-    public function getProjectName() : string {
+    public function getProjectName(): string
+    {
         return $this->projectConfig['project_name'];
     }
 
-    public function setCurrentFile(string $fileName) : void {
+    public function setCurrentFile(string $fileName): void
+    {
         $this->currentFile = $fileName;
     }
 
-    public function getCurrentFile() : string {
+    public function getCurrentFile(): string
+    {
         return $this->currentFile;
     }
 
-    public function getProjectConfig() : array {
+    public function getProjectConfig(): array
+    {
         return $this->projectConfig;
     }
 
     /**
      * Use getEscriptaDir instead
-     * @deprecated
      * @return string
+     * @deprecated
      */
-    public function getProjectConfigDir() : string {
+    public function getProjectConfigDir(): string
+    {
         return $this->projectConfig['escripta_dir'];
     }
 
-    public function getProjectBaseDir() : string {
-        if ( isset($this->projectConfig['base_dir']) )
+    public function getProjectBaseDir(): string
+    {
+        if (isset($this->projectConfig['base_dir']))
             return $this->projectConfig['escripta_dir'] . '/' . $this->projectConfig['base_dir'];
         else
             return $this->projectConfig['escripta_dir'] . '/..';
     }
 
-    public function getEscriptaDir() : string {
+    public function getEscriptaDir(): string
+    {
         return $this->projectConfig['escripta_dir'];
     }
 
+    public function registerFunction(string $functionName, callable $function)
+    {
+        $this->registeredFunction[$functionName] = $function;
+    }
+
+    public function callFunction(string $functionName)
+    {
+        if (isset($this->registeredFunction[$functionName])) {
+            $this->registeredFunction[$functionName]();
+        } else {
+            throw new Exception("Función [$functionName] no existe");
+        }
+    }
 }

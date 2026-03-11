@@ -1,0 +1,7 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="PharBuilderTest" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+    <CommandLine parameters="-d phar.readonly=0" />
+    <TestRunner class="labo86\escripta\tests\PharBuilderTest" configuration_file="$PROJECT_DIR$/phpunit.xml.dist" file="$PROJECT_DIR$/tests/PharBuilderTest.php" scope="Class" />
+    <method v="2" />
+  </configuration>
+</component>

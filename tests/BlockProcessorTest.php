@@ -21,7 +21,7 @@ class BlockProcessorTest extends TestCase
                 'dir' => 'a'
             ]
         ];
-        $actual = BlockProcessor::getTargetFolder($block);
+        $actual = (new BlockProcessor())->getTargetFolder($block);
         $this->assertEquals('a.escripta', $actual);
 
     }
@@ -34,7 +34,7 @@ class BlockProcessorTest extends TestCase
         $block = [
             'params' => []
         ];
-        $actual = BlockProcessor::getTargetFolder($block);
+        $actual = (new BlockProcessor())->getTargetFolder($block);
         $this->assertEquals('.', $actual);
 
     }
@@ -47,7 +47,7 @@ class BlockProcessorTest extends TestCase
             ],
             'content' => 'hello'
         ];
-        $actual = BlockProcessor::generateBlockData(1, $block);
+        $actual = (new BlockProcessor())->generateBlockData($block);
         $this->assertEquals([
             'fileName' => '01.script_1.escripta.txt',
             'content' => 'hello'

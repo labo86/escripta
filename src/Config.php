@@ -18,22 +18,41 @@ class Config implements ArrayAccess
         $this->parent = $parent;
     }
 
-    static function loadConfigsAndKeys(string $baseDir): array
+    static function listConfigs(string $baseDir): array {
+        $configList = [];
+
+        foreach ( Util::glob($baseDir,  '*.*') as $file )  {
+            //if file is dir
+            if ( is_dir($file) )
+                continue;
+
+            $pathName = $file;
+            //get extension
+            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
+
+
+            $fileName = basename($pathName, ".$extension");
+            $configList[] = $fileName; 
+        }
+
+        return array_unique($configList);
+    }
+
+    static function loadConfig(string $baseDir, string $configName): array
     {
         $config = [];
 
-        foreach ( Util::glob($baseDir,  '*.ini') as $file ) {
+        foreach ( Util::glob($baseDir,  "$configName.ini") as $file ) {
             $pathName = $file;
-            $fileName = basename($pathName, '.ini');
             fwrite(STDERR, " - $pathName\n");
             $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
 
             if ($data) {
-                $config[$fileName] = $data;
+                $config = $data;
             }
         }
 
-        foreach ( Util::glob($baseDir,  '*.*') as $file )  {
+        foreach ( Util::glob($baseDir,  "$configName.*") as $file )  {
             //if file is dir
             if ( is_dir($file) )
                 continue;
@@ -44,12 +63,20 @@ class Config implements ArrayAccess
             if ( $extension === 'ini' )
                 continue;
 
-            $fileName = basename($pathName, ".$extension");
             fwrite(STDERR," - $pathName\n");
-            if ( $extension === 'private_key' )
-                $config[$fileName][$extension] = $pathName;
-            else
-                $config[$fileName][$extension] = file_get_contents($pathName);
+            $config[$extension] = file_get_contents($pathName);
+        }
+
+        return $config;
+    }
+
+    static function loadConfigsAndKeys(string $baseDir): array
+    {
+        $config = [];
+        $configList = self::listConfigs($baseDir);
+        foreach ( $configList as $configName ) {
+            fwrite(STDERR," - $configName\n");
+            $config[$configName] = self::loadConfig($baseDir, $configName);
         }
 
         return $config;
@@ -76,6 +103,30 @@ class Config implements ArrayAccess
         return "[[$name]]";
     }
 
+    public function getAsFile(string $offset) : string {
+        $value = $this[$offset];
+
+        Escripta::initInstance();
+        $targetFolder = Escripta::$instance->getCwd() .  "/files";
+        $name = $this->fullScopeKeyName($offset);
+       return Util::filePutContents($targetFolder, $name, $value);
+
+
+    }
+
+    public function getAsKeyFile(string $offset) : string {
+        $value = $this[$offset];
+        if (!str_ends_with($value, "\n")) {
+            $value .= "\n";
+        }
+
+        Escripta::initInstance();
+        $targetFolder = Escripta::$instance->getCwd() .  "/files";
+        $name = $this->fullScopeKeyName($offset);
+        return Util::filePutContents($targetFolder, $name, $value, 0600);
+
+    }
+
 
     public function processDebugBacktrace(array $backtrace): string
     {
@@ -98,10 +149,10 @@ class Config implements ArrayAccess
         return $message;
     }
 
-    public function fullScopeKeyName(string $key): string
+    public function fullScopeKeyName(string $key = ""): string
     {
         if ($this->parent) {
-            return $this->parent->fullScopeKeyName($key) . "." . $key;
+            return $this->parent->fullScopeKeyName() . "." . $key;
         } else {
             return $key;
         }
