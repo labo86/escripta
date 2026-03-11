@@ -160,6 +160,15 @@ class BootstrapGenerator
         $script = "#!/usr/bin/env bash\n";
         $script .= "# generated automatically\n\n";
 
+        $script .= <<<'BASH'
+if [[ "${BASH_SOURCE[0]}" == "${0}" ]]; then
+    echo "Este script debe ejecutarse con: source $0"
+    exit 1
+fi
+
+
+BASH;
+
         $script .= 'ESCRIPTA_CURRENT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"' . "\n\n";
 
         $script .= implode("\n", $exports) . "\n";

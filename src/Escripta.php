@@ -84,7 +84,7 @@ class Escripta {
 
     public static function fetchConfig(array $targetConfigNameList, array $configList) {
         self::initInstance();
-        $targetFolder = self::$instance->getCwd() .  "/config";
+        $targetFolder = self::$instance->getCwd() .  "/config.gen";
         Util::removeFileRecursive($targetFolder);
         $config = array_merge(...$configList);
         foreach ( $targetConfigNameList as $configName) {
