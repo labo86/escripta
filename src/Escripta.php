@@ -82,20 +82,19 @@ class Escripta {
         }
     }
 
-    public static function fetchConfig(array $targetConfigNameList, array $configList) {
+    public static function fetchConfig(array $configList) {
         self::initInstance();
         $targetFolder = self::$instance->getCwd() .  "/config.gen";
         Util::removeFileRecursive($targetFolder);
-        $config = array_merge(...$configList);
-        foreach ( $targetConfigNameList as $configName) {
+        foreach ( $configList as $configName => $configValuesList) {
             echo "Escribiendo configuración [$configName]...\n\n";
-            ConfigWriter::writeInFiles($targetFolder, $configName, $config);
+            $configValues = array_merge(...$configValuesList);
+            ConfigWriter::writeInFiles($targetFolder, $configName, $configValues);
             echo "Configuración [$configName] escrita.\n";
         }
 
         $g = new BootstrapGenerator($targetFolder, self::$instance->getCwd());
         $g->generate(self::$instance->getProjectBaseDir());
-
     }
 
 
