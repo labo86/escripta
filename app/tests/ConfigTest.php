@@ -26,10 +26,24 @@ class ConfigTest extends TestCase
 
         $this->assertSame(
             [
+                'config_a' => '1',
+                'config_b_c' => '2',
+            ],
+            $config
+        );
+    }
+
+    public function testLoadConfigFileDoesNotPrefixIniKeysWhenNameStartsWithUnderscore(): void
+    {
+        $filename = $this->root->url() . '/_config.ini';
+        file_put_contents($filename, "a=1\n[b]\nc=2\n");
+
+        $config = Config::loadConfigFile($filename);
+
+        $this->assertSame(
+            [
                 'a' => '1',
-                'b' => [
-                    'c' => '2',
-                ],
+                'b_c' => '2',
             ],
             $config
         );
@@ -44,7 +58,7 @@ class ConfigTest extends TestCase
 
         $this->assertSame(
             [
-                $filename => "line 1\nline 2",
+                'private_key' => "line 1\nline 2",
             ],
             $config
         );
@@ -58,14 +72,17 @@ class ConfigTest extends TestCase
         file_put_contents($path . '/a.ini', 'a=1');
         file_put_contents($path . '/private_key', 'some_key');
         file_put_contents($path . '/nested/b.ini', "b=2\n[section]\nc=3");
+        file_put_contents($path . '/nested/_raw.ini', "d=4\n[inner]\ne=5");
 
         $config = Config::loadConfigDir($path);
 
-        $this->assertCount(4, $config);
-        $this->assertSame('1', $config['a']);
-        $this->assertSame('2', $config['b']);
-        $this->assertSame(['c' => '3'], $config['section']);
-        $this->assertSame('some_key', $config[$path . '/private_key']);
+        $this->assertCount(6, $config);
+        $this->assertSame('1', $config['a_a']);
+        $this->assertSame('2', $config['b_b']);
+        $this->assertSame('3', $config['b_section_c']);
+        $this->assertSame('4', $config['d']);
+        $this->assertSame('5', $config['inner_e']);
+        $this->assertSame('some_key', $config['private_key']);
     }
 
     public function testWriteInFilesCreatesTargetDirectoryAndSanitizesKeys(): void
