@@ -56,8 +56,8 @@ class EscriptaTest extends TestCase
 
         $this->assertSame(
             [
-                'app_host' => 'localhost',
-                'app_db_port' => '3306',
+                'host' => 'localhost',
+                'db_port' => '3306',
             ],
             $config
         );
@@ -76,8 +76,8 @@ class EscriptaTest extends TestCase
         $config = Escripta::getConfigLocal('service');
 
         $this->assertCount(2, $config);
-        $this->assertSame('api', $config['service_app_name']);
-        $this->assertSame('localhost', $config['service_db_conn_host']);
+        $this->assertSame('api', $config['app_name']);
+        $this->assertSame('localhost', $config['db_conn_host']);
     }
 
     private function createEscriptaProject(): string

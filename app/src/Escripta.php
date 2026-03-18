@@ -30,12 +30,11 @@ class Escripta {
         $localConfigDir = $configBaseDir . "/$sourceConfigName";
 
         if (file_exists($localConfigIni)) {
-            return Config::loadConfigFile($localConfigIni);
+            return Config::loadConfigFile($localConfigIni, '', false);
         }
 
         if (is_dir($localConfigDir)) {
-            $prefix = str_starts_with($sourceConfigName, '_') ? '' : $sourceConfigName;
-            return Config::loadConfigDir($localConfigDir, $prefix);
+            return Config::loadConfigDir($localConfigDir, '', false);
         }
 
         return [];

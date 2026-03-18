@@ -49,6 +49,22 @@ class ConfigTest extends TestCase
         );
     }
 
+    public function testLoadConfigFileCanSkipOwnNamePrefix(): void
+    {
+        $filename = $this->root->url() . '/config.ini';
+        file_put_contents($filename, "a=1\n[b]\nc=2\n");
+
+        $config = Config::loadConfigFile($filename, '', false);
+
+        $this->assertSame(
+            [
+                'a' => '1',
+                'b_c' => '2',
+            ],
+            $config
+        );
+    }
+
     public function testLoadConfigFileReturnsRawContentForNonIniFiles(): void
     {
         $filename = $this->root->url() . '/private_key';
@@ -79,13 +95,13 @@ class ConfigTest extends TestCase
         $config = Config::loadConfigDir($path);
 
         $this->assertCount(8, $config);
-        $this->assertSame('1', $config['a_a']);
-        $this->assertSame('2', $config['nested_b_b']);
-        $this->assertSame('3', $config['nested_b_section_c']);
-        $this->assertSame('4', $config['nested_d']);
-        $this->assertSame('5', $config['nested_inner_e']);
-        $this->assertSame('6', $config['nested_c_f']);
-        $this->assertSame('7', $config['nested_c_group_g']);
+        $this->assertSame('1', $config['root_a_a']);
+        $this->assertSame('2', $config['root_nested_b_b']);
+        $this->assertSame('3', $config['root_nested_b_section_c']);
+        $this->assertSame('4', $config['root_nested_d']);
+        $this->assertSame('5', $config['root_nested_inner_e']);
+        $this->assertSame('6', $config['root_nested_c_f']);
+        $this->assertSame('7', $config['root_nested_c_group_g']);
         $this->assertSame('some_key', $config['private_key']);
     }
 
@@ -105,6 +121,21 @@ class ConfigTest extends TestCase
             ],
             $config
         );
+    }
+
+    public function testLoadConfigDirCanSkipRootDirectoryPrefix(): void
+    {
+        $path = $this->root->url();
+        mkdir($path . '/service/_private', 0777, true);
+
+        file_put_contents($path . '/service/app.ini', "key=value");
+        file_put_contents($path . '/service/_private/db.ini', "[conn]\nhost=localhost");
+
+        $config = Config::loadConfigDir($path . '/service', '', false);
+
+        $this->assertCount(2, $config);
+        $this->assertSame('value', $config['app_key']);
+        $this->assertSame('localhost', $config['db_conn_host']);
     }
 
     public function testWriteInFilesCreatesTargetDirectoryAndSanitizesKeys(): void

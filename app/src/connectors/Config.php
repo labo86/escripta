@@ -7,7 +7,7 @@ use labo86\escripta\Util;
 
 class Config
 {
-    public static function loadConfigFile($filename, string $prefix = ''): array
+    public static function loadConfigFile($filename, string $prefix = '', bool $includeOwnNameAsPrefix = true): array
     {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         $basename = basename($filename);
@@ -23,7 +23,7 @@ class Config
             $baseNameWithoutExtension = pathinfo($basename, PATHINFO_FILENAME);
             $filePrefix = self::composePrefix(
                 $prefix,
-                str_starts_with($baseNameWithoutExtension, '_') ? '' : $baseNameWithoutExtension
+                self::shouldPrefixName($baseNameWithoutExtension, $includeOwnNameAsPrefix) ? $baseNameWithoutExtension : ''
             );
 
             return self::flattenIniConfig($data, $filePrefix);
@@ -34,19 +34,23 @@ class Config
         ];
     }
 
-    public static function loadConfigDir(string $baseDir, string $prefix = ''): array
+    public static function loadConfigDir(string $baseDir, string $prefix = '', bool $includeOwnNameAsPrefix = true): array
     {
         $configs = [];
+        $baseDirPrefix = self::composePrefix(
+            $prefix,
+            self::shouldPrefixName(basename($baseDir), $includeOwnNameAsPrefix) ? basename($baseDir) : ''
+        );
 
         foreach (Util::glob($baseDir,  "*") as $file) {
             if (is_dir($file)) {
                 $dirPrefix = self::composePrefix(
-                    $prefix,
+                    $baseDirPrefix,
                     str_starts_with(basename($file), '_') ? '' : basename($file)
                 );
-                $configs[] = self::loadConfigDir($file, $dirPrefix);
+                $configs[] = self::loadConfigDir($file, $dirPrefix, false);
             } else {
-                $configs[] = self::loadConfigFile($file, $prefix);
+                $configs[] = self::loadConfigFile($file, $baseDirPrefix);
             }
         }
 
@@ -97,5 +101,14 @@ class Config
         }
 
         return $prefix . '_' . $segment;
+    }
+
+    private static function shouldPrefixName(string $name, bool $includeOwnNameAsPrefix): bool
+    {
+        if (!$includeOwnNameAsPrefix) {
+            return false;
+        }
+
+        return !str_starts_with($name, '_');
     }
 }
