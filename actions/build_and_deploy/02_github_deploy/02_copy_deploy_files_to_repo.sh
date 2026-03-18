@@ -3,7 +3,7 @@
 set -uo pipefail
 
 # Parámetros
-SOURCE_DIR="${ESCRIPTA_PROJECT_DIR}/.escripta"
+SOURCE_DIR="${ESCRIPTA_CURRENT_DIR}/var/build"
 TARGET_DIR="${ESCRIPTA_CURRENT_DIR}/var/repo"
 
 

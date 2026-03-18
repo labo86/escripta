@@ -152,7 +152,7 @@ class Config implements ArrayAccess
     public function fullScopeKeyName(string $key = ""): string
     {
         if ($this->parent) {
-            return $this->parent->fullScopeKeyName() . "." . $key;
+            return $this->parent->fullScopeKeyName() . "src" . $key;
         } else {
             return $key;
         }

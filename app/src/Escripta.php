@@ -19,26 +19,6 @@ class Escripta {
         }
     }
 
-    /**
-     * Load config from local
-     * @return Config
-     * @throws Exception
-     */
-    public static function loadConfig() : Config {
-
-        self::initInstance();
-
-        //currentWorkingDir
-        $currentWorkingDir = self::$instance->getCwd();
-        if ( !is_dir($currentWorkingDir) ) {
-            throw new Exception("Carpeta de configuraciones no encontrada: [$currentWorkingDir]");
-        }
-        fwrite(STDERR, "Cargando configuraciones de la carpeta [$currentWorkingDir]\n");
-
-        $config = new Config(Config::loadConfigsAndKeys($currentWorkingDir . "/config"));
-        return $config;
-
-    }
 
     public static function getConfigLocal($sourceConfigName) : array {
         self::initInstance();
@@ -68,18 +48,6 @@ class Escripta {
         $itemInfo = AmazonSecrets::getSecretInfo($sourceConfigName);
 
         return $itemInfo ?? [];
-    }
-
-    /** @deprecated */
-    public static function saveConfig(array $targetConfigNameList, array $configList) {
-        self::initInstance();
-        $targetFolder = self::$instance->getCwd() .  "/config";
-        $config = array_merge(...$configList);
-        foreach ( $targetConfigNameList as $configName) {
-            echo "Escribiendo configuración [$configName]...\n\n";
-            ConfigWriter::write($targetFolder, $configName, $config);
-            echo "Configuración [$configName] escrita.\n";
-        }
     }
 
     public static function fetchConfig(array $configList) {

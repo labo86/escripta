@@ -20,7 +20,7 @@ $config = Config::load();
 $targetRepo = $config['git_repo_url'];
 $targetBranch = $config['git_repo_branch'];
 $targetDir =  __DIR__ . '/var/repo';
-$sshKeyFilename = $config["{$CONFIG_DEPLOY_GITHUB}_private_key"];
+$sshKeyFilename = $config[$CONFIG_DEPLOY_GITHUB . "_private_key"];
 
 ?>
 
@@ -44,7 +44,7 @@ $TARGET_DIR
 
 <?php
 
-$sourceDir = __DIR__ . '/..';
+$sourceDir = __DIR__ . '/files';
 $targetDir = __DIR__ . '/var/repo';
 
 ?>
@@ -65,7 +65,7 @@ $TARGET_DIR/action_scripts.phar
 
 <?php
 
-$sourceDir = __DIR__ . '/..';
+$sourceDir = __DIR__ . '/files';
 $targetDir = __DIR__ . '/var/repo';
 
 ?>
@@ -86,7 +86,7 @@ $TARGET_DIR/action_scripts.phar
 
 <?php
 
-$sourceDir = __DIR__ . '/..';
+$sourceDir = __DIR__ . '/files';
 $targetDir = __DIR__ . '/var/repo';
 
 ?>
@@ -108,7 +108,7 @@ cp -rf \
 <?php
 
 $targetDir = __DIR__ . '/var/repo';
-$sshKeyFilename = $config["{$CONFIG_DEPLOY_GITHUB}_private_key"];
+$sshKeyFilename = $config[$CONFIG_DEPLOY_GITHUB . "_private_key"];
 
 ?>
 

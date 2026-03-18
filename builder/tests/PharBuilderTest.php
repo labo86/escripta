@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace labo86\escripta\tests;
+namespace tests;
 
-use labo86\escripta\PharBuilder;
+use labo86\builder\PharBuilder;
 use PHPUnit\Framework\TestCase;
 
 class PharBuilderTest extends TestCase

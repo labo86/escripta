@@ -1,0 +1,22 @@
+{
+  "name" : "labo86/builder",
+  "autoload" : {
+    "psr-4" : {
+      "labo86\\builder\\" : "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "labo86\\builder\\tests\\": "tests/"
+    }
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^10.0"
+
+  },
+  "require" : {
+    "php" : ">=8.2.0",
+    "ext-curl" : "*",
+    "ext-json" : "*"
+  }
+}
