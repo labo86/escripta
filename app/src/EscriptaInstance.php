@@ -12,7 +12,6 @@ class EscriptaInstance
     public string $currentFile = '';
     public string $currentWorkingDir = '';
 
-    public array $registeredFunction = [];
 
     public function findEscriptaDir(string $currentWorkingDir): ?string
     {
@@ -93,19 +92,5 @@ class EscriptaInstance
     public function getEscriptaDir(): string
     {
         return $this->projectConfig['escripta_dir'];
-    }
-
-    public function registerFunction(string $functionName, callable $function)
-    {
-        $this->registeredFunction[$functionName] = $function;
-    }
-
-    public function callFunction(string $functionName)
-    {
-        if (isset($this->registeredFunction[$functionName])) {
-            $this->registeredFunction[$functionName]();
-        } else {
-            throw new Exception("Función [$functionName] no existe");
-        }
     }
 }

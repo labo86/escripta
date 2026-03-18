@@ -4,7 +4,9 @@ declare(strict_types=1);
 namespace labo86\escripta;
 
 
-use Exception;
+use labo86\escripta\connectors\AmazonSecrets;
+use labo86\escripta\connectors\OnePassword;
+use function PHPUnit\Framework\fileExists;
 
 class Escripta {
 
@@ -24,6 +26,10 @@ class Escripta {
         self::initInstance();
         echo "Buscando [$sourceConfigName] en Local...\n\n";
         $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
+        $localConfigIni = self::getEscriptaDir() . "/configs/$sourceConfigName.ini";
+        if ( fileExists($localConfigIni) ) {
+            return Config::loadConfig($localConfigDir, "config");
+        }
         if ( is_dir($localConfigDir) ) {
             return Config::loadConfig($localConfigDir, "config");
         }
@@ -57,7 +63,7 @@ class Escripta {
         foreach ( $configList as $configName => $configValuesList) {
             echo "Escribiendo configuración [$configName]...\n\n";
             $configValues = array_merge(...$configValuesList);
-            ConfigWriter::writeInFiles($targetFolder, $configName, $configValues);
+            Config::writeInFiles($targetFolder, $configName, $configValues);
             echo "Configuración [$configName] escrita.\n";
         }
 

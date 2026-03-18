@@ -59,6 +59,10 @@ class Util
         $files = scandir($folder);
 
         foreach ($files as $filename) {
+            if ($filename === '.' || $filename === '..') {
+                continue;
+            }
+
             if (fnmatch($pattern, $filename)) {
                 yield $folder . '/' . $filename;
             }
@@ -80,18 +84,6 @@ class Util
         }
     }
 
-    public static function arrayToIniFormat(array $data): string
-    {
-        $arrayString = [];
-        foreach ($data as $key => $value) {
-            //if multiline ignore
-            if (self::isStringMultiline($value))
-                continue;
-            $arrayString[] = join("=", [$key, $value]);
-        }
-        $stringData = join("\n", $arrayString);
-        return $stringData;
-    }
 
     public static function findFileBackwards(string $filename, string $startFolder) : ?string {
         $folder = $startFolder;
@@ -107,21 +99,7 @@ class Util
         }
     }
 
-    public static function isStringMultiline(string $string) : bool {
-        return str_contains($string, "\n");
-    }
 
-    public static function filePutContents(string $folder, string $filename, string $content, int $permission = 0755) : string {
-        if (!is_dir($folder)) {
-            mkdir($folder, 0777, true);
-        }
-
-        $filePath = "$folder/$filename";
-        file_put_contents($filePath, $content);
-        chmod($filePath, $permission);
-
-        return $filePath;
-    }
 
 
 

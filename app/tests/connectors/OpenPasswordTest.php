@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace labo86\escripta\tests;
+namespace labo86\escripta\tests\connectors;
 
-use labo86\escripta\OnePassword;
+use labo86\escripta\connectors\OnePassword;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
@@ -27,7 +27,7 @@ class OpenPasswordTest extends TestCase
     public function testGetTargetFolder()
     {
 
-        $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output.json'), true);
+        $input = json_decode(file_get_contents(__DIR__ . '/../files/op_item_get_output.json'), true);
         //mock getItemRawInfo
         $actual = OnePassword::getItemInfo($input, function ($v) { return $v; } );
 
@@ -47,7 +47,7 @@ class OpenPasswordTest extends TestCase
 
     public function testWriteInitFile2()
     {
-        $input = json_decode(file_get_contents(__DIR__ . '/files/op_item_get_output_2.json'), true);
+        $input = json_decode(file_get_contents(__DIR__ . '/../files/op_item_get_output_2.json'), true);
 
         $actual = OnePassword::getItemInfo($input, function ($v) { return $v; } );
 

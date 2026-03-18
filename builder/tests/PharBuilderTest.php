@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace tests;
+namespace labo\builder\tests;
 
 use labo86\builder\PharBuilder;
 use PHPUnit\Framework\TestCase;

@@ -2,7 +2,7 @@
 declare(strict_types=1);
 # version 1.1.0
 
-namespace labo86\escripta;
+namespace labo86\escripta\connectors;
 
 class OnePassword
 {

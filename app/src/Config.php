@@ -6,167 +6,55 @@ namespace labo86\escripta;
 use ArrayAccess;
 use Exception;
 
-class Config implements ArrayAccess
+class Config
 {
 
-    public array $data = [];
-    public ?Config $parent = null;
 
-    public function __construct(array $data, Config $parent = null)
-    {
-        $this->data = $data;
-        $this->parent = $parent;
-    }
-
-    static function listConfigs(string $baseDir): array {
-        $configList = [];
-
-        foreach ( Util::glob($baseDir,  '*.*') as $file )  {
-            //if file is dir
-            if ( is_dir($file) )
-                continue;
-
-            $pathName = $file;
-            //get extension
-            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
-
-
-            $fileName = basename($pathName, ".$extension");
-            $configList[] = $fileName; 
+    static function loadConfigFile($filename) {
+        //get extension
+        $extension = pathinfo($filename, PATHINFO_EXTENSION);
+        $basename = basename($filename);
+        fwrite(STDERR, " - $filename\n");
+        if ( $extension === 'ini' ) {
+            $data = parse_ini_file($filename, true, INI_SCANNER_RAW);
+            return $data;
+        } else {
+            return [
+                $basename => file_get_contents($filename)
+            ];
         }
-
-        return array_unique($configList);
     }
 
-    static function loadConfig(string $baseDir, string $configName): array
+    static function loadConfigDir(string $baseDir): array
     {
-        $config = [];
+        $configs = [];
 
-        foreach ( Util::glob($baseDir,  "$configName.ini") as $file ) {
-            $pathName = $file;
-            fwrite(STDERR, " - $pathName\n");
-            $data = parse_ini_file($pathName, true, INI_SCANNER_RAW);
-
-            if ($data) {
-                $config = $data;
+        foreach ( Util::glob($baseDir,  "*") as $file ) {
+            if ( is_dir($file) )
+            {
+                $configs[] = self::loadConfigDir($file);
+            } else {
+                $configs[] = self::loadConfigFile($file);
             }
         }
 
-        foreach ( Util::glob($baseDir,  "$configName.*") as $file )  {
-            //if file is dir
-            if ( is_dir($file) )
-                continue;
 
-            $pathName = $file;
-            //get extension
-            $extension = pathinfo($pathName, PATHINFO_EXTENSION);
-            if ( $extension === 'ini' )
-                continue;
+        return array_merge(...$configs);
+    }
 
-            fwrite(STDERR," - $pathName\n");
-            $config[$extension] = file_get_contents($pathName);
+    public static function writeInFiles(string $targetFolder, string $targetConfigName, array $itemInfo)
+    {
+        if (!is_dir($targetFolder)) {
+            mkdir($targetFolder, 0755, true);
         }
 
-        return $config;
-    }
+        foreach ($itemInfo as $key => $value) {
+            $configKey = preg_replace('/\s+/', '_', "{$targetConfigName}_{$key}");
 
-    static function loadConfigsAndKeys(string $baseDir): array
-    {
-        $config = [];
-        $configList = self::listConfigs($baseDir);
-        foreach ( $configList as $configName ) {
-            fwrite(STDERR," - $configName\n");
-            $config[$configName] = self::loadConfig($baseDir, $configName);
-        }
-
-        return $config;
-    }
-
-    public function offsetExists(mixed $offset): bool
-    {
-        return array_key_exists($offset, $this->data);
-    }
-
-    public function offsetGet(mixed $offset): mixed
-    {
-        if (array_key_exists($offset, $this->data)) {
-            if (is_array($this->data[$offset]))
-                return new Config($this->data[$offset], $this);
-            else
-                return $this->data[$offset];
-        }
-
-        $name = $this->fullScopeKeyName($offset);
-        $errorMessage = $this->processDebugBacktrace(debug_backtrace());
-
-        Log::error($errorMessage);
-        return "[[$name]]";
-    }
-
-    public function getAsFile(string $offset) : string {
-        $value = $this[$offset];
-
-        Escripta::initInstance();
-        $targetFolder = Escripta::$instance->getCwd() .  "/files";
-        $name = $this->fullScopeKeyName($offset);
-       return Util::filePutContents($targetFolder, $name, $value);
-
-
-    }
-
-    public function getAsKeyFile(string $offset) : string {
-        $value = $this[$offset];
-        if (!str_ends_with($value, "\n")) {
-            $value .= "\n";
-        }
-
-        Escripta::initInstance();
-        $targetFolder = Escripta::$instance->getCwd() .  "/files";
-        $name = $this->fullScopeKeyName($offset);
-        return Util::filePutContents($targetFolder, $name, $value, 0600);
-
-    }
-
-
-    public function processDebugBacktrace(array $backtrace): string
-    {
-
-        //find in backtrace where function is 'hola'
-        $translateMdPhpFileTrace = array_values(array_filter($backtrace, function ($trace) {
-            return $trace['function'] === 'translateMdPhpFile';
-        }));
-
-        $file = $translateMdPhpFileTrace[0]['args'][0];
-
-        $offsetGetTrace = array_values(array_filter($backtrace, function ($trace) {
-            return $trace['function'] === 'offsetGet';
-        }));
-
-        $value = $offsetGetTrace[0]['args'][0];
-        $line = $offsetGetTrace[0]['line'];
-
-        $message = "No se puede encontrar [$value] en [$file:$line].";
-        return $message;
-    }
-
-    public function fullScopeKeyName(string $key = ""): string
-    {
-        if ($this->parent) {
-            return $this->parent->fullScopeKeyName() . "src" . $key;
-        } else {
-            return $key;
+            $filename = "$targetFolder/$configKey";
+            file_put_contents($filename, $value);
+            chmod($filename, 0600);
         }
     }
 
-    public function offsetSet(mixed $offset, mixed $value): void
-    {
-        $name = $this->fullScopeKeyName($offset);
-        trigger_error("No se puede eliminar la configuración [$name]", E_USER_NOTICE);
-    }
-
-    public function offsetUnset(mixed $offset): void
-    {
-        $name = $this->fullScopeKeyName($offset);
-        trigger_error("No se puede eliminar la configuración [$name]", E_USER_NOTICE);
-    }
 }
