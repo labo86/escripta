@@ -8,7 +8,7 @@ use Exception;
 
 class Config
 {
-    static function loadConfigFile($filename) {
+    static function loadConfigFile($filename, string $prefix = '') {
         $extension = pathinfo($filename, PATHINFO_EXTENSION);
         $basename = basename($filename);
         fwrite(STDERR, " - $filename\n");
@@ -21,9 +21,12 @@ class Config
             }
 
             $baseNameWithoutExtension = pathinfo($basename, PATHINFO_FILENAME);
-            $prefix = str_starts_with($baseNameWithoutExtension, '_') ? '' : $baseNameWithoutExtension;
+            $filePrefix = self::composePrefix(
+                $prefix,
+                str_starts_with($baseNameWithoutExtension, '_') ? '' : $baseNameWithoutExtension
+            );
 
-            return self::flattenIniConfig($data, $prefix);
+            return self::flattenIniConfig($data, $filePrefix);
         } else {
             return [
                 $basename => file_get_contents($filename)
@@ -31,21 +34,25 @@ class Config
         }
     }
 
-    static function loadConfigDir(string $baseDir): array
+    static function loadConfigDir(string $baseDir, string $prefix = ''): array
     {
         $configs = [];
 
         foreach ( Util::glob($baseDir,  "*") as $file ) {
             if ( is_dir($file) )
             {
-                $configs[] = self::loadConfigDir($file);
+                $dirPrefix = self::composePrefix(
+                    $prefix,
+                    str_starts_with(basename($file), '_') ? '' : basename($file)
+                );
+                $configs[] = self::loadConfigDir($file, $dirPrefix);
             } else {
-                $configs[] = self::loadConfigFile($file);
+                $configs[] = self::loadConfigFile($file, $prefix);
             }
         }
 
 
-        return array_merge(...$configs);
+        return $configs === [] ? [] : array_merge(...$configs);
     }
 
     public static function writeInFiles(string $targetFolder, string $targetConfigName, array $itemInfo)
@@ -79,6 +86,19 @@ class Config
         }
 
         return $flattened;
+    }
+
+    private static function composePrefix(string $prefix, string $segment): string
+    {
+        if ($prefix === '') {
+            return $segment;
+        }
+
+        if ($segment === '') {
+            return $prefix;
+        }
+
+        return $prefix . '_' . $segment;
     }
 
 }
