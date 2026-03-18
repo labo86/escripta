@@ -1,9 +1,9 @@
 <?php
 declare(strict_types=1);
 
-namespace labo86\escripta\tests;
+namespace labo86\escripta\tests\connectors;
 
-use labo86\escripta\Config;
+use labo86\escripta\connectors\Config;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;

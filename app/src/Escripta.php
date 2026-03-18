@@ -5,8 +5,8 @@ namespace labo86\escripta;
 
 
 use labo86\escripta\connectors\AmazonSecrets;
+use labo86\escripta\connectors\Config;
 use labo86\escripta\connectors\OnePassword;
-use function PHPUnit\Framework\fileExists;
 
 class Escripta {
 
@@ -25,14 +25,19 @@ class Escripta {
     public static function getConfigLocal($sourceConfigName) : array {
         self::initInstance();
         echo "Buscando [$sourceConfigName] en Local...\n\n";
-        $localConfigDir = self::getEscriptaDir() . "/configs/$sourceConfigName";
-        $localConfigIni = self::getEscriptaDir() . "/configs/$sourceConfigName.ini";
-        if ( fileExists($localConfigIni) ) {
-            return Config::loadConfig($localConfigDir, "config");
+        $configBaseDir = self::getEscriptaDir() . '/configs';
+        $localConfigIni = $configBaseDir . "/$sourceConfigName.ini";
+        $localConfigDir = $configBaseDir . "/$sourceConfigName";
+
+        if (file_exists($localConfigIni)) {
+            return Config::loadConfigFile($localConfigIni);
         }
-        if ( is_dir($localConfigDir) ) {
-            return Config::loadConfig($localConfigDir, "config");
+
+        if (is_dir($localConfigDir)) {
+            $prefix = str_starts_with($sourceConfigName, '_') ? '' : $sourceConfigName;
+            return Config::loadConfigDir($localConfigDir, $prefix);
         }
+
         return [];
     }
 

@@ -44,5 +44,56 @@ class EscriptaTest extends TestCase
 
     }
 
+    public function testGetConfigLocalLoadsIniFileFromConfigsDirectory(): void
+    {
+        $actionPath = $this->createEscriptaProject();
+        file_put_contents($this->root->url() . '/root/.escripta/configs/app.ini', "host=localhost\n[db]\nport=3306");
+
+        Escripta::$instance = null;
+        Escripta::initInstance($actionPath);
+
+        $config = Escripta::getConfigLocal('app');
+
+        $this->assertSame(
+            [
+                'app_host' => 'localhost',
+                'app_db_port' => '3306',
+            ],
+            $config
+        );
+    }
+
+    public function testGetConfigLocalLoadsDirectoryFromConfigsDirectory(): void
+    {
+        $actionPath = $this->createEscriptaProject();
+        mkdir($this->root->url() . '/root/.escripta/configs/service/_private', 0777, true);
+        file_put_contents($this->root->url() . '/root/.escripta/configs/service/app.ini', "name=api");
+        file_put_contents($this->root->url() . '/root/.escripta/configs/service/_private/db.ini', "[conn]\nhost=localhost");
+
+        Escripta::$instance = null;
+        Escripta::initInstance($actionPath);
+
+        $config = Escripta::getConfigLocal('service');
+
+        $this->assertCount(2, $config);
+        $this->assertSame('api', $config['service_app_name']);
+        $this->assertSame('localhost', $config['service_db_conn_host']);
+    }
+
+    private function createEscriptaProject(): string
+    {
+        $path = $this->root->url() . '/root';
+        mkdir($path . '/.escripta/configs', 0777, true);
+
+        file_put_contents($path . '/.escripta/config.json', json_encode([
+            'project_name' => 'test',
+            'base_dir' => '..'
+        ]));
+
+        $actionPath = $path . '/action';
+        mkdir($actionPath, 0777, true);
+
+        return $actionPath;
+    }
 
 }
