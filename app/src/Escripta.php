@@ -29,15 +29,16 @@ class Escripta {
         $localConfigIni = $configBaseDir . "/$sourceConfigName.ini";
         $localConfigDir = $configBaseDir . "/$sourceConfigName";
 
-        if (file_exists($localConfigIni)) {
-            return Config::loadConfigFile($localConfigIni, '', false);
-        }
+        return self::loadLocalConfigPath($localConfigIni, $localConfigDir);
+    }
 
-        if (is_dir($localConfigDir)) {
-            return Config::loadConfigDir($localConfigDir, '', false);
-        }
+    public static function getConfigLocalByPath(string $sourceConfigPath) : array {
+        self::initInstance();
+        echo "Buscando [$sourceConfigPath] en Local por ruta...\n\n";
 
-        return [];
+        $resolvedPath = self::resolveLocalPath($sourceConfigPath);
+
+        return self::loadLocalConfigPath($resolvedPath);
     }
 
     public static function getConfigOnePassword($sourceConfigName) : array {
@@ -150,6 +151,36 @@ class Escripta {
         }
     }
 
+    private static function loadLocalConfigPath(string ...$paths) : array {
+        foreach ($paths as $path) {
+            if (is_file($path)) {
+                return Config::loadConfigFile($path, '', false);
+            }
+
+            if (is_dir($path)) {
+                return Config::loadConfigDir($path, '', false);
+            }
+        }
+
+        return [];
+    }
+
+    private static function resolveLocalPath(string $path): string
+    {
+        if ($path === '') {
+            return $path;
+        }
+
+        if (
+            $path[0] === '/'
+            || preg_match('/^[A-Za-z]:[\\\\\\/]/', $path) === 1
+            || preg_match('/^[A-Za-z][A-Za-z0-9+.-]*:\/\//', $path) === 1
+        ) {
+            return $path;
+        }
+
+        return self::$instance->getCwd() . '/' . $path;
+    }
 
 
 }

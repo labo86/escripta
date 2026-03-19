@@ -77,6 +77,45 @@ class EscriptaTest extends TestCase
         $this->assertSame('localhost', $config['db_conn_host']);
     }
 
+    public function testGetConfigLocalByPathLoadsIniFileUsingAbsolutePath(): void
+    {
+        $actionPath = $this->createEscriptaProject();
+        $filename = $this->root->url() . '/root/custom.ini';
+        file_put_contents($filename, "host=localhost\n[db]\nport=3306");
+
+        Escripta::$instance = null;
+        Escripta::initInstance($actionPath);
+
+        $config = Escripta::getConfigLocalByPath($filename);
+
+        $this->assertSame(
+            [
+                'host' => 'localhost',
+                'db_port' => '3306',
+            ],
+            $config
+        );
+    }
+
+    public function testGetConfigLocalByPathLoadsIniFileUsingRelativePath(): void
+    {
+        $actionPath = $this->createEscriptaProject();
+        file_put_contents($actionPath . '/custom.ini', "host=localhost\n[db]\nport=3306");
+
+        Escripta::$instance = null;
+        Escripta::initInstance($actionPath);
+
+        $config = Escripta::getConfigLocalByPath('custom.ini');
+
+        $this->assertSame(
+            [
+                'host' => 'localhost',
+                'db_port' => '3306',
+            ],
+            $config
+        );
+    }
+
     private function createEscriptaProject(): string
     {
         $path = $this->root->url() . '/root';
