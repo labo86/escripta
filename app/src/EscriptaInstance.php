@@ -24,36 +24,15 @@ class EscriptaInstance
         $this->currentWorkingDir = $currentWorkingDir;
         $escriptaDir = $this->findEscriptaDir($currentWorkingDir);
         if ($escriptaDir) {
-            if (file_exists($escriptaDir . '/config.json')) {
-                $this->projectConfig = $this->loadEscriptaConfig($escriptaDir . '/config.json');
-            }
+            $this->projectConfig = ['escripta_dir' => $escriptaDir ];
+        } else {
+            throw new Exception("No se pudo encontrar la carpeta escripta");
         }
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function loadEscriptaConfig(string $fileName): array
-    {
-        $data = json_decode(file_get_contents($fileName), true);
-        if (!$data)
-
-            throw new Exception("No se pudo leer el archivo [$fileName]");
-
-        $absoluteFileDir = dirname($fileName);
-        $data['escripta_dir'] = $absoluteFileDir;
-
-        return $data;
     }
 
     public function getCwd(): string
     {
         return $this->currentWorkingDir;
-    }
-
-    public function getProjectName(): string
-    {
-        return $this->projectConfig['project_name'];
     }
 
     public function setCurrentFile(string $fileName): void
