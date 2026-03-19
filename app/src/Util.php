@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace labo86\escripta;
 
-
-use DirectoryIterator;
 use Throwable;
 
 class Util

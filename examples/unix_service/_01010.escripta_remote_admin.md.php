@@ -13,7 +13,7 @@ $sshRootUser = $configServer['ssh_root_user'];
 $sshPort = $configServer['ssh_port'];
 
 $remoteIdentifier = "remote_admin";
-$escriptaLocalDir = __DIR__. "/" . $remoteIdentifier . ".escripta";
+$escriptaLocalDir = __DIR__ . "_01010.escripta_remote_admin.md.php/" . $remoteIdentifier . ".escripta";
 
 
 Script::sshRemoteAdminScriptList($sshHost, $sshRootUser, $sshPort, $remoteIdentifier, $escriptaLocalDir);

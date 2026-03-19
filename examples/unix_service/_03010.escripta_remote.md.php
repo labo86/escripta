@@ -14,7 +14,7 @@ $sshPort = $configServer['ssh_port'];
 $sshKeyFilename = $configServer->getAsKeyFile('private_key');
 
 $remoteIdentifier = "remote";
-$escriptaLocalDir = __DIR__. "/" . $remoteIdentifier . ".escripta";
+$escriptaLocalDir = __DIR__ . "_03010.escripta_remote.md.php/" . $remoteIdentifier . ".escripta";
 
 
 Script::sshRemoteScriptList($sshHost, $sshUser, $sshPort, $remoteIdentifier, $escriptaLocalDir, $sshKeyFilename);
