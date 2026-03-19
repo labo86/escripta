@@ -2,9 +2,8 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" bootstrap="./vendor/autoload.php" xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/10.5/phpunit.xsd" cacheDirectory=".phpunit.cache">
     <coverage/>
     <testsuites>
-        <testsuite name="main">
-            <directory>./tests</directory>
-            <exclude>./tests/integration</exclude>
+        <testsuite name="integration">
+            <directory>./tests/integration</directory>
         </testsuite>
     </testsuites>
     <source>

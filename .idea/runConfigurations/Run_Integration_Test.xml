@@ -1,0 +1,11 @@
+<component name="ProjectRunConfigurationManager">
+  <configuration default="false" name="Run Integration Test" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+    <option name="envFilePaths">
+      <list>
+        <option value="$PROJECT_DIR$/app/.env.integration" />
+      </list>
+    </option>
+    <TestRunner configuration_file="$PROJECT_DIR$/app/phpunit.integration.xml.dist" scope="XML" use_alternative_configuration_file="true" />
+    <method v="2" />
+  </configuration>
+</component>
