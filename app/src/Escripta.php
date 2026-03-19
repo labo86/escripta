@@ -77,10 +77,6 @@ class Escripta {
 
 
 
-    public static function getProjectName() : string {
-        self::initInstance();
-        return self::$instance->getProjectName();
-    }
 
     public static function getActionName() : string {
         self::initInstance();
@@ -88,17 +84,6 @@ class Escripta {
         return basename($folder);
     }
 
-    /**
-     * Identificador para la acción del archivo actual.
-     * Ideal para crear un identificador de archivo remoto
-     * @return string
-     */
-    public static function getFullActionName() : string {
-        $projectName = self::getProjectName();
-        $actionName = self::getActionName();
-
-        return "{$projectName}_{$actionName}";
-    }
 
     public static function setCurrentFile(string $file) {
         self::initInstance();

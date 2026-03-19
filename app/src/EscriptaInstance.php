@@ -35,37 +35,11 @@ class EscriptaInstance
         return $this->currentWorkingDir;
     }
 
-    public function setCurrentFile(string $fileName): void
-    {
-        $this->currentFile = $fileName;
-    }
-
-    public function getCurrentFile(): string
-    {
-        return $this->currentFile;
-    }
-
-    public function getProjectConfig(): array
-    {
-        return $this->projectConfig;
-    }
-
-    /**
-     * Use getEscriptaDir instead
-     * @return string
-     * @deprecated
-     */
-    public function getProjectConfigDir(): string
-    {
-        return $this->projectConfig['escripta_dir'];
-    }
 
     public function getProjectBaseDir(): string
     {
-        if (isset($this->projectConfig['base_dir']))
-            return $this->projectConfig['escripta_dir'] . '/' . $this->projectConfig['base_dir'];
-        else
-            return $this->projectConfig['escripta_dir'] . '/..';
+
+        return $this->projectConfig['escripta_dir'] . '/..';
     }
 
     public function getEscriptaDir(): string

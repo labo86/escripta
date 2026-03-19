@@ -199,4 +199,33 @@ EOF
             , file_get_contents($targetFolder . '/test_device_raspbian_version'));
         $this->assertSame("normal", file_get_contents($targetFolder . '/test_device_screen_orientation'));
     }
+
+    public function testWriteInFilesDoesNotPrefixKeysWhenTargetConfigNameIsUnderscore(): void
+    {
+        $targetFolder = $this->root->url() . '/config.gen';
+
+        Config::writeInFiles($targetFolder, '_', [
+            'public key' => 'value',
+            'private_key' => 'secret',
+        ]);
+
+        $this->assertFileExists($targetFolder . '/public_key');
+        $this->assertFileExists($targetFolder . '/private_key');
+        $this->assertFileDoesNotExist($targetFolder . '/__public_key');
+        $this->assertSame('value', file_get_contents($targetFolder . '/public_key'));
+        $this->assertSame('secret', file_get_contents($targetFolder . '/private_key'));
+    }
+
+    public function testWriteInFilesDoesNotPrefixKeysWhenTargetConfigNameIsEmpty(): void
+    {
+        $targetFolder = $this->root->url() . '/config.gen';
+
+        Config::writeInFiles($targetFolder, '', [
+            'public key' => 'value',
+        ]);
+
+        $this->assertFileExists($targetFolder . '/public_key');
+        $this->assertFileDoesNotExist($targetFolder . '/_public_key');
+        $this->assertSame('value', file_get_contents($targetFolder . '/public_key'));
+    }
 }

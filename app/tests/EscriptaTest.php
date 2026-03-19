@@ -36,11 +36,8 @@ class EscriptaTest extends TestCase
         Escripta::initInstance($path);
 
         $this->assertEquals('action', Escripta::getActionName());
-        $this->assertEquals('vfs://root/root/.escripta', Escripta::getProjectConfigDir());
 
-        $this->assertEquals('test', Escripta::getProjectName());
         $this->assertEquals('vfs://root/root/.escripta/..', Escripta::getProjectBaseDir());
-        $this->assertEquals('test_action', Escripta::getFullActionName());
 
     }
 

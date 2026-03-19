@@ -64,7 +64,10 @@ class Config
         }
 
         foreach ($itemInfo as $key => $value) {
-            $configKey = preg_replace('/\s+/', '_', "{$targetConfigName}_{$key}");
+            $configKeyBase = ($targetConfigName === '' || $targetConfigName === '_')
+                ? (string) $key
+                : "{$targetConfigName}_{$key}";
+            $configKey = preg_replace('/\s+/', '_', $configKeyBase);
 
             $filename = "$targetFolder/$configKey";
             file_put_contents($filename, $value);
