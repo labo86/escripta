@@ -4,6 +4,8 @@
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/app/src" isTestSource="false" packagePrefix="labo86\escripta\" />
       <sourceFolder url="file://$MODULE_DIR$/app/tests" isTestSource="true" packagePrefix="labo86\escripta\tests\" />
+      <sourceFolder url="file://$MODULE_DIR$/builder/src" isTestSource="false" packagePrefix="labo86\builder\" />
+      <sourceFolder url="file://$MODULE_DIR$/builder/tests" isTestSource="true" packagePrefix="labo86\builder\tests\" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/composer" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/mikey179/vfsstream" />
       <excludeFolder url="file://$MODULE_DIR$/vendor/myclabs/deep-copy" />
