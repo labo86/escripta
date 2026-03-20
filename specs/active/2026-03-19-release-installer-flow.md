@@ -90,6 +90,21 @@ El README debería incluir comandos listos para usar, por ejemplo:
 - descargar solo `escripta.phar`
 - descargar `update.sh` y ejecutarlo
 
+### GitHub Actions migration
+
+El directorio actual `actions/build_and_deploy/` no corresponde a un workflow estándar de GitHub Actions. Hoy contiene scripts locales para construir `escripta.phar` y luego clonar, copiar, commitear y pushear el contenido publicado hacia `latest_release`.
+
+Se considera válido y deseable migrar esa orquestación a un workflow real en `.github/workflows/`, por ejemplo `release.yml`, siempre que se mantenga el contrato de artefactos definido en esta spec.
+
+La migración propuesta sería:
+
+- reutilizar el build actual del phar
+- generar `update.sh` dentro del workflow
+- publicar `escripta.phar` y `update.sh` como artefactos explícitos del release
+- opcionalmente seguir actualizando `latest_release` durante una etapa de transición
+
+Esto permite separar mejor build y publicación, reducir dependencia de claves SSH locales y dejar el proceso reproducible desde GitHub.
+
 ## Recommended Alternative
 
 Un flujo mejor que depender de `git clone --branch latest_release` es publicar artefactos explícitos de release y usar `update.sh` solo como bootstrap downloader.
@@ -108,11 +123,12 @@ Ventajas:
 
 Flujo recomendado:
 
-1. `build_and_deploy` construye `escripta.phar`.
-2. `build_and_deploy` genera `update.sh` desde una plantilla con variables centralizadas.
-3. `build_and_deploy` publica ambos artefactos en `latest_release`.
-4. El README expone una línea para bajar `update.sh`.
-5. `update.sh` descarga `escripta.phar` al directorio esperado en el repo consumidor.
+1. Un workflow de GitHub Actions construye `escripta.phar`.
+2. El workflow genera `update.sh` desde una plantilla con variables centralizadas.
+3. El workflow publica ambos artefactos como release assets o en un destino equivalente.
+4. Si sigue siendo necesario, el workflow sincroniza también `latest_release`.
+5. El README expone una línea para bajar `update.sh`.
+6. `update.sh` descarga `escripta.phar` al directorio esperado en el repo consumidor.
 
 ## Implementation Plan
 
@@ -132,6 +148,7 @@ Deliverable:
 - Identificar en `actions/build_and_deploy` la configuración usada para publicar el release.
 - Extraer URL, branch, artefactos y rutas a una fuente única.
 - Diseñar esa fuente para que también pueda alimentar la generación de `update.sh`.
+- Diseñar esa configuración para que pueda ser consumida por scripts locales y por un workflow en `.github/workflows`.
 
 Deliverable:
 
@@ -149,8 +166,9 @@ Deliverable:
 
 ### Step 4: publish both artifacts
 
-- Ajustar `actions/build_and_deploy` para publicar `escripta.phar` y `update.sh`.
+- Implementar o ajustar un workflow de GitHub Actions para publicar `escripta.phar` y `update.sh`.
 - Validar que ambos quedan presentes en `latest_release`.
+- Validar también que ambos queden presentes como artefactos explícitos del workflow o del release.
 - Hacer fallar el pipeline si falta alguno de los artefactos esperados.
 
 Deliverable:
@@ -211,3 +229,4 @@ Deliverable:
 - `update.sh` debe instalar siempre `latest`, o permitir fijar una versión?
 - El artefacto oficial debe incluir checksum o validación de integridad?
 - El repo consumidor debe bajar solo el phar o también otros archivos auxiliares?
+- El workflow de GitHub Actions publicará solo release assets, o también mantendrá sincronizada la branch `latest_release` por compatibilidad?
