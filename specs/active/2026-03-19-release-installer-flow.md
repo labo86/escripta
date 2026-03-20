@@ -6,32 +6,32 @@ Active
 
 ## Summary
 
-Unificar la forma en que Escripta se publica y se instala para otros repositorios. El objetivo es que `.escripta/manage_escripta/update.sh` deje de ser un script aislado y pase a formar parte del flujo oficial de release, usando la misma configuración que `actions/build_and_deploy` y quedando disponible para descarga simple desde el README.
+Unificar la forma en que Escripta se publica, se instala y se actualiza para otros repositorios. El objetivo es que `escripta.phar` sea el artefacto principal de distribución y que pueda actualizarse a sí mismo con un comando como `php escripta.phar -U`, usando la misma configuración de release que hoy vive en `actions/build_and_deploy`.
 
 ## Problem
 
 Hoy el flujo está partido:
 
 - `.escripta/manage_escripta/update.sh` clona `latest_release` directamente por `git@github.com:labo86/escripta`, lo que lo acopla a SSH y a una rama concreta.
-- `actions/build_and_deploy` construye y publica `escripta.phar`, pero `update.sh` no se genera ni se valida desde ese mismo flujo.
-- No hay una fuente única de verdad para decidir qué artefactos se publican en `latest_release`.
-- El README no ofrece un comando simple para obtener `escripta.phar` o `update.sh`.
-- Otros repositorios no tienen una experiencia clara de bootstrap o actualización.
+- `actions/build_and_deploy` construye y publica `escripta.phar`, pero el mecanismo de instalación y actualización no está centrado en ese artefacto.
+- No hay una fuente única de verdad para decidir qué artefactos se publican y desde qué URL se descargan.
+- El README no ofrece un flujo simple y principal basado solo en `escripta.phar`.
+- Otros repositorios no tienen una experiencia clara donde instalar sea descargar el phar y actualizar sea ejecutar `-U`.
 
 ## Goals
 
-- Hacer que `update.sh` y `escripta.phar` se publiquen desde el mismo flujo de release.
-- Evitar duplicar configuración entre `.escripta/manage_escripta/update.sh` y `actions/build_and_deploy`.
-- Permitir un flujo de descarga simple para consumidores externos.
-- Dejar documentado en el README cómo instalar o actualizar Escripta.
-- Hacer posible regenerar `update.sh` desde datos de release y no editarlo manualmente.
+- Hacer que `escripta.phar` sea el artefacto principal de distribución.
+- Permitir instalación inicial por descarga directa de `escripta.phar`.
+- Permitir actualización desde el propio phar con `php escripta.phar -U`.
+- Evitar duplicar configuración entre build, publicación y actualización.
+- Dejar documentado en el README cómo instalar y actualizar Escripta.
 
 ## Non-Goals
 
 - Rediseñar toda la arquitectura de deployment del proyecto.
 - Cambiar el formato de `escripta.phar`.
 - Introducir un package manager nuevo.
-- Resolver distribución multiplataforma más allá de `bash` en esta iteración.
+- Resolver distribución multiplataforma más allá de `bash` y `php` en esta iteración.
 
 ## Scope
 
@@ -42,53 +42,78 @@ Archivos y flujos afectados:
 - proceso que publica `latest_release`
 - README principal
 - artefactos incluidos en el release
+- CLI de `escripta.phar`
 
 ## Constraints
 
 - El flujo debe seguir siendo simple de usar desde otros repositorios.
-- El script de bootstrap debe ser copiable y ejecutable con pocas dependencias.
 - La publicación debe salir de un único origen de configuración.
+- La actualización debe funcionar sin requerir `git clone` del repo completo.
 - El resultado debe ser compatible con el flujo actual basado en `latest_release`, al menos durante transición.
+- El self-update debe reemplazar el phar de forma segura, validando integridad antes de dejarlo activo.
 
 ## Proposed Design
 
 ### Base proposal
 
-Hacer que `actions/build_and_deploy` produzca ambos artefactos de distribución:
+Hacer que `actions/build_and_deploy` produzca como artefacto principal de distribución:
 
 - `escripta.phar`
-- `update.sh`
 
-`update.sh` no debería mantenerse a mano como archivo independiente de la release. Debería generarse desde una plantilla o desde un script generador dentro del flujo de build/deploy, usando la misma configuración usada para publicar el release.
+Y además publique metadata suficiente para que el propio phar pueda actualizarse:
+
+- URL canónica de descarga de `escripta.phar`
+- opcionalmente `checksums.txt` o manifiesto equivalente
+- opcionalmente metadata de versión o canal
+
+`update.sh` deja de ser el mecanismo principal. Puede mantenerse solo como compatibilidad o conveniencia, pero el contrato principal de instalación y actualización pasa a ser:
+
+- instalación: descargar `escripta.phar`
+- actualización: ejecutar `php escripta.phar -U`
 
 La branch o destino `latest_release` debería contener al menos:
 
 - `escripta.phar`
-- `update.sh`
-- opcionalmente un `checksums.txt` o archivo equivalente de integridad
-
-`.escripta/manage_escripta/update.sh` dentro de este repo debería pasar a ser:
-
-- o bien un archivo generado
-- o bien una copia del artefacto oficial de release
-
-En cualquier caso, no debería divergir del script realmente publicado.
+- opcionalmente `checksums.txt` o archivo equivalente de integridad
+- opcionalmente un archivo de metadata consumible por el self-update
 
 ### Installer behavior
 
-`update.sh` debería:
+La instalación principal debería requerir solo descargar `escripta.phar` al directorio esperado por el repo consumidor.
 
-- descargar o copiar `escripta.phar` desde el release oficial
-- funcionar sin requerir `git clone` del repo completo
-- usar HTTPS por defecto para facilitar bootstrap en repositorios consumidores
-- opcionalmente aceptar parámetros o variables para branch/version/canal
+Ejemplo conceptual:
+
+- crear el directorio destino
+- descargar `escripta.phar` desde la URL oficial por HTTPS
+- ejecutar el phar normalmente
+
+Si `update.sh` sigue existiendo, debe considerarse accesorio y no obligatorio.
+
+### Self-update behavior
+
+`php escripta.phar -U` debería:
+
+- determinar la ruta del phar que se está ejecutando
+- consultar la URL o metadata oficial del release
+- descargar una nueva versión a un archivo temporal
+- validar integridad o checksum antes de reemplazar
+- reemplazar el phar actual de forma segura
+- fallar sin corromper la instalación previa si la descarga o validación no son correctas
+
+Opcionalmente puede aceptar:
+
+- versión o tag explícito
+- canal como `latest` o equivalente
+- modo `check` sin reemplazo
 
 ### README behavior
 
-El README debería incluir comandos listos para usar, por ejemplo:
+El README debería incluir comandos listos para usar, priorizando:
 
 - descargar solo `escripta.phar`
-- descargar `update.sh` y ejecutarlo
+- actualizar una instalación existente con `php escripta.phar -U`
+
+Si se mantiene `update.sh`, su uso debería quedar documentado como compatibilidad o conveniencia, no como camino principal.
 
 ### GitHub Actions migration
 
@@ -99,45 +124,47 @@ Se considera válido y deseable migrar esa orquestación a un workflow real en `
 La migración propuesta sería:
 
 - reutilizar el build actual del phar
-- generar `update.sh` dentro del workflow
-- publicar `escripta.phar` y `update.sh` como artefactos explícitos del release
+- publicar `escripta.phar` como artefacto explícito del release
+- publicar checksum o metadata consumible por el self-update
 - opcionalmente seguir actualizando `latest_release` durante una etapa de transición
 
 Esto permite separar mejor build y publicación, reducir dependencia de claves SSH locales y dejar el proceso reproducible desde GitHub.
 
 ## Recommended Alternative
 
-Un flujo mejor que depender de `git clone --branch latest_release` es publicar artefactos explícitos de release y usar `update.sh` solo como bootstrap downloader.
+Un flujo mejor que depender de `git clone --branch latest_release` o de un bootstrap script separado es publicar `escripta.phar` como artefacto explícito de release y dejar que el propio phar se actualice.
 
 Recomendación:
 
+- tratar `escripta.phar` como unidad principal de distribución
 - mantener `latest_release` solo si ya aporta compatibilidad o simplicidad
-- pero tratar el release como publicación de artefactos, no como clonación de repo
+- evitar que `update.sh` sea una pieza necesaria del flujo normal
 
 Ventajas:
 
-- menos tráfico y menos acoplamiento a git
+- menos pasos para instalación inicial
+- menos duplicación entre instalador y CLI
 - menos fragilidad por estructura interna del repo
-- instalación más clara para consumidores externos
+- instalación y actualización más claras para consumidores externos
 - mejor trazabilidad si luego se quiere versionar por tag
 
 Flujo recomendado:
 
 1. Un workflow de GitHub Actions construye `escripta.phar`.
-2. El workflow genera `update.sh` desde una plantilla con variables centralizadas.
-3. El workflow publica ambos artefactos como release assets o en un destino equivalente.
-4. Si sigue siendo necesario, el workflow sincroniza también `latest_release`.
-5. El README expone una línea para bajar `update.sh`.
-6. `update.sh` descarga `escripta.phar` al directorio esperado en el repo consumidor.
+2. El workflow publica `escripta.phar` y su metadata de integridad.
+3. El usuario instala descargando `escripta.phar`.
+4. El usuario actualiza ejecutando `php escripta.phar -U`.
+5. Si sigue siendo necesario, el workflow sincroniza también `latest_release`.
 
 ## Implementation Plan
 
 ### Step 1: define release contract
 
-- Confirmar que `latest_release` publicará como mínimo `escripta.phar` y `update.sh`.
-- Definir la URL canónica de descarga que usará `update.sh`.
+- Confirmar que `latest_release` publicará como mínimo `escripta.phar`.
+- Definir la URL canónica de descarga que usará el self-update.
+- Definir si habrá `checksums.txt`, manifiesto o metadata equivalente.
 - Definir el directorio destino esperado en repos consumidores.
-- Decidir si `update.sh` soportará solo `latest` o también versión/tag explícito.
+- Decidir si `-U` soportará solo `latest` o también versión/tag explícito.
 
 Deliverable:
 
@@ -147,50 +174,55 @@ Deliverable:
 
 - Identificar en `actions/build_and_deploy` la configuración usada para publicar el release.
 - Extraer URL, branch, artefactos y rutas a una fuente única.
-- Diseñar esa fuente para que también pueda alimentar la generación de `update.sh`.
+- Diseñar esa fuente para que también pueda alimentar la lógica de self-update.
 - Diseñar esa configuración para que pueda ser consumida por scripts locales y por un workflow en `.github/workflows`.
 
 Deliverable:
 
-- configuración compartida definida y referenciada desde deploy y script generator
+- configuración compartida definida y referenciada desde build, deploy y self-update
 
-### Step 3: generate installer script
+### Step 3: implement self-update in the phar
 
-- Crear una plantilla o generador para `update.sh`.
-- Hacer que el script final se produzca durante build/deploy.
-- Hacer que `.escripta/manage_escripta/update.sh` se sincronice desde ese artefacto generado.
-
-Deliverable:
-
-- `update.sh` generado y no mantenido manualmente
-
-### Step 4: publish both artifacts
-
-- Implementar o ajustar un workflow de GitHub Actions para publicar `escripta.phar` y `update.sh`.
-- Validar que ambos quedan presentes en `latest_release`.
-- Validar también que ambos queden presentes como artefactos explícitos del workflow o del release.
-- Hacer fallar el pipeline si falta alguno de los artefactos esperados.
+- Agregar una opción de CLI como `-U` o `--self-update`.
+- Resolver la ruta del phar actualmente en ejecución.
+- Descargar la nueva versión a un archivo temporal.
+- Validar checksum o metadata antes de reemplazar.
+- Reemplazar el archivo actual de forma segura.
+- Definir mensajes y códigos de salida del flujo de actualización.
 
 Deliverable:
 
-- release consistente con ambos artefactos
+- `escripta.phar` capaz de actualizarse a sí mismo
+
+### Step 4: publish release artifacts
+
+- Implementar o ajustar un workflow de GitHub Actions para publicar `escripta.phar`.
+- Publicar también checksum o metadata requeridos por el self-update.
+- Validar que el release y, si aplica, `latest_release`, contienen los artefactos esperados.
+- Hacer fallar el pipeline si falta alguno de los artefactos requeridos.
+
+Deliverable:
+
+- release consistente con artefactos suficientes para instalación y self-update
 
 ### Step 5: document consumer flow
 
-- Agregar al README un comando para bajar `update.sh`.
 - Agregar al README un comando para bajar `escripta.phar`.
-- Documentar el flujo recomendado de instalación inicial y actualización.
+- Documentar el flujo recomendado de instalación inicial.
+- Documentar el flujo recomendado de actualización con `php escripta.phar -U`.
+- Si se mantiene `update.sh`, documentarlo solo como compatibilidad o atajo opcional.
 
 Deliverable:
 
-- README con comandos copy/paste para consumidores externos
+- README con comandos copy/paste para instalación y actualización
 
 ### Step 6: validate end-to-end
 
-- Probar generación local del instalador.
+- Probar generación local del phar.
 - Probar el flujo de release en un entorno limpio.
-- Probar bootstrap desde un repo consumidor de ejemplo.
-- Agregar pruebas automatizadas a generador y release flow donde sea razonable.
+- Probar instalación desde un repo consumidor de ejemplo.
+- Probar una actualización posterior que reemplace el phar correctamente.
+- Agregar pruebas automatizadas al self-update donde sea razonable.
 
 Deliverable:
 
@@ -198,21 +230,22 @@ Deliverable:
 
 ## Acceptance Criteria
 
-- [ ] Existe una única fuente de configuración para publicar `escripta.phar` y `update.sh`.
-- [ ] `update.sh` se genera o sincroniza automáticamente desde el flujo de release.
-- [ ] El artefacto publicado en `latest_release` incluye `update.sh` y `escripta.phar`.
-- [ ] El README documenta al menos un comando para bajar `update.sh`.
+- [ ] Existe una única fuente de configuración para publicar `escripta.phar` y su metadata de actualización.
+- [ ] `escripta.phar` puede actualizarse a sí mismo con una opción de CLI como `-U`.
+- [ ] El artefacto publicado en `latest_release` o destino equivalente incluye `escripta.phar`.
+- [ ] El release publica la metadata necesaria para validar actualización e integridad.
 - [ ] El README documenta al menos un comando para bajar `escripta.phar`.
-- [ ] Un repo consumidor puede copiar/pegar un comando de instalación o actualización sin clonar el repo completo.
-- [ ] El flujo sigue funcionando aunque `update.sh` se ejecute fuera de este repo.
+- [ ] El README documenta el comando de actualización con `php escripta.phar -U`.
+- [ ] Un repo consumidor puede instalar y actualizar sin clonar el repo completo.
 
 ## Test Plan
 
 - Unit tests:
-- si se introduce generador para `update.sh`, cubrir generación de contenido y variables resultantes
+- si se introduce lógica para resolver ruta, versionado o checksums, cubrir esos componentes
 - Integration tests:
-- validar que `build_and_deploy` deja ambos artefactos en el destino esperado
-- validar que `update.sh` descarga o instala `escripta.phar` correctamente en un repo de prueba
+- validar que `build_and_deploy` deja `escripta.phar` y su metadata en el destino esperado
+- validar que `php escripta.phar -U` descarga y reemplaza el phar correctamente
+- validar que un checksum inválido o una descarga rota no pisan la instalación existente
 - Manual verification:
 - ejecutar el comando documentado en README desde un repo consumidor limpio
 - verificar que una actualización posterior reemplaza el phar correctamente
@@ -220,13 +253,13 @@ Deliverable:
 ## Rollout Notes
 
 - Puede ser necesario mantener compatibilidad temporal con el flujo actual basado en `latest_release`.
-- Si el script cambia de `git clone` a descarga por HTTPS, conviene mantener claro el canal por defecto.
-- Si se agrega versionado futuro por tags, `update.sh` debería admitir `latest` y una versión explícita.
+- Si se mantiene `update.sh`, debería quedar fuera del camino principal y existir solo por compatibilidad o conveniencia.
+- Si se agrega versionado futuro por tags, `-U` debería admitir `latest` y una versión explícita.
 
 ## Open Questions
 
 - `latest_release` seguirá siendo branch publicada, o pasará a ser un concepto equivalente sobre artefactos versionados?
-- `update.sh` debe instalar siempre `latest`, o permitir fijar una versión?
-- El artefacto oficial debe incluir checksum o validación de integridad?
-- El repo consumidor debe bajar solo el phar o también otros archivos auxiliares?
+- `-U` debe instalar siempre `latest`, o permitir fijar una versión?
+- El artefacto oficial debe incluir checksum o validación de integridad obligatoria?
+- Hace falta mantener `update.sh` por compatibilidad, o puede eliminarse del flujo principal desde ya?
 - El workflow de GitHub Actions publicará solo release assets, o también mantendrá sincronizada la branch `latest_release` por compatibilidad?
