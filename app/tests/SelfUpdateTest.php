@@ -4,6 +4,7 @@ declare(strict_types=1);
 namespace labo86\escripta\tests;
 
 use labo86\escripta\SelfUpdate;
+use labo86\escripta\ReleaseMetadata;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamDirectory;
 use PHPUnit\Framework\TestCase;
@@ -46,6 +47,21 @@ class SelfUpdateTest extends TestCase
                 'https://example.test/escripta.phar.sha256',
             ],
             SelfUpdate::resolveReleaseUrls()
+        );
+    }
+
+    public function testResolveReleaseUrlsFromBaseMetadataEnvironment(): void
+    {
+        putenv('ESCRIPTA_RELEASE_BASE_URL=https://example.test/downloads');
+        putenv('ESCRIPTA_RELEASE_PHAR_FILENAME=escripta.phar');
+        putenv('ESCRIPTA_RELEASE_SHA256_FILENAME=escripta.phar.sha256');
+
+        $this->assertSame(
+            [
+                'https://example.test/downloads/escripta.phar',
+                'https://example.test/downloads/escripta.phar.sha256',
+            ],
+            ReleaseMetadata::resolveReleaseUrls()
         );
     }
 

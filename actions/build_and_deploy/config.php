@@ -11,11 +11,14 @@ Escripta::fetchConfig(['github_pages' =>
             Escripta::getConfigOnePassword('escripta_github_pages_prod'),
             Escripta::getConfigLocal('github_pages'),
     ],
+        'release' =>
+                [
+                        Escripta::getConfigLocal('release'),
+                ],
         'app' =>
                 [
                         Escripta::getConfigLocal('app_public'),
                 ]
 ]);
-
 
 

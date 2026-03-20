@@ -7,9 +7,6 @@ use RuntimeException;
 
 class SelfUpdate
 {
-    private const PHAR_URL_ENV = 'ESCRIPTA_SELF_UPDATE_URL';
-    private const CHECKSUM_URL_ENV = 'ESCRIPTA_SELF_UPDATE_SHA256_URL';
-
     public static function isRequested(array $argv): bool
     {
         if (count($argv) !== 2) {
@@ -65,12 +62,11 @@ class SelfUpdate
 
     public static function resolveReleaseUrls(): array
     {
-        $pharUrl = getenv(self::PHAR_URL_ENV) ?: '';
-        $checksumUrl = getenv(self::CHECKSUM_URL_ENV) ?: '';
+        [$pharUrl, $checksumUrl] = ReleaseMetadata::resolveReleaseUrls();
 
         if ($pharUrl === '' || $checksumUrl === '') {
             throw new RuntimeException(
-                'Faltan URLs de self-update. Define ESCRIPTA_SELF_UPDATE_URL y ESCRIPTA_SELF_UPDATE_SHA256_URL.'
+                'Faltan URLs de self-update. Define ESCRIPTA_SELF_UPDATE_URL y ESCRIPTA_SELF_UPDATE_SHA256_URL o configura la metadata de release.'
             );
         }
 
