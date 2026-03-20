@@ -15,9 +15,12 @@ class Core {
      * @throws Throwable
      */
     static function processFolderByCommandLine() {
-
-
         global $argv;
+
+        if (SelfUpdate::isRequested($argv)) {
+            SelfUpdate::run($argv);
+            return;
+        }
 
         //get version
         if ( count($argv) === 2 && $argv[1] === '--version' ) {
@@ -33,7 +36,7 @@ Hora de la ciudad de La Concepción de María Purísima del Nuevo Extremo, Reino
 Fecha desde la primera venida de Nuestro Señor Jesucristo. 
 
 EOF;
+            return;
         }
-
     }
 }
