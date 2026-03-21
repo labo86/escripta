@@ -44,6 +44,7 @@ $build_dir = $escripta_current_dir . '/var/build';
 $releaseBaseUrl = requireEnv('ESCRIPTA_RELEASE_BASE_URL');
 $releasePharFilename = requireEnv('ESCRIPTA_RELEASE_PHAR_FILENAME');
 $releaseSha256Filename = requireEnv('ESCRIPTA_RELEASE_SHA256_FILENAME');
+$githubRepository = getenv('ESCRIPTA_RELEASE_GITHUB_REPOSITORY') ?: '';
 $releaseManifestFilename = 'release.json';
 $releaseCommit = gitOutput($repositoryDir, ['rev-parse', 'HEAD']);
 $releaseTag = gitOutput($repositoryDir, ['describe', '--tags', '--exact-match', 'HEAD']);
@@ -61,6 +62,7 @@ PharBuilder::build($pharPath, $releaseVersion, [
     'base_url' => $releaseBaseUrl,
     'phar_filename' => $releasePharFilename,
     'sha256_filename' => $releaseSha256Filename,
+    'github_repository' => $githubRepository,
 ]);
 
 $checksum = hash_file('sha256', $pharPath);
@@ -81,6 +83,7 @@ $manifest = [
     'base_url' => $releaseBaseUrl,
     'phar_filename' => $releasePharFilename,
     'sha256_filename' => $releaseSha256Filename,
+    'github_repository' => $githubRepository,
     'phar_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . ltrim($releasePharFilename, '/'),
     'sha256_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . ltrim($releaseSha256Filename, '/'),
     'sha256' => $checksum,

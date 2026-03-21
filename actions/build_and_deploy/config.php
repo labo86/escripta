@@ -6,13 +6,10 @@ require_once(__DIR__ . '/../../app/vendor/autoload.php');
 
 use labo86\escripta\Escripta;
 
-Escripta::fetchConfig(['github_pages' =>
-    [
-            Escripta::getConfigOnePassword('escripta_github_release'),
-    ],
+Escripta::fetchConfig([
         'release' =>
                 [
                         Escripta::getConfigLocal('release'),
+                        Escripta::getConfigOnePassword('escripta_github_release'),
                 ]
 ]);
-

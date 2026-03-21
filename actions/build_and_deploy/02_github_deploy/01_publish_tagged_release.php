@@ -13,17 +13,13 @@ function requireEnv(string $name): string
     return $value;
 }
 
-function parseGithubRepository(string $remoteUrl): array
+function parseGithubRepository(string $repository): array
 {
-    if (preg_match('#^git@github\.com:([^/]+/[^/]+?)(?:\.git)?$#', $remoteUrl, $matches) === 1) {
-        return explode('/', $matches[1], 2);
+    if (preg_match('#^[^/]+/[^/]+$#', $repository) === 1) {
+        return explode('/', $repository, 2);
     }
 
-    if (preg_match('#^https://github\.com/([^/]+/[^/]+?)(?:\.git)?$#', $remoteUrl, $matches) === 1) {
-        return explode('/', $matches[1], 2);
-    }
-
-    throw new RuntimeException("No se pudo extraer owner/repo desde [$remoteUrl].");
+    throw new RuntimeException("No se pudo extraer owner/repo desde [$repository].");
 }
 
 function githubRequest(string $method, string $url, string $token, ?string $body = null, string $contentType = 'application/json'): array
@@ -162,13 +158,13 @@ function uploadAsset(array $release, string $assetPath, string $token): void
     }
 }
 
-$token = requireEnv('ESCRIPTA_GITHUB_PAGES_TOKEN');
-$remoteUrl = requireEnv('ESCRIPTA_GITHUB_PAGES_GIT_REPO_URL');
+$token = requireEnv('ESCRIPTA_RELEASE_GITHUB_TOKEN');
+$repository = requireEnv('ESCRIPTA_RELEASE_GITHUB_REPOSITORY');
 $currentDir = requireEnv('ESCRIPTA_CURRENT_DIR');
 $pharFilename = requireEnv('ESCRIPTA_RELEASE_PHAR_FILENAME');
 $sha256Filename = requireEnv('ESCRIPTA_RELEASE_SHA256_FILENAME');
 
-[$owner, $repo] = parseGithubRepository($remoteUrl);
+[$owner, $repo] = parseGithubRepository($repository);
 $buildDir = $currentDir . '/var/build';
 $manifestPath = $buildDir . '/release.json';
 $manifest = loadReleaseManifest($manifestPath);
@@ -185,8 +181,8 @@ $assets = [
 
 foreach ($assets as $assetPath) {
     $assetName = basename($assetPath);
-    uploadAsset($release, $assetPath, $token);
     deleteExistingAssetIfPresent($release, $assetName, $owner, $repo, $token);
+    uploadAsset($release, $assetPath, $token);
 }
 
 $uploadUrl = $release['upload_url'] ?? null;

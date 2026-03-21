@@ -46,7 +46,7 @@ upload_asset() {
 }
 
 CURRENT_DIR="$(require_env ESCRIPTA_CURRENT_DIR)"
-TOKEN="$(require_env ESCRIPTA_GITHUB_PAGES_TOKEN)"
+TOKEN="$(require_env ESCRIPTA_RELEASE_GITHUB_TOKEN)"
 CONTEXT_PATH="$CURRENT_DIR/var/build/github_release.env"
 
 if [ ! -f "$CONTEXT_PATH" ]; then

@@ -24,6 +24,8 @@ class PharBuilder {
         $releaseBaseUrl = self::exportPhpString($releaseMetadata['base_url']);
         $releasePharFilename = self::exportPhpString($releaseMetadata['phar_filename']);
         $releaseSha256Filename = self::exportPhpString($releaseMetadata['sha256_filename']);
+        $githubRepository = self::exportPhpString($releaseMetadata['github_repository'] ?? '');
+        $githubReleaseTag = self::exportPhpString($releaseMetadata['github_release_tag'] ?? '');
 
         $phar->startBuffering();
 
@@ -45,12 +47,16 @@ global \$escriptaDate;
 global \$escriptaReleaseBaseUrl;
 global \$escriptaReleasePharFilename;
 global \$escriptaReleaseSha256Filename;
+global \$escriptaGithubRepository;
+global \$escriptaGithubReleaseTag;
 
 \$escriptaVersion = '$version';
 \$escriptaDate = '$date';
 \$escriptaReleaseBaseUrl = $releaseBaseUrl;
 \$escriptaReleasePharFilename = $releasePharFilename;
 \$escriptaReleaseSha256Filename = $releaseSha256Filename;
+\$escriptaGithubRepository = $githubRepository;
+\$escriptaGithubReleaseTag = $githubReleaseTag;
 EOF
 );
         $phar->setStub(<<<EOF

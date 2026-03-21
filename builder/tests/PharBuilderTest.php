@@ -35,8 +35,14 @@ class PharBuilderTest extends TestCase
             'base_url' => 'https://example.test/releases',
             'phar_filename' => 'escripta.phar',
             'sha256_filename' => 'escripta.phar.sha256',
+            'github_repository' => 'owner/private-repo',
         ]);
         $this->assertFileExists($this->pharFile);
+
+        $phar = new \Phar($this->pharFile);
+        $globals = $phar['globals.php']->getContent();
+
+        $this->assertStringContainsString("\$escriptaGithubRepository = 'owner/private-repo';", $globals);
     }
 
     public function testBuildFailsWhenReleaseMetadataIsMissing(): void
