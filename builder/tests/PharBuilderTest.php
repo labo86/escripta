@@ -45,6 +45,33 @@ class PharBuilderTest extends TestCase
         $this->assertStringContainsString("\$escriptaGithubRepository = 'owner/private-repo';", $globals);
     }
 
+    public function testBuiltPharEmbedsReleaseMetadataContract(): void
+    {
+        PharBuilder::build($this->pharFile, 'test-version', [
+            'base_url' => 'https://example.test/releases',
+            'phar_filename' => 'escripta.phar',
+            'sha256_filename' => 'escripta.phar.sha256',
+            'github_repository' => 'owner/private-repo',
+        ]);
+
+        $phar = new \Phar($this->pharFile);
+        $globalsPath = $phar['globals.php']->getPathName();
+
+        unset(
+            $GLOBALS['escriptaReleaseBaseUrl'],
+            $GLOBALS['escriptaReleasePharFilename'],
+            $GLOBALS['escriptaReleaseSha256Filename'],
+            $GLOBALS['escriptaGithubRepository']
+        );
+
+        require $globalsPath;
+
+        $this->assertSame('https://example.test/releases', $GLOBALS['escriptaReleaseBaseUrl'] ?? null);
+        $this->assertSame('escripta.phar', $GLOBALS['escriptaReleasePharFilename'] ?? null);
+        $this->assertSame('escripta.phar.sha256', $GLOBALS['escriptaReleaseSha256Filename'] ?? null);
+        $this->assertSame('owner/private-repo', $GLOBALS['escriptaGithubRepository'] ?? null);
+    }
+
     public function testBuildFailsWhenReleaseMetadataIsMissing(): void
     {
         $this->expectException(RuntimeException::class);
