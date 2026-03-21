@@ -1,6 +1,0 @@
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl start example-app.service
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl stop example-app.service
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl enable example-app.service --now
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl disable example-app.service --now
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl restart example-app.service
-deploy ALL=(ALL) NOPASSWD: /usr/bin/systemctl status example-app.service

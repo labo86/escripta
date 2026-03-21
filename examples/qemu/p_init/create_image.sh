@@ -1,1 +1,0 @@
-qemu-img create -f qcow2 ubuntu-base.qcow2 20G
