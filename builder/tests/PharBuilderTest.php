@@ -15,17 +15,21 @@ class PharBuilderTest extends TestCase
      */
     private string $outputFolder;
     private string $pharFile;
+    private string $releaseDir;
 
     public function setUp() : void {
         $this->outputFolder = tempnam(__DIR__, 'demo_phar');
         $this->pharFile = $this->outputFolder . '.phar';
+        $this->releaseDir = $this->outputFolder . '_release';
 
         unlink($this->outputFolder);
+        mkdir($this->releaseDir, 0775, true);
     }
 
     public function tearDown() : void {
         if ( file_exists($this->pharFile))
             unlink($this->pharFile);
+        exec(sprintf('rm -rf %s', escapeshellarg($this->releaseDir)));
         exec(sprintf('rm -rf %s', escapeshellarg($this->outputFolder)));
     }
 
@@ -81,6 +85,58 @@ class PharBuilderTest extends TestCase
             'base_url' => 'https://example.test/releases',
             'phar_filename' => 'escripta.phar',
         ]);
+    }
+
+    public function testBuiltPharCanSelfUpdateToLatestReleaseFromLocalManifest(): void
+    {
+        $baseUrl = 'file://' . $this->releaseDir;
+        $releasePhar = $this->releaseDir . '/escripta.phar';
+        $releaseChecksum = $this->releaseDir . '/escripta.phar.sha256';
+        $manifestPath = $this->releaseDir . '/release.json';
+
+        PharBuilder::build($this->pharFile, 'v1.0.0', [
+            'base_url' => $baseUrl,
+            'phar_filename' => 'escripta.phar',
+            'sha256_filename' => 'escripta.phar.sha256',
+            'github_repository' => '',
+        ]);
+
+        PharBuilder::build($releasePhar, 'v2.0.0', [
+            'base_url' => $baseUrl,
+            'phar_filename' => 'escripta.phar',
+            'sha256_filename' => 'escripta.phar.sha256',
+            'github_repository' => '',
+        ]);
+
+        $checksum = hash_file('sha256', $releasePhar);
+        $this->assertIsString($checksum);
+        file_put_contents($releaseChecksum, $checksum . PHP_EOL);
+        file_put_contents($manifestPath, json_encode([
+            'phar_url' => $baseUrl . '/escripta.phar',
+            'sha256_url' => $baseUrl . '/escripta.phar.sha256',
+        ], JSON_UNESCAPED_SLASHES));
+
+        $beforeUpdate = $this->runPhpCommand([$this->pharFile, '--version']);
+        $this->assertStringContainsString('Versión: v1.0.0', $beforeUpdate);
+
+        $updateOutput = $this->runPhpCommand([$this->pharFile, '-U']);
+        $this->assertStringContainsString('Actualizando Escripta...', $updateOutput);
+        $this->assertStringContainsString('Escripta actualizada correctamente.', $updateOutput);
+
+        $afterUpdate = $this->runPhpCommand([$this->pharFile, '--version']);
+        $this->assertStringContainsString('Versión: v2.0.0', $afterUpdate);
+    }
+
+    private function runPhpCommand(array $arguments): string
+    {
+        $command = array_merge(['php'], $arguments);
+        $escapedCommand = implode(' ', array_map('escapeshellarg', $command));
+
+        exec($escapedCommand . ' 2>&1', $output, $exitCode);
+
+        $this->assertSame(0, $exitCode, implode("\n", $output));
+
+        return implode("\n", $output);
     }
 
 

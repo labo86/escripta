@@ -2,7 +2,7 @@
 
 ## Status
 
-Active
+Done
 
 ## Summary
 
@@ -243,13 +243,13 @@ Deliverable:
 
 ## Acceptance Criteria
 
-- [ ] Existe una única fuente de configuración para publicar `escripta.phar` y su metadata de actualización.
-- [ ] `escripta.phar` puede actualizarse a sí mismo con una opción de CLI como `-U`.
-- [ ] El artefacto publicado en `latest_release` o destino equivalente incluye `escripta.phar`.
-- [ ] El release publica la metadata necesaria para validar actualización e integridad.
-- [ ] El README documenta al menos un comando para bajar `escripta.phar`.
-- [ ] El README documenta el comando de actualización con `php escripta.phar -U`.
-- [ ] Un repo consumidor puede instalar y actualizar sin clonar el repo completo.
+- [x] Existe una única fuente de configuración para publicar `escripta.phar` y su metadata de actualización.
+- [x] `escripta.phar` puede actualizarse a sí mismo con una opción de CLI como `-U`.
+- [x] El artefacto publicado en `latest_release` o destino equivalente incluye `escripta.phar`.
+- [x] El release publica la metadata necesaria para validar actualización e integridad.
+- [x] El README documenta al menos un comando para bajar `escripta.phar`.
+- [x] El README documenta el comando de actualización con `php escripta.phar -U`.
+- [x] Un repo consumidor puede instalar y actualizar sin clonar el repo completo.
 
 ## Test Plan
 
@@ -262,6 +262,12 @@ Deliverable:
 - Manual verification:
 - ejecutar el comando documentado en README desde un repo consumidor limpio
 - verificar que una actualización posterior reemplaza el phar correctamente
+
+## Validation Notes
+
+- Se agregaron tests automatizados para `SelfUpdate` y para el contrato de metadata embebida en el phar generado por `builder`.
+- Se validó localmente la construcción del phar y la resolución de metadata de release privada.
+- Se ejecutó validación manual real del flujo y funcionó correctamente en uso del usuario.
 
 ## Rollout Notes
 
