@@ -1,5 +1,5 @@
 <component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Run Integration Test" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+  <configuration default="false" name="Run Int Test App" type="PHPUnitRunConfigurationType" factoryName="PHPUnit" folderName="App">
     <option name="envFilePaths">
       <list>
         <option value="$PROJECT_DIR$/app/.env.integration" />
