@@ -8,17 +8,11 @@ use labo86\escripta\Escripta;
 
 Escripta::fetchConfig(['github_pages' =>
     [
-            Escripta::getConfigOnePassword('escripta_github_pages_prod'),
-            Escripta::getConfigLocal('github_pages'),
+            Escripta::getConfigOnePassword('escripta_github_release'),
     ],
         'release' =>
                 [
                         Escripta::getConfigLocal('release'),
-                ],
-        'app' =>
-                [
-                        Escripta::getConfigLocal('app_public'),
                 ]
 ]);
-
 

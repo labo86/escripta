@@ -12,7 +12,7 @@ Instalación inicial:
 
 ```bash
 mkdir -p .escripta/bin
-curl -fsSL https://raw.githubusercontent.com/labo86/escripta/latest_release/escripta.phar -o .escripta/bin/escripta.phar
+curl -fsSL https://github.com/labo86/escripta/releases/latest/download/escripta.phar -o .escripta/bin/escripta.phar
 chmod +x .escripta/bin/escripta.phar
 php .escripta/bin/escripta.phar --version
 ```
@@ -25,8 +25,8 @@ php .escripta/bin/escripta.phar -U
 
 Metadata de release publicada para instalación y self-update:
 
-- `https://raw.githubusercontent.com/labo86/escripta/latest_release/release.json`
-- `https://raw.githubusercontent.com/labo86/escripta/latest_release/escripta.phar.sha256`
+- `https://github.com/labo86/escripta/releases/latest/download/release.json`
+- `https://github.com/labo86/escripta/releases/latest/download/escripta.phar.sha256`
 
 <img src="docs/images/escripta_01.webp" alt="Escripta" style="width:50%; max-width:400px"/>
  

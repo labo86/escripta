@@ -1,14 +1,8 @@
 SCRIPT_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+PHAR_URL="https://github.com/labo86/escripta/releases/latest/download/escripta.phar"
+TARGET_PHAR="$SCRIPT_DIR/../escripta.phar"
 
 cd "$SCRIPT_DIR" || exit
 
-rm -rf ../escripta.phar
-git clone \
-  git@github.com:labo86/escripta \
-  --branch latest_release \
-  --single-branch \
-  --depth 1 \
-  repo
-
-mv repo/escripta.phar ../escripta.phar
-rm -rf repo
+rm -f "$TARGET_PHAR"
+curl -fsSL "$PHAR_URL" -o "$TARGET_PHAR"

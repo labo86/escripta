@@ -22,7 +22,6 @@ class SelfUpdateTest extends TestCase
         putenv('ESCRIPTA_RELEASE_BASE_URL');
         putenv('ESCRIPTA_RELEASE_PHAR_FILENAME');
         putenv('ESCRIPTA_RELEASE_SHA256_FILENAME');
-        putenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME');
         putenv('ESCRIPTA_RELEASE_MANIFEST_URL');
     }
 
@@ -73,7 +72,6 @@ class SelfUpdateTest extends TestCase
     public function testResolveReleaseManifestUrlFromBaseMetadataEnvironment(): void
     {
         putenv('ESCRIPTA_RELEASE_BASE_URL=https://example.test/downloads');
-        putenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME=release.json');
 
         $this->assertSame(
             'https://example.test/downloads/release.json',

@@ -7,6 +7,7 @@ use FilesystemIterator;
 use Phar;
 use RecursiveDirectoryIterator;
 use RecursiveIteratorIterator;
+use RuntimeException;
 
 class PharBuilder {
 
@@ -19,10 +20,10 @@ class PharBuilder {
         $date = date('Y-m-d H:i:s');
         $phar = new Phar($filePath);
         $basename = basename($filePath);
-        $releaseBaseUrl = self::exportPhpString($releaseMetadata['base_url'] ?? '');
-        $releasePharFilename = self::exportPhpString($releaseMetadata['phar_filename'] ?? $basename);
-        $releaseSha256Filename = self::exportPhpString($releaseMetadata['sha256_filename'] ?? ($basename . '.sha256'));
-        $releaseManifestFilename = self::exportReleaseManifestFilename($releaseMetadata, $basename);
+        $releaseMetadata = self::validateReleaseMetadata($releaseMetadata);
+        $releaseBaseUrl = self::exportPhpString($releaseMetadata['base_url']);
+        $releasePharFilename = self::exportPhpString($releaseMetadata['phar_filename']);
+        $releaseSha256Filename = self::exportPhpString($releaseMetadata['sha256_filename']);
 
         $phar->startBuffering();
 
@@ -44,14 +45,12 @@ global \$escriptaDate;
 global \$escriptaReleaseBaseUrl;
 global \$escriptaReleasePharFilename;
 global \$escriptaReleaseSha256Filename;
-global \$escriptaReleaseManifestFilename;
 
 \$escriptaVersion = '$version';
 \$escriptaDate = '$date';
 \$escriptaReleaseBaseUrl = $releaseBaseUrl;
 \$escriptaReleasePharFilename = $releasePharFilename;
 \$escriptaReleaseSha256Filename = $releaseSha256Filename;
-\$escriptaReleaseManifestFilename = $releaseManifestFilename;
 EOF
 );
         $phar->setStub(<<<EOF
@@ -83,14 +82,22 @@ EOF);
         return var_export($value, true);
     }
 
-    private static function exportReleaseManifestFilename(array $releaseMetadata, string $basename): string
+    private static function validateReleaseMetadata(array $releaseMetadata): array
     {
-        $defaultManifestFilename = preg_replace('/\.phar$/', '.json', $basename);
-        if (!is_string($defaultManifestFilename) || $defaultManifestFilename === '') {
-            $defaultManifestFilename = 'release.json';
+        $requiredKeys = [
+            'base_url',
+            'phar_filename',
+            'sha256_filename',
+        ];
+
+        foreach ($requiredKeys as $key) {
+            $value = $releaseMetadata[$key] ?? null;
+            if (!is_string($value) || trim($value) === '') {
+                throw new RuntimeException("Falta releaseMetadata[$key] para compilar el phar.");
+            }
         }
 
-        return self::exportPhpString($releaseMetadata['manifest_filename'] ?? $defaultManifestFilename);
+        return $releaseMetadata;
     }
 
     private static function createFileIterator(string $path): RecursiveIteratorIterator

@@ -5,6 +5,7 @@ namespace labo\builder\tests;
 
 use labo86\builder\PharBuilder;
 use PHPUnit\Framework\TestCase;
+use RuntimeException;
 
 class PharBuilderTest extends TestCase
 {
@@ -30,10 +31,23 @@ class PharBuilderTest extends TestCase
 
     public function testBuild()
     {
+        PharBuilder::build($this->pharFile, 'test-version', [
+            'base_url' => 'https://example.test/releases',
+            'phar_filename' => 'escripta.phar',
+            'sha256_filename' => 'escripta.phar.sha256',
+        ]);
+        $this->assertFileExists($this->pharFile);
+    }
 
-       PharBuilder::build($this->pharFile);
-       $this->assertFileExists($this->pharFile);
+    public function testBuildFailsWhenReleaseMetadataIsMissing(): void
+    {
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Falta releaseMetadata[sha256_filename]');
 
+        PharBuilder::build($this->pharFile, 'test-version', [
+            'base_url' => 'https://example.test/releases',
+            'phar_filename' => 'escripta.phar',
+        ]);
     }
 
 

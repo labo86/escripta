@@ -17,12 +17,7 @@ class ReleaseMetadata
             return '';
         }
 
-        $manifestFilename = getenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME') ?: self::readGlobalString('escriptaReleaseManifestFilename');
-        if ($manifestFilename === '') {
-            $manifestFilename = 'release.json';
-        }
-
-        return rtrim($baseUrl, '/') . '/' . ltrim($manifestFilename, '/');
+        return rtrim($baseUrl, '/') . '/release.json';
     }
 
     public static function resolveReleaseUrls(): array
