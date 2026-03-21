@@ -22,6 +22,7 @@ class PharBuilder {
         $releaseBaseUrl = self::exportPhpString($releaseMetadata['base_url'] ?? '');
         $releasePharFilename = self::exportPhpString($releaseMetadata['phar_filename'] ?? $basename);
         $releaseSha256Filename = self::exportPhpString($releaseMetadata['sha256_filename'] ?? ($basename . '.sha256'));
+        $releaseManifestFilename = self::exportReleaseManifestFilename($releaseMetadata, $basename);
 
         $phar->startBuffering();
 
@@ -43,12 +44,14 @@ global \$escriptaDate;
 global \$escriptaReleaseBaseUrl;
 global \$escriptaReleasePharFilename;
 global \$escriptaReleaseSha256Filename;
+global \$escriptaReleaseManifestFilename;
 
 \$escriptaVersion = '$version';
 \$escriptaDate = '$date';
 \$escriptaReleaseBaseUrl = $releaseBaseUrl;
 \$escriptaReleasePharFilename = $releasePharFilename;
 \$escriptaReleaseSha256Filename = $releaseSha256Filename;
+\$escriptaReleaseManifestFilename = $releaseManifestFilename;
 EOF
 );
         $phar->setStub(<<<EOF
@@ -78,6 +81,16 @@ EOF);
     private static function exportPhpString(string $value): string
     {
         return var_export($value, true);
+    }
+
+    private static function exportReleaseManifestFilename(array $releaseMetadata, string $basename): string
+    {
+        $defaultManifestFilename = preg_replace('/\.phar$/', '.json', $basename);
+        if (!is_string($defaultManifestFilename) || $defaultManifestFilename === '') {
+            $defaultManifestFilename = 'release.json';
+        }
+
+        return self::exportPhpString($releaseMetadata['manifest_filename'] ?? $defaultManifestFilename);
     }
 
     private static function createFileIterator(string $path): RecursiveIteratorIterator

@@ -62,12 +62,40 @@ class SelfUpdate
 
     public static function resolveReleaseUrls(): array
     {
+        $manifestUrl = ReleaseMetadata::resolveReleaseManifestUrl();
+        if ($manifestUrl !== '') {
+            try {
+                return self::resolveReleaseUrlsFromManifest($manifestUrl);
+            } catch (RuntimeException $e) {
+                [$pharUrl, $checksumUrl] = ReleaseMetadata::resolveReleaseUrls();
+                if ($pharUrl !== '' && $checksumUrl !== '') {
+                    return [$pharUrl, $checksumUrl];
+                }
+
+                throw $e;
+            }
+        }
+
         [$pharUrl, $checksumUrl] = ReleaseMetadata::resolveReleaseUrls();
 
         if ($pharUrl === '' || $checksumUrl === '') {
             throw new RuntimeException(
                 'Faltan URLs de self-update. Define ESCRIPTA_SELF_UPDATE_URL y ESCRIPTA_SELF_UPDATE_SHA256_URL o configura la metadata de release.'
             );
+        }
+
+        return [$pharUrl, $checksumUrl];
+    }
+
+    public static function resolveReleaseUrlsFromManifest(string $manifestUrl): array
+    {
+        $manifest = self::downloadReleaseManifest($manifestUrl);
+
+        $pharUrl = self::readManifestString($manifest, 'phar_url');
+        $checksumUrl = self::readManifestString($manifest, 'sha256_url');
+
+        if ($pharUrl === '' || $checksumUrl === '') {
+            throw new RuntimeException('El manifiesto de release no incluye phar_url y sha256_url.');
         }
 
         return [$pharUrl, $checksumUrl];
@@ -122,5 +150,23 @@ class SelfUpdate
         if (file_put_contents($destinationPath, $content) === false) {
             throw new RuntimeException("No se pudo escribir el archivo temporal [$destinationPath].");
         }
+    }
+
+    private static function downloadReleaseManifest(string $manifestUrl): array
+    {
+        $rawManifest = self::downloadString($manifestUrl);
+        $manifest = json_decode($rawManifest, true);
+
+        if (!is_array($manifest)) {
+            throw new RuntimeException('El manifiesto de release no contiene JSON valido.');
+        }
+
+        return $manifest;
+    }
+
+    private static function readManifestString(array $manifest, string $key): string
+    {
+        $value = $manifest[$key] ?? null;
+        return is_string($value) ? $value : '';
     }
 }

@@ -12,6 +12,7 @@ $build_dir = $escripta_current_dir . '/var/build';
 $releaseBaseUrl = getenv('ESCRIPTA_RELEASE_BASE_URL') ?: '';
 $releasePharFilename = getenv('ESCRIPTA_RELEASE_PHAR_FILENAME') ?: 'escripta.phar';
 $releaseSha256Filename = getenv('ESCRIPTA_RELEASE_SHA256_FILENAME') ?: 'escripta.phar.sha256';
+$releaseManifestFilename = getenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME') ?: 'release.json';
 
 if (!is_dir($build_dir) && !mkdir($build_dir, 0775, true) && !is_dir($build_dir)) {
     die("No se pudo crear el directorio de build");
@@ -19,11 +20,13 @@ if (!is_dir($build_dir) && !mkdir($build_dir, 0775, true) && !is_dir($build_dir)
 
 $pharPath = $build_dir . '/' . $releasePharFilename;
 $checksumPath = $build_dir . '/' . $releaseSha256Filename;
+$manifestPath = $build_dir . '/' . $releaseManifestFilename;
 
 PharBuilder::build($pharPath, $build_version, [
     'base_url' => $releaseBaseUrl,
     'phar_filename' => $releasePharFilename,
     'sha256_filename' => $releaseSha256Filename,
+    'manifest_filename' => $releaseManifestFilename,
 ]);
 
 $checksum = hash_file('sha256', $pharPath);
@@ -33,4 +36,26 @@ if ($checksum === false) {
 
 if (file_put_contents($checksumPath, $checksum . PHP_EOL) === false) {
     die("No se pudo escribir el checksum del phar");
+}
+
+$normalizedBaseUrl = rtrim($releaseBaseUrl, '/');
+$manifest = [
+    'version' => $build_version,
+    'generated_at' => date(DATE_ATOM),
+    'base_url' => $releaseBaseUrl,
+    'phar_filename' => $releasePharFilename,
+    'sha256_filename' => $releaseSha256Filename,
+    'manifest_filename' => $releaseManifestFilename,
+    'phar_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . ltrim($releasePharFilename, '/'),
+    'sha256_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . ltrim($releaseSha256Filename, '/'),
+    'sha256' => $checksum,
+];
+
+$manifestJson = json_encode($manifest, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+if (!is_string($manifestJson)) {
+    die("No se pudo serializar el manifiesto del release");
+}
+
+if (file_put_contents($manifestPath, $manifestJson . PHP_EOL) === false) {
+    die("No se pudo escribir el manifiesto del release");
 }

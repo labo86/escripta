@@ -19,6 +19,11 @@ class SelfUpdateTest extends TestCase
         $this->root = vfsStream::setup();
         putenv('ESCRIPTA_SELF_UPDATE_URL');
         putenv('ESCRIPTA_SELF_UPDATE_SHA256_URL');
+        putenv('ESCRIPTA_RELEASE_BASE_URL');
+        putenv('ESCRIPTA_RELEASE_PHAR_FILENAME');
+        putenv('ESCRIPTA_RELEASE_SHA256_FILENAME');
+        putenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME');
+        putenv('ESCRIPTA_RELEASE_MANIFEST_URL');
     }
 
     public function testIsRequestedWithShortOption(): void
@@ -62,6 +67,33 @@ class SelfUpdateTest extends TestCase
                 'https://example.test/downloads/escripta.phar.sha256',
             ],
             ReleaseMetadata::resolveReleaseUrls()
+        );
+    }
+
+    public function testResolveReleaseManifestUrlFromBaseMetadataEnvironment(): void
+    {
+        putenv('ESCRIPTA_RELEASE_BASE_URL=https://example.test/downloads');
+        putenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME=release.json');
+
+        $this->assertSame(
+            'https://example.test/downloads/release.json',
+            ReleaseMetadata::resolveReleaseManifestUrl()
+        );
+    }
+
+    public function testResolveReleaseUrlsFromManifest(): void
+    {
+        $manifest = rawurlencode(json_encode([
+            'phar_url' => 'https://example.test/downloads/escripta.phar',
+            'sha256_url' => 'https://example.test/downloads/escripta.phar.sha256',
+        ]));
+
+        $this->assertSame(
+            [
+                'https://example.test/downloads/escripta.phar',
+                'https://example.test/downloads/escripta.phar.sha256',
+            ],
+            SelfUpdate::resolveReleaseUrlsFromManifest('data://text/plain,' . $manifest)
         );
     }
 

@@ -5,6 +5,26 @@ namespace labo86\escripta;
 
 class ReleaseMetadata
 {
+    public static function resolveReleaseManifestUrl(): string
+    {
+        $explicitManifestUrl = getenv('ESCRIPTA_RELEASE_MANIFEST_URL') ?: '';
+        if ($explicitManifestUrl !== '') {
+            return $explicitManifestUrl;
+        }
+
+        $baseUrl = self::resolveReleaseBaseUrl();
+        if ($baseUrl === '') {
+            return '';
+        }
+
+        $manifestFilename = getenv('ESCRIPTA_RELEASE_MANIFEST_FILENAME') ?: self::readGlobalString('escriptaReleaseManifestFilename');
+        if ($manifestFilename === '') {
+            $manifestFilename = 'release.json';
+        }
+
+        return rtrim($baseUrl, '/') . '/' . ltrim($manifestFilename, '/');
+    }
+
     public static function resolveReleaseUrls(): array
     {
         $explicitPharUrl = getenv('ESCRIPTA_SELF_UPDATE_URL') ?: '';
@@ -13,7 +33,7 @@ class ReleaseMetadata
             return [$explicitPharUrl, $explicitChecksumUrl];
         }
 
-        $baseUrl = getenv('ESCRIPTA_RELEASE_BASE_URL') ?: self::readGlobalString('escriptaReleaseBaseUrl');
+        $baseUrl = self::resolveReleaseBaseUrl();
         $pharFilename = getenv('ESCRIPTA_RELEASE_PHAR_FILENAME') ?: self::readGlobalString('escriptaReleasePharFilename');
         $checksumFilename = getenv('ESCRIPTA_RELEASE_SHA256_FILENAME') ?: self::readGlobalString('escriptaReleaseSha256Filename');
 
@@ -27,6 +47,11 @@ class ReleaseMetadata
             $baseUrl . '/' . ltrim($pharFilename, '/'),
             $baseUrl . '/' . ltrim($checksumFilename, '/'),
         ];
+    }
+
+    public static function resolveReleaseBaseUrl(): string
+    {
+        return getenv('ESCRIPTA_RELEASE_BASE_URL') ?: self::readGlobalString('escriptaReleaseBaseUrl');
     }
 
     private static function readGlobalString(string $name): string

@@ -74,8 +74,8 @@ Y además publique metadata suficiente para que el propio phar pueda actualizars
 La branch o destino `latest_release` debería contener al menos:
 
 - `escripta.phar`
-- opcionalmente `checksums.txt` o archivo equivalente de integridad
-- opcionalmente un archivo de metadata consumible por el self-update
+- `escripta.phar.sha256`
+- `release.json` como metadata consumible por el self-update e instalación
 
 ### Installer behavior
 
@@ -169,6 +169,17 @@ Flujo recomendado:
 Deliverable:
 
 - contrato escrito de artefactos, nombres y URLs dentro de esta spec
+
+Contrato actual definido:
+
+- artefacto principal: `escripta.phar`
+- checksum: `escripta.phar.sha256`
+- manifiesto: `release.json`
+- URL base canónica: `https://raw.githubusercontent.com/labo86/escripta/latest_release`
+- URLs canónicas:
+- `https://raw.githubusercontent.com/labo86/escripta/latest_release/escripta.phar`
+- `https://raw.githubusercontent.com/labo86/escripta/latest_release/escripta.phar.sha256`
+- `https://raw.githubusercontent.com/labo86/escripta/latest_release/release.json`
 
 ### Step 2: centralize release configuration
 
