@@ -1,6 +1,32 @@
 Escripta
 ===
 
+Instalación y actualización
+---
+
+Artefacto principal de distribución:
+
+- `escripta.phar`
+
+Instalación inicial:
+
+```bash
+mkdir -p .escripta/bin
+curl -fsSL https://github.com/labo86/escripta/releases/latest/download/escripta.phar -o .escripta/bin/escripta.phar
+chmod +x .escripta/bin/escripta.phar
+php .escripta/bin/escripta.phar --version
+```
+
+Actualización de una instalación existente:
+
+```bash
+php .escripta/bin/escripta.phar -U
+```
+
+Metadata de release publicada para instalación y self-update:
+
+- `https://github.com/labo86/escripta/releases/latest/download/release.json`
+- `https://github.com/labo86/escripta/releases/latest/download/escripta.phar.sha256`
 
 <img src="docs/images/escripta_01.webp" alt="Escripta" style="width:50%; max-width:400px"/>
  

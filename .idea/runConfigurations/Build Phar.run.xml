@@ -1,6 +1,0 @@
-<component name="ProjectRunConfigurationManager">
-  <configuration default="false" name="Build Phar" type="PhpLocalRunConfigurationType" factoryName="PHP Console" path="$PROJECT_DIR$/actions/build_phar/build.php">
-    <CommandLine parameters="-d phar.readonly=0" />
-    <method v="2" />
-  </configuration>
-</component>

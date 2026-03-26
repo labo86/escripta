@@ -1,3 +1,3 @@
-*
-!.gitignore
-!*.php
+escripta_env.sh
+config.gen
+var
