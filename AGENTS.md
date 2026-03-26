@@ -24,6 +24,9 @@ This repository uses a spec-driven workflow under `spec/`.
 - Do not move a task to `spec/done/` without validation evidence. If validation is still pending or blocked, keep the spec in `spec/active/` and document the blocker.
 - A task may be moved to `spec/done/` without validation evidence only with explicit user consent, and that exception must be recorded in the spec `Change Log` and `Validation` section.
 - At close-out, leave minimum evidence: what changed and how it was validated.
+- Prefer operational scripts under `actions/` instead of a generic `scripts/` folder when the script represents a reusable repo workflow step.
+- Follow the existing `actions/build_and_deploy` convention when proposing new action flows: use a descriptive action folder and numbered step files inside it (for example `actions/<action_name>/01_<step>/01_<script>.sh` when multiple scripts may be needed for the same step).
+- If `composer` is not available globally, use `actions/php_dependencies/01_bootstrap/01_install_local_composer_and_dependencies.sh` to bootstrap local Composer and install PHP dependencies before declaring Composer-based validation blocked.
 - Every spec must include:
   - `Created At` (YYYY-MM-DD HH:MM:SS)
   - `Last Updated At` (YYYY-MM-DD HH:MM:SS)
