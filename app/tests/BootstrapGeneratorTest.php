@@ -7,6 +7,8 @@ use PHPUnit\Framework\TestCase;
 
 class BootstrapGeneratorTest extends TestCase
 {
+    private string $outputFolder;
+
     public function setUp() : void {
         $this->outputFolder = tempnam(__DIR__, 'demo_phar');
         unlink($this->outputFolder);
@@ -34,10 +36,49 @@ class BootstrapGeneratorTest extends TestCase
         $g->generate("other");
 
         $this->assertFileExists($output . '/escripta_env.sh');
+        $this->assertFileExists($output . '/escripta_env_vars.md');
+    }
 
-        //$this->assertEquals("a", file_get_contents($output. '/escripta_env.sh'));
+    public function testGeneratedManifestMatchesExportedVariablesAndOmitsSensitiveValues(): void
+    {
+        $folder = $this->outputFolder . "/config";
+        $output = $this->outputFolder . "/out";
+        $projectDir = $this->outputFolder . '/project';
 
+        mkdir($folder);
+        mkdir($output);
+        mkdir($projectDir);
 
+        file_put_contents($folder . '/app_secret', 'super-secret-token');
+        file_put_contents($folder . '/ssh_private_key', "line-1\nline-2\n");
+
+        $g = new BootstrapGenerator($folder, $output);
+        $g->generate($projectDir);
+
+        $script = file_get_contents($output . '/escripta_env.sh');
+        $manifest = file_get_contents($output . '/escripta_env_vars.md');
+
+        $this->assertIsString($script);
+        $this->assertIsString($manifest);
+
+        preg_match_all('/^export ([A-Z0-9_]+)=/m', $script, $scriptMatches);
+        preg_match_all('/^- `([A-Z0-9_]+)`$/m', $manifest, $manifestMatches);
+
+        $scriptVars = $scriptMatches[1];
+        $manifestVars = $manifestMatches[1];
+
+        sort($scriptVars);
+        sort($manifestVars);
+
+        $this->assertSame($scriptVars, $manifestVars);
+        $this->assertStringContainsString('## Value Variables', $manifest);
+        $this->assertStringContainsString('## File Variables (`*_FILENAME`)', $manifest);
+        $this->assertStringContainsString('- `ESCRIPTA_APP_SECRET`', $manifest);
+        $this->assertStringContainsString('- `ESCRIPTA_SSH_PRIVATE_KEY_FILENAME`', $manifest);
+        $this->assertStringContainsString('- `ESCRIPTA_CURRENT_DIR`', $manifest);
+        $this->assertStringContainsString('- `ESCRIPTA_PROJECT_DIR`', $manifest);
+        $this->assertStringNotContainsString('super-secret-token', $manifest);
+        $this->assertStringNotContainsString('line-1', $manifest);
     }
 
     public function testRelativePathSameDirectory()

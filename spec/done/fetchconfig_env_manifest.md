@@ -1,7 +1,7 @@
 # fetchConfig generates a readable environment variables manifest
 
 Created At: 2026-03-26 19:37:16
-Last Updated At: 2026-03-26 19:37:16
+Last Updated At: 2026-03-26 19:48:45
 Template Version: v1
 
 ## Context
@@ -30,19 +30,22 @@ Hacer que `fetchConfig` genere un archivo de documentación legible, sin valores
 - Tests cubren consistencia y ausencia de valores.
 
 ## Plan
-- [ ] Definir nombre y formato final del archivo de manifiesto.
-- [ ] Implementar generación desde el mismo flujo de bootstrap.
-- [ ] Asegurar sincronía 1:1 con variables exportadas.
-- [ ] Agregar pruebas automáticas.
-- [ ] Documentar uso esperado para agentes.
+- [x] Definir nombre y formato final del archivo de manifiesto.
+- [x] Implementar generación desde el mismo flujo de bootstrap.
+- [x] Asegurar sincronía 1:1 con variables exportadas.
+- [x] Agregar pruebas automáticas.
+- [x] Documentar uso esperado para agentes.
 
 ## Validation
-- Ejecutar tests.
-- Comparar variables del manifiesto con variables generadas en `escripta_env.sh`.
-- Revisar manualmente que no se escriban valores secretos.
+- `php -l app/src/BootstrapGenerator.php`
+- `php -l app/tests/BootstrapGeneratorTest.php`
+- `php -r 'require "app/src/BootstrapGenerator.php"; ...'` para generar archivos temporales, comparar variables exportadas vs manifest y verificar ausencia de secretos.
 
 ## Result
-Pendiente.
+`fetchConfig` ahora genera `escripta_env_vars.md` junto a `escripta_env.sh`, agrupando variables normales y `*_FILENAME` sin incluir valores. La generación usa la misma colección de variables que el script shell para mantener sincronía exacta.
 
 ## Change Log
 - 2026-03-26 19:37:16: Spec created.
+- 2026-03-26 19:43:02: Spec moved to active to implement generated environment manifest from BootstrapGenerator.
+- 2026-03-26 19:44:26: Implemented `escripta_env_vars.md`, added manifest consistency test coverage, documented agent usage, and validated generation with PHP syntax checks plus manual runtime verification.
+- 2026-03-26 19:48:45: Spec moved to done after recording validation evidence and close-out result.

@@ -5,6 +5,7 @@ use RuntimeException;
 
 class BootstrapGenerator
 {
+    private const MANIFEST_FILENAME = 'escripta_env_vars.md';
     private string $inputDir;
     private string $outputDir;
 
@@ -26,11 +27,11 @@ class BootstrapGenerator
     {
         $files = $this->getFiles();
 
+        $entries = [];
         $exports = [];
 
         foreach ($files as $file) {
-
-            $env = $this->buildEnvName($file);
+            $baseEnv = $this->buildEnvName($file);
             $path = realpath($this->inputDir . DIRECTORY_SEPARATOR . $file);
 
             $content = file_get_contents($path);
@@ -38,15 +39,21 @@ class BootstrapGenerator
             $relativePath = self::relativePath($this->outputDir, $path);
 
             if ($this->isMultiline($content)) {
-                $env = "{$env}_FILENAME";
+                $env = "{$baseEnv}_FILENAME";
                 $exports[] =
                     "export {$env}=\"\$ESCRIPTA_CURRENT_DIR/{$relativePath}\"";
-
+                $entries[] = [
+                    'name' => $env,
+                    'kind' => 'filename',
+                ];
 
             } else {
-
                 $exports[] =
-                    "export {$env}=\"\$(cat \"\$ESCRIPTA_CURRENT_DIR/{$relativePath}\")\"";
+                    "export {$baseEnv}=\"\$(cat \"\$ESCRIPTA_CURRENT_DIR/{$relativePath}\")\"";
+                $entries[] = [
+                    'name' => $baseEnv,
+                    'kind' => 'value',
+                ];
             }
         }
 
@@ -54,6 +61,10 @@ class BootstrapGenerator
             $env = "ESCRIPTA_CURRENT_DIR";
             $exports[] =
                 "export {$env}=\"\$ESCRIPTA_CURRENT_DIR\"";
+            $entries[] = [
+                'name' => $env,
+                'kind' => 'value',
+            ];
         }
 
         {
@@ -61,10 +72,15 @@ class BootstrapGenerator
             $env = "ESCRIPTA_PROJECT_DIR";
             $exports[] =
                 "export {$env}=\"\$ESCRIPTA_CURRENT_DIR/{$relativePath}\"";
+            $entries[] = [
+                'name' => $env,
+                'kind' => 'value',
+            ];
         }
 
 
         $this->writeLoadScript($exports);
+        $this->writeManifest($entries);
     }
 
     private function getFiles(): array
@@ -179,5 +195,46 @@ BASH;
         );
 
         chmod($this->outputDir . '/escripta_env.sh', 0755);
+    }
+
+    private function writeManifest(array $entries): void
+    {
+        $valueVariables = [];
+        $filenameVariables = [];
+
+        foreach ($entries as $entry) {
+            if ($entry['kind'] === 'filename') {
+                $filenameVariables[] = $entry['name'];
+                continue;
+            }
+
+            $valueVariables[] = $entry['name'];
+        }
+
+        $manifest = [
+            '# Escripta Environment Variables Manifest',
+            '',
+            'Archivo generado automaticamente por Escripta. No incluye valores sensibles.',
+            '',
+            '## Value Variables',
+        ];
+
+        foreach ($valueVariables as $name) {
+            $manifest[] = "- `{$name}`";
+        }
+
+        $manifest[] = '';
+        $manifest[] = '## File Variables (`*_FILENAME`)';
+
+        foreach ($filenameVariables as $name) {
+            $manifest[] = "- `{$name}`";
+        }
+
+        $manifest[] = '';
+
+        file_put_contents(
+            $this->outputDir . '/' . self::MANIFEST_FILENAME,
+            implode("\n", $manifest)
+        );
     }
 }

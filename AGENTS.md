@@ -21,6 +21,8 @@ This repository uses a spec-driven workflow under `spec/`.
 - Do not start implementation without a spec in `spec/inbox/` or `spec/active/`.
 - Keep one spec per task.
 - If task scope changes, document the change in the same spec.
+- Do not move a task to `spec/done/` without validation evidence. If validation is still pending or blocked, keep the spec in `spec/active/` and document the blocker.
+- A task may be moved to `spec/done/` without validation evidence only with explicit user consent, and that exception must be recorded in the spec `Change Log` and `Validation` section.
 - At close-out, leave minimum evidence: what changed and how it was validated.
 - Every spec must include:
   - `Created At` (YYYY-MM-DD HH:MM:SS)
@@ -29,6 +31,7 @@ This repository uses a spec-driven workflow under `spec/`.
   - `Change Log`
 - `Last Updated At` must be updated on every meaningful spec change.
 - `Change Log` must record relevant updates and additions in chronological order.
+- `Change Log` must explicitly record state transitions, including moves from `spec/inbox/` to `spec/active/` and from `spec/active/` to `spec/done/`.
 
 ## Recommended Spec Template
 
