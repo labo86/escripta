@@ -1,7 +1,7 @@
 # fetchConfig generates a readable environment variables manifest
 
 Created At: 2026-03-26 19:37:16
-Last Updated At: 2026-03-26 19:48:45
+Last Updated At: 2026-03-26 21:08:17
 Template Version: v1
 
 ## Context
@@ -42,10 +42,14 @@ Hacer que `fetchConfig` genere un archivo de documentación legible, sin valores
 - `php -r 'require "app/src/BootstrapGenerator.php"; ...'` para generar archivos temporales, comparar variables exportadas vs manifest y verificar ausencia de secretos.
 
 ## Result
-`fetchConfig` ahora genera `escripta_env_vars.md` junto a `escripta_env.sh`, agrupando variables normales y `*_FILENAME` sin incluir valores. La generación usa la misma colección de variables que el script shell para mantener sincronía exacta.
+La generación base del manifest sigue resuelta y validada. La propuesta de mostrar origen de config fue revertida y no forma parte del resultado final actual.
 
 ## Change Log
 - 2026-03-26 19:37:16: Spec created.
 - 2026-03-26 19:43:02: Spec moved to active to implement generated environment manifest from BootstrapGenerator.
 - 2026-03-26 19:44:26: Implemented `escripta_env_vars.md`, added manifest consistency test coverage, documented agent usage, and validated generation with PHP syntax checks plus manual runtime verification.
 - 2026-03-26 19:48:45: Spec moved to done after recording validation evidence and close-out result.
+- 2026-03-26 20:37:07: Spec moved back to active to improve manifest wording for `*_FILENAME` variables and include declared config source metadata when available.
+- 2026-03-26 20:40:09: Added explicit access-type/origin columns to the manifest, introduced optional source-aware payload helpers for `fetchConfig`, updated `build_and_deploy` to declare local and OnePassword origins, validated with PHPUnit and regenerated the tracked manifest, and moved the spec back to done.
+- 2026-03-26 21:03:37: Reverted the unvalidated dual-path metadata implementation, added an AGENTS rule requiring explicit user validation before non-trivial design changes, and moved the spec back to active pending approved design.
+- 2026-03-26 21:08:17: Closed the spec back to done after confirming that origin display remains reverted and is not part of the final implementation.
