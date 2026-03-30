@@ -1,0 +1,18 @@
+os_id: drift-os
+os_version: 0.1.0
+install_layer_version: 0.1.0
+installed_profile: code-repo
+composition_mode: profile-plus-extensions
+document_strategy: curated-profile
+installed_at: 2026-03-30 16:53:18 -0300
+source_repo: drift-os
+manifest_path: .drift-os/install.yaml
+managed_files:
+  - AGENTS.md
+  - .drift-os/install.yaml
+active_extensions:
+  - php-composer
+local_overrides:
+  - AGENTS.md: exact path references under actions/
+  - AGENTS.md: repository-local Composer bootstrap path details
+notes: initial governed drift-os installation draft applied from source repository artifacts
