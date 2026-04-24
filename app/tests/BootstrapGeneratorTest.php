@@ -81,6 +81,59 @@ class BootstrapGeneratorTest extends TestCase
         $this->assertStringNotContainsString('line-1', $manifest);
     }
 
+    public function testGenerateCreatesGitignoreForGeneratedOutputs(): void
+    {
+        $output = $this->outputFolder . "/out";
+        $folder = $output . "/config.gen";
+        $projectDir = $this->outputFolder . '/project';
+
+        mkdir($output);
+        mkdir($folder);
+        mkdir($projectDir);
+
+        file_put_contents($folder . '/app_secret', 'super-secret-token');
+
+        $g = new BootstrapGenerator($folder, $output);
+        $g->generate($projectDir);
+
+        $gitignore = file_get_contents($output . '/.gitignore');
+
+        $this->assertIsString($gitignore);
+        $this->assertStringContainsString('# BEGIN Escripta generated outputs', $gitignore);
+        $this->assertStringContainsString('escripta_env.sh', $gitignore);
+        $this->assertStringContainsString('config.gen/', $gitignore);
+        $this->assertStringContainsString('# END Escripta generated outputs', $gitignore);
+    }
+
+    public function testGenerateUpdatesGitignoreIdempotently(): void
+    {
+        $output = $this->outputFolder . "/out";
+        $folder = $output . "/config.gen";
+        $projectDir = $this->outputFolder . '/project';
+
+        mkdir($output);
+        mkdir($folder);
+        mkdir($projectDir);
+
+        file_put_contents($folder . '/app_secret', 'super-secret-token');
+        file_put_contents($output . '/.gitignore', "var/\nescripta_env.sh\nconfig.gen\n");
+
+        $g = new BootstrapGenerator($folder, $output);
+        $g->generate($projectDir);
+        $firstRun = file_get_contents($output . '/.gitignore');
+
+        $g->generate($projectDir);
+        $secondRun = file_get_contents($output . '/.gitignore');
+
+        $this->assertSame($firstRun, $secondRun);
+        $this->assertSame(1, substr_count($secondRun, 'escripta_env.sh'));
+        $this->assertSame(1, substr_count($secondRun, 'config.gen/'));
+        $this->assertStringNotContainsString("\nconfig.gen\n", $secondRun);
+        $this->assertStringContainsString("var/\n", $secondRun);
+        $this->assertStringContainsString('# BEGIN Escripta generated outputs', $secondRun);
+        $this->assertStringContainsString('# END Escripta generated outputs', $secondRun);
+    }
+
     public function testRelativePathSameDirectory()
     {
         $from = '/a/b/c';

@@ -6,6 +6,9 @@ use RuntimeException;
 class BootstrapGenerator
 {
     private const MANIFEST_FILENAME = 'escripta_env_vars.md';
+    private const GITIGNORE_BEGIN_MARKER = '# BEGIN Escripta generated outputs';
+    private const GITIGNORE_END_MARKER = '# END Escripta generated outputs';
+
     private string $inputDir;
     private string $outputDir;
 
@@ -81,6 +84,7 @@ class BootstrapGenerator
 
         $this->writeLoadScript($exports);
         $this->writeManifest($entries);
+        $this->ensureGitignore();
     }
 
     private function getFiles(): array
@@ -236,5 +240,62 @@ BASH;
             $this->outputDir . '/' . self::MANIFEST_FILENAME,
             implode("\n", $manifest)
         );
+    }
+
+    private function ensureGitignore(): void
+    {
+        $generatedConfigDir = self::relativePath($this->outputDir, $this->inputDir);
+        $generatedConfigDir = rtrim($generatedConfigDir, '/') . '/';
+
+        $managedEntries = [
+            'escripta_env.sh',
+            $generatedConfigDir,
+        ];
+        $managedEntryVariants = array_unique(array_merge(
+            $managedEntries,
+            [rtrim($generatedConfigDir, '/')]
+        ));
+
+        $gitignorePath = $this->outputDir . '/.gitignore';
+        $existing = is_file($gitignorePath) ? file_get_contents($gitignorePath) : '';
+
+        if ($existing === false) {
+            $existing = '';
+        }
+
+        $managedBlock = implode("\n", array_merge(
+            [self::GITIGNORE_BEGIN_MARKER],
+            $managedEntries,
+            [self::GITIGNORE_END_MARKER]
+        ));
+
+        $existing = preg_replace(
+            '/(?:^|\R)' . preg_quote(self::GITIGNORE_BEGIN_MARKER, '/') . '.*?' . preg_quote(self::GITIGNORE_END_MARKER, '/') . '(?:\R|$)/s',
+            "\n",
+            $existing
+        ) ?? $existing;
+
+        $lines = preg_split('/\R/', rtrim($existing, "\r\n"));
+        $lines = $lines === false ? [] : $lines;
+        $lines = array_values(array_filter(
+            $lines,
+            fn (string $line): bool => !in_array(trim($line), $managedEntryVariants, true)
+        ));
+
+        if ($lines !== []) {
+            $lines[] = '';
+        }
+
+        $lines[] = $managedBlock;
+
+        file_put_contents($gitignorePath, $this->normalizeGitignoreContent(implode("\n", $lines)));
+    }
+
+    private function normalizeGitignoreContent(string $content): string
+    {
+        $content = str_replace("\r\n", "\n", $content);
+        $content = preg_replace("/\n{3,}/", "\n\n", trim($content));
+
+        return ($content ?? '') . "\n";
     }
 }
