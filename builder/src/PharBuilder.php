@@ -18,9 +18,9 @@ class PharBuilder {
      */
     static public function build(string $filePath, $version = 'unknown', array $releaseMetadata = []) {
         $date = date('Y-m-d H:i:s');
-        $phar = new Phar($filePath);
         $basename = basename($filePath);
         $releaseMetadata = self::validateReleaseMetadata($releaseMetadata);
+        $phar = new Phar($filePath);
         $releaseBaseUrl = self::exportPhpString($releaseMetadata['base_url']);
         $releasePharFilename = self::exportPhpString($releaseMetadata['phar_filename']);
         $releaseSha256Filename = self::exportPhpString($releaseMetadata['sha256_filename']);
@@ -38,6 +38,8 @@ class PharBuilder {
             self::createFileIterator(__DIR__ . '/../../app/vendor'),
             __DIR__ . '/../../app'
         );
+
+        $phar->addFile(__DIR__ . '/../../ESCRIPTA_AGENTS.md', 'resources/ESCRIPTA_AGENTS.md');
 
         $phar->addFromString('globals.php', <<<EOF
 <?php

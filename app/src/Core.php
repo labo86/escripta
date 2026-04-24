@@ -17,6 +17,11 @@ class Core {
     static function processFolderByCommandLine() {
         global $argv;
 
+        if (AgentGuideInstaller::isRequested($argv)) {
+            AgentGuideInstaller::run($argv);
+            return;
+        }
+
         if (SelfUpdate::isRequested($argv)) {
             SelfUpdate::run($argv);
             return;
