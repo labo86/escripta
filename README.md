@@ -28,6 +28,12 @@ Metadata de release publicada para instalación y self-update:
 - `https://github.com/labo86/escripta/releases/latest/download/release.json`
 - `https://github.com/labo86/escripta/releases/latest/download/escripta.phar.sha256`
 
+Publicación de un nuevo release:
+
+```bash
+bash actions/build_and_deploy/03_release.sh 4.1.2
+```
+
 Desarrollo local
 ---
 
