@@ -177,6 +177,7 @@ $assets = [
     $buildDir . '/' . $pharFilename,
     $buildDir . '/' . $sha256Filename,
     $manifestPath,
+    $buildDir . '/ESCRIPTA_AGENTS.md',
 ];
 
 foreach ($assets as $assetPath) {
@@ -203,6 +204,7 @@ $context = [
     'ESCRIPTA_GITHUB_RELEASE_ASSET_PHAR' => $buildDir . '/' . $pharFilename,
     'ESCRIPTA_GITHUB_RELEASE_ASSET_SHA256' => $buildDir . '/' . $sha256Filename,
     'ESCRIPTA_GITHUB_RELEASE_ASSET_MANIFEST' => $manifestPath,
+    'ESCRIPTA_GITHUB_RELEASE_ASSET_AGENT_GUIDE' => $buildDir . '/ESCRIPTA_AGENTS.md',
 ];
 
 $lines = ["#!/usr/bin/env bash"];

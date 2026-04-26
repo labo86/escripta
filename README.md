@@ -28,6 +28,35 @@ Metadata de release publicada para instalación y self-update:
 - `https://github.com/labo86/escripta/releases/latest/download/release.json`
 - `https://github.com/labo86/escripta/releases/latest/download/escripta.phar.sha256`
 
+Publicación de un nuevo release:
+
+```bash
+bash actions/build_and_deploy/03_release.sh 4.1.2
+```
+
+Desarrollo local
+---
+
+Si el entorno no tiene `composer` instalado globalmente, el repo incluye un bootstrap local:
+
+```bash
+bash actions/php_dependencies/01_bootstrap/01_install_local_composer_and_dependencies.sh
+```
+
+Ese script:
+
+- descarga `composer.phar` en la raíz del repo si todavía no existe
+- verifica la firma del instalador
+- ejecuta `composer install` en `app/`
+- ejecuta `composer install` en `builder/`
+
+Luego puedes usar Composer local así:
+
+```bash
+php composer.phar --working-dir=app test
+php composer.phar --working-dir=builder test
+```
+
 <img src="docs/images/escripta_01.webp" alt="Escripta" style="width:50%; max-width:400px"/>
  
  <table>

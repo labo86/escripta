@@ -1,0 +1,26 @@
+os_id: drift-os
+os_version: 0.1.0
+install_layer_version: 0.1.0
+installed_profile: code-repo
+profile_selection_note: using the single `code-repo` profile because the repository keeps its implementation context, task flow, and validation trail in repository files
+composition_mode: profile-plus-extensions
+installed_at: 2026-04-24 18:43:44 -0400
+source_repo: drift-os
+manifest_path: .drift-os/install.yaml
+managed_files:
+  - AGENTS.md
+  - .drift-os/install.yaml
+  - .drift-os/managed/entrypoint.md
+  - .drift-os/managed/workflow.md
+  - .drift-os/managed/current-focus.md
+  - .drift-os/managed/task-spec.md
+  - .drift-os/managed/drift-os-feedback.md
+  - .drift-os/managed/repository-linking.md
+  - .drift-os/managed/task-linking.md
+  - .drift-os/managed/operational-processes.md
+  - .drift-os/managed/extensions/php-composer.md
+support_artifacts: []
+active_extensions:
+  - php-composer
+local_overrides: []
+notes: refreshed governed drift-os installation for `escripta` from the current code-repo profile and php-composer extension source bundle

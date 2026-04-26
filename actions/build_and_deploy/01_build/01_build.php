@@ -46,6 +46,7 @@ $releasePharFilename = requireEnv('ESCRIPTA_RELEASE_PHAR_FILENAME');
 $releaseSha256Filename = requireEnv('ESCRIPTA_RELEASE_SHA256_FILENAME');
 $githubRepository = getenv('ESCRIPTA_RELEASE_GITHUB_REPOSITORY') ?: '';
 $releaseManifestFilename = 'release.json';
+$releaseAgentGuideFilename = 'ESCRIPTA_AGENTS.md';
 $releaseCommit = gitOutput($repositoryDir, ['rev-parse', 'HEAD']);
 $releaseTag = gitOutput($repositoryDir, ['describe', '--tags', '--exact-match', 'HEAD']);
 $releaseVersion = $releaseTag;
@@ -57,6 +58,7 @@ if (!is_dir($build_dir) && !mkdir($build_dir, 0775, true) && !is_dir($build_dir)
 $pharPath = $build_dir . '/' . $releasePharFilename;
 $checksumPath = $build_dir . '/' . $releaseSha256Filename;
 $manifestPath = $build_dir . '/' . $releaseManifestFilename;
+$agentGuidePath = $build_dir . '/' . $releaseAgentGuideFilename;
 
 PharBuilder::build($pharPath, $releaseVersion, [
     'base_url' => $releaseBaseUrl,
@@ -74,6 +76,18 @@ if (file_put_contents($checksumPath, $checksum . PHP_EOL) === false) {
     die("No se pudo escribir el checksum del phar");
 }
 
+$agentGuideSource = file_get_contents($repositoryDir . '/ESCRIPTA_AGENTS.md');
+if ($agentGuideSource === false) {
+    die("No se pudo leer la guia de agentes para el release");
+}
+
+$agentGuideAsset = "<!-- Escripta release version: {$releaseVersion} -->\n\n"
+    . rtrim($agentGuideSource, "\r\n") . "\n";
+
+if (file_put_contents($agentGuidePath, $agentGuideAsset) === false) {
+    die("No se pudo copiar la guia de agentes para el release");
+}
+
 $normalizedBaseUrl = rtrim($releaseBaseUrl, '/');
 $manifest = [
     'version' => $releaseVersion,
@@ -83,9 +97,11 @@ $manifest = [
     'base_url' => $releaseBaseUrl,
     'phar_filename' => $releasePharFilename,
     'sha256_filename' => $releaseSha256Filename,
+    'agent_guide_filename' => $releaseAgentGuideFilename,
     'github_repository' => $githubRepository,
     'phar_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . ltrim($releasePharFilename, '/'),
     'sha256_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . ltrim($releaseSha256Filename, '/'),
+    'agent_guide_url' => $normalizedBaseUrl === '' ? '' : $normalizedBaseUrl . '/' . $releaseAgentGuideFilename,
     'sha256' => $checksum,
 ];
 

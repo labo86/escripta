@@ -399,6 +399,8 @@ Eso sirve para organizar archivos sin contaminar el nombre final de las claves.
 
 ## Variables extra que siempre genera Escripta
 
+Además de generar `escripta_env.sh`, Escripta también escribe `escripta_env_vars.md`, un manifiesto legible y commiteable con la lista de variables disponibles sin exponer valores.
+
 Además de las variables de config, `escripta_env.sh` exporta:
 
 - `ESCRIPTA_CURRENT_DIR`: directorio donde está `escripta_env.sh`
@@ -423,6 +425,8 @@ source ./escripta_env.sh
 
 ssh -i "$ESCRIPTA_SERVER_APP_PRIVATE_KEY_FILENAME" user@host
 ```
+
+Para agentes o revisión rápida, consulta `escripta_env_vars.md` antes de inspeccionar el shell generado.
 
 ## Guía práctica para construir scripts
 
