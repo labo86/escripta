@@ -23,6 +23,22 @@ Actualización de una instalación existente:
 php .escripta/bin/escripta.phar -U
 ```
 
+Ayuda y opciones de línea de comando:
+
+```bash
+php .escripta/bin/escripta.phar --help
+```
+
+Si ejecutas Escripta sin argumentos, también muestra esta ayuda por defecto.
+
+Opciones disponibles:
+
+- `--version`: muestra versión y fecha de compilación.
+- `-U`, `--self-update`: actualiza el archivo `escripta.phar` actual desde el release publicado.
+- `--install-agent-guide`: instala `ESCRIPTA_AGENTS.md` y `AGENTS_HINT.md` en `.escripta/`.
+- `--install-agent-guide=DIR`: instala la guía en un directorio destino explícito.
+- `-h`, `--help`: muestra la ayuda de CLI.
+
 Metadata de release publicada para instalación y self-update:
 
 - `https://github.com/labo86/escripta/releases/latest/download/release.json`
