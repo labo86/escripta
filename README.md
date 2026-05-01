@@ -47,12 +47,14 @@ Metadata de release publicada para instalación y self-update:
 Publicación de un nuevo release:
 
 ```bash
-bash actions/build_and_deploy/03_release.sh 4.1.2
+bash actions/build_and_deploy/00_release.sh patch
 ```
 
-Ese comando crea y pushea el tag. GitHub Actions construye, testea y publica
-los assets usando `GITHUB_TOKEN`; los valores públicos del release viven en
-`actions/build_and_deploy/release_config.sh`.
+Ese comando calcula el proximo tag semver desde el ultimo release local o
+remoto, crea y pushea el tag. Tambien puedes pasar un tag explicito, por
+ejemplo `bash actions/build_and_deploy/00_release.sh 4.1.2`. GitHub Actions
+construye, testea y publica los assets usando `GITHUB_TOKEN`; los valores
+publicos del release viven en `actions/build_and_deploy/release_config.sh`.
 
 Desarrollo local
 ---
