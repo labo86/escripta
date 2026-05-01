@@ -1,0 +1,40 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - '*'
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: Tag to publish
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event_name == 'workflow_dispatch' && format('refs/tags/{0}', inputs.tag) || github.ref }}
+
+      - name: Install PHP runtime
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y php-cli php-curl php-mbstring php-xml php-xdebug php-zip unzip
+          php -v
+
+      - name: Install PHP dependencies
+        run: bash actions/php_dependencies/01_bootstrap/01_install_local_composer_and_dependencies.sh
+
+      - name: Build, test and publish release
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: bash actions/build_and_deploy/03_publish_release.sh

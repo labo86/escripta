@@ -14,6 +14,25 @@ require_env() {
     printf '%s\n' "$value"
 }
 
+github_token() {
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        printf '%s\n' "$GITHUB_TOKEN"
+        return
+    fi
+
+    if [ -n "${ESCRIPTA_RELEASE_GITHUB_TOKEN:-}" ]; then
+        printf '%s\n' "$ESCRIPTA_RELEASE_GITHUB_TOKEN"
+        return
+    fi
+
+    if command -v gh >/dev/null 2>&1; then
+        gh auth token 2>/dev/null && return
+    fi
+
+    echo "Falta un token GitHub. Define GITHUB_TOKEN o autentica gh auth." >&2
+    exit 1
+}
+
 urlencode() {
     php -r 'echo rawurlencode($argv[1]);' "$1"
 }
@@ -46,7 +65,7 @@ upload_asset() {
 }
 
 CURRENT_DIR="$(require_env ESCRIPTA_CURRENT_DIR)"
-TOKEN="$(require_env ESCRIPTA_RELEASE_GITHUB_TOKEN)"
+TOKEN="$(github_token)"
 CONTEXT_PATH="$CURRENT_DIR/var/build/github_release.env"
 
 if [ ! -f "$CONTEXT_PATH" ]; then

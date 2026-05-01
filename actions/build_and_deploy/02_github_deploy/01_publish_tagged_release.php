@@ -13,6 +13,30 @@ function requireEnv(string $name): string
     return $value;
 }
 
+function requireGithubToken(): string
+{
+    $token = getenv('GITHUB_TOKEN');
+    if (is_string($token) && trim($token) !== '') {
+        return $token;
+    }
+
+    $token = getenv('ESCRIPTA_RELEASE_GITHUB_TOKEN');
+    if (is_string($token) && trim($token) !== '') {
+        return $token;
+    }
+
+    exec('gh auth token 2>/dev/null', $output, $exitCode);
+    if ($exitCode === 0) {
+        $token = trim(implode("\n", $output));
+        if ($token !== '') {
+            return $token;
+        }
+    }
+
+    fwrite(STDERR, "Falta un token GitHub. Define GITHUB_TOKEN o autentica gh auth.\n");
+    exit(1);
+}
+
 function parseGithubRepository(string $repository): array
 {
     if (preg_match('#^[^/]+/[^/]+$#', $repository) === 1) {
@@ -158,7 +182,7 @@ function uploadAsset(array $release, string $assetPath, string $token): void
     }
 }
 
-$token = requireEnv('ESCRIPTA_RELEASE_GITHUB_TOKEN');
+$token = requireGithubToken();
 $repository = requireEnv('ESCRIPTA_RELEASE_GITHUB_REPOSITORY');
 $currentDir = requireEnv('ESCRIPTA_CURRENT_DIR');
 $pharFilename = requireEnv('ESCRIPTA_RELEASE_PHAR_FILENAME');

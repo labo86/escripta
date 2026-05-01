@@ -3,4 +3,4 @@ composer.phar
 phpunit.phar
 .phpunit.cache
 vendor
-
+credentials/
