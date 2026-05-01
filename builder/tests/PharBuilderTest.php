@@ -118,6 +118,8 @@ class PharBuilderTest extends TestCase
             'sha256_url' => $baseUrl . '/escripta.phar.sha256',
         ], JSON_UNESCAPED_SLASHES));
 
+        $this->clearReleaseEnvironment();
+
         $beforeUpdate = $this->runPhpCommand([$this->pharFile, '--version']);
         $this->assertStringContainsString('Versión: v1.0.0', $beforeUpdate);
 
@@ -170,6 +172,20 @@ class PharBuilderTest extends TestCase
         $this->assertSame(0, $exitCode, implode("\n", $output));
 
         return implode("\n", $output);
+    }
+
+    private function clearReleaseEnvironment(): void
+    {
+        foreach ([
+            'ESCRIPTA_RELEASE_BASE_URL',
+            'ESCRIPTA_RELEASE_PHAR_FILENAME',
+            'ESCRIPTA_RELEASE_SHA256_FILENAME',
+            'ESCRIPTA_RELEASE_MANIFEST_URL',
+            'ESCRIPTA_SELF_UPDATE_URL',
+            'ESCRIPTA_SELF_UPDATE_SHA256_URL',
+        ] as $name) {
+            putenv($name);
+        }
     }
 
 
