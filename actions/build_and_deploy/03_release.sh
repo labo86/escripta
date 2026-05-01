@@ -12,19 +12,11 @@ Ejemplo:
 
 Requisitos:
   - Ejecutar desde cualquier ruta dentro del repo.
-  - Tener app/vendor y builder/vendor instalados.
-  - Tener acceso a OnePassword para escripta_github_release.
   - Tener permisos para pushear tags a origin.
+
+Este comando local solo crea y pushea el tag. GitHub Actions construye,
+testea y publica los assets del release.
 EOF
-}
-
-require_file() {
-    local path="$1"
-
-    if [ ! -f "$path" ]; then
-        echo "Falta [$path]. Ejecuta primero el bootstrap de dependencias si corresponde." >&2
-        exit 1
-    fi
 }
 
 require_clean_worktree() {
@@ -49,16 +41,8 @@ require_tag_available() {
     fi
 }
 
-cleanup_generated_config() {
-    rm -rf "$REPOSITORY_DIR/config.gen" \
-        "$REPOSITORY_DIR/escripta_env.sh" \
-        "$REPOSITORY_DIR/escripta_env_vars.md"
-}
-
 handle_error() {
     local exit_code="$?"
-
-    cleanup_generated_config
 
     if [ "$RELEASE_TAG_CREATED" = "1" ] && [ "$RELEASE_TAG_PUSHED" = "0" ]; then
         git tag -d "$RELEASE_TAG" >/dev/null 2>&1 || true
@@ -83,34 +67,14 @@ cd "$REPOSITORY_DIR"
 
 trap handle_error ERR
 
-require_file "app/vendor/bin/phpunit"
-require_file "builder/vendor/bin/phpunit"
 require_clean_worktree
 require_tag_available "$RELEASE_TAG"
 
 git tag "$RELEASE_TAG"
 RELEASE_TAG_CREATED=1
 
-php actions/build_and_deploy/config.php
-
-# shellcheck disable=SC1091
-source "$REPOSITORY_DIR/escripta_env.sh"
-
-php -d phar.readonly=0 actions/build_and_deploy/01_build/01_build.php
-bash actions/build_and_deploy/01_build/02_test_build.sh
-
-php app/vendor/bin/phpunit -c app/phpunit.xml.dist
-php -d phar.readonly=0 builder/vendor/bin/phpunit -c builder/phpunit.xml.dist
-
 git push origin "$RELEASE_TAG"
 RELEASE_TAG_PUSHED=1
 
-php actions/build_and_deploy/02_github_deploy/01_publish_tagged_release.php
-bash actions/build_and_deploy/02_github_deploy/02_upload_release_assets.sh
-
-curl -fsS -L "$ESCRIPTA_RELEASE_BASE_URL/release.json" >/dev/null
-curl -fsS -L "$ESCRIPTA_RELEASE_BASE_URL/ESCRIPTA_AGENTS.md" >/dev/null
-
-cleanup_generated_config
-
-echo "Release publicado y verificado: [$RELEASE_TAG]"
+echo "Tag publicado: [$RELEASE_TAG]"
+echo "GitHub Actions publicara el release desde ese tag."

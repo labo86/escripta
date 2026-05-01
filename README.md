@@ -50,6 +50,10 @@ Publicación de un nuevo release:
 bash actions/build_and_deploy/03_release.sh 4.1.2
 ```
 
+Ese comando crea y pushea el tag. GitHub Actions construye, testea y publica
+los assets usando `GITHUB_TOKEN`; los valores públicos del release viven en
+`actions/build_and_deploy/release_config.sh`.
+
 Desarrollo local
 ---
 
